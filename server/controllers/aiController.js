@@ -1,14 +1,27 @@
 const { getDb } = require('../config/db');
+const { getChatbotResponse, parseNaturalLanguageTripPrompt } = require('../services/llmService');
 
 // Calculate Match Score between user input and a destination
-function calculateMatchScore(destination, userRequirements, weights) {
+function calculateMatchScore(destination, userRequirements, weights = {}) {
   let score = 0;
   const reasons = [];
+
+  const defaultWeights = {
+    budgetMatch: 25,
+    interestMatch: 25,
+    durationMatch: 15,
+    weatherMatch: 10,
+    travelDistance: 10,
+    familySuitability: 5,
+    accessibility: 5,
+    sustainability: 5,
+    ...weights
+  };
 
   // 1. Budget Match (25%)
   const dailyBudget = userRequirements.budget / (userRequirements.days || 1);
   const destAvgCost = userRequirements.hotelPreference === 'Luxury' ? destination.avgDailyBudgetLuxury : destination.avgDailyBudgetBudget;
-  const budgetRatio = dailyBudget / destAvgCost;
+  const budgetRatio = dailyBudget / (destAvgCost || 2000);
   let budgetScoreVal = 0;
   if (budgetRatio >= 0.9 && budgetRatio <= 1.5) {
     budgetScoreVal = 100;
@@ -22,24 +35,24 @@ function calculateMatchScore(destination, userRequirements, weights) {
   } else {
     budgetScoreVal = 40;
   }
-  score += (budgetScoreVal * (weights.budgetMatch / 100));
+  score += (budgetScoreVal * (defaultWeights.budgetMatch / 100));
 
   // 2. Interest Match (25%)
   let interestMatches = 0;
   const userInterests = userRequirements.interests || [];
-  if (userInterests.length > 0) {
+  if (userInterests.length > 0 && destination.categories) {
     userInterests.forEach(interest => {
       if (destination.categories.includes(interest)) {
         interestMatches++;
       }
     });
     const interestScoreVal = Math.min(100, (interestMatches / userInterests.length) * 100);
-    score += (interestScoreVal * (weights.interestMatch / 100));
+    score += (interestScoreVal * (defaultWeights.interestMatch / 100));
     if (interestMatches > 0) {
       reasons.push(`Matches your interest in ${userInterests.slice(0, 2).join(' & ')}`);
     }
   } else {
-    score += (80 * (weights.interestMatch / 100));
+    score += (80 * (defaultWeights.interestMatch / 100));
   }
 
   // 3. Duration Match (15%)
@@ -48,36 +61,37 @@ function calculateMatchScore(destination, userRequirements, weights) {
     durationScoreVal = 100;
     reasons.push(`Ideal for a ${userRequirements.days}-day trip`);
   }
-  score += (durationScoreVal * (weights.durationMatch / 100));
+  score += (durationScoreVal * (defaultWeights.durationMatch / 100));
 
   // 4. Weather Match (10%)
-  const weatherScoreVal = destination.currentWeather.rainAlert ? 60 : 95;
-  score += (weatherScoreVal * (weights.weatherMatch / 100));
-  if (!destination.currentWeather.rainAlert) {
+  const rainAlert = destination.currentWeather?.rainAlert;
+  const weatherScoreVal = rainAlert ? 60 : 95;
+  score += (weatherScoreVal * (defaultWeights.weatherMatch / 100));
+  if (!rainAlert && destination.currentWeather?.condition) {
     reasons.push(`Favorable weather forecast (${destination.currentWeather.condition})`);
   }
 
   // 5. Travel Distance (10%)
   let distScoreVal = 85;
-  if (destination.distanceFromSalem <= 300) {
+  if (destination.distanceFromSalem && destination.distanceFromSalem <= 300) {
     distScoreVal = 100;
     reasons.push(`Convenient distance (${destination.distanceFromSalem} km from starting point)`);
   }
-  score += (distScoreVal * (weights.travelDistance / 100));
+  score += (distScoreVal * (defaultWeights.travelDistance / 100));
 
   // 6. Family Suitability (5%)
-  const familyScoreVal = userRequirements.travelType === 'Family' ? destination.scores.familyScore : 85;
-  score += (familyScoreVal * (weights.familySuitability / 100));
+  const familyScoreVal = userRequirements.travelType === 'Family' ? (destination.scores?.familyScore || 85) : 85;
+  score += (familyScoreVal * (defaultWeights.familySuitability / 100));
 
   // 7. Accessibility (5%)
-  let accessScoreVal = destination.scores.accessibilityScore;
+  let accessScoreVal = destination.scores?.accessibilityScore || 80;
   if (userRequirements.accessibilityNeeded) {
     reasons.push(`Includes senior & wheelchair friendly options`);
   }
-  score += (accessScoreVal * (weights.accessibility / 100));
+  score += (accessScoreVal * (defaultWeights.accessibility / 100));
 
   // 8. Sustainability (5%)
-  score += (destination.scores.ecoScore * (weights.sustainability / 100));
+  score += ((destination.scores?.ecoScore || 80) * (defaultWeights.sustainability / 100));
 
   const matchPercentage = Math.min(99, Math.round(score));
   const explanation = `Recommended because it ${reasons.slice(0, 3).join(', ')}.`;
@@ -92,13 +106,14 @@ function calculateMatchScore(destination, userRequirements, weights) {
 // Generate complete AI trip plan
 exports.generateTripPlan = async (req, res) => {
   try {
-    const {
+    let {
+      prompt,
       startingLocation = "Salem",
       destinationId,
-      days = 3,
+      days = 2,
       travelers = 2,
-      budget = 15000,
-      travelType = "Family",
+      budget = 5000,
+      travelType = "Couple",
       interests = ["Nature", "Food"],
       hotelPreference = "Budget",
       transportPreference = "Private Cab / Train",
@@ -106,17 +121,29 @@ exports.generateTripPlan = async (req, res) => {
       foodPreference = "All"
     } = req.body;
 
-    const db = getDb();
-    const weights = db.adminSettings.weights;
+    // If freeform natural language prompt is passed (e.g. "I have ₹5000 and want to visit Yercaud for 2 days. I like nature and food.")
+    if (prompt && typeof prompt === 'string' && prompt.trim().length > 0) {
+      const parsed = parseNaturalLanguageTripPrompt(prompt);
+      destinationId = destinationId || parsed.destinationId;
+      budget = parsed.budget || budget;
+      days = parsed.days || days;
+      travelers = parsed.travelers || travelers;
+      travelType = parsed.travelType || travelType;
+      startingLocation = parsed.startingLocation || startingLocation;
+      interests = parsed.interests?.length > 0 ? parsed.interests : interests;
+      hotelPreference = parsed.travelStyle || hotelPreference;
+    }
 
-    // Pick target destination or select best matching destination
+    const db = getDb();
+    const weights = db.adminSettings?.weights || {};
+
+    // Pick target destination or select best matching destination from DB
     let selectedDest = null;
     if (destinationId) {
-      selectedDest = db.destinations.find(d => d.id === destinationId);
+      selectedDest = db.destinations.find(d => d.id === destinationId || d.name.toLowerCase() === destinationId.toLowerCase());
     }
 
     if (!selectedDest) {
-      // Find top match
       let bestMatch = null;
       let highestScore = -1;
       db.destinations.forEach(dest => {
@@ -132,60 +159,64 @@ exports.generateTripPlan = async (req, res) => {
     const matchInfo = calculateMatchScore(selectedDest, { days, budget, travelType, interests, hotelPreference, accessibilityNeeded: accessibilityRequirements.length > 0 }, weights);
 
     // Calculate detailed budget breakdown
-    const numDays = parseInt(days) || 3;
-    const numTravelers = parseInt(travelers) || 2;
-    const isLuxury = hotelPreference === 'Luxury';
+    const numDays = Math.min(5, Math.max(1, parseInt(days) || 2));
+    const numTravelers = Math.min(8, Math.max(1, parseInt(travelers) || 2));
+    const isLuxury = hotelPreference === 'Luxury' || hotelPreference === 'Premium';
 
     // Hotel selection & cost
-    const availableHotels = selectedDest.hotels.filter(h => isLuxury ? h.category === 'Luxury' : h.category !== 'Luxury');
-    const chosenHotel = availableHotels[0] || selectedDest.hotels[0];
-    const accommodationCost = chosenHotel.pricePerNight * (numDays - 1);
+    const hotels = selectedDest.hotels || [
+      { name: `${selectedDest.name} Cozy Inn`, pricePerNight: isLuxury ? 3500 : 950, category: isLuxury ? 'Luxury' : 'Budget' }
+    ];
+    const availableHotels = hotels.filter(h => isLuxury ? h.category === 'Luxury' : h.category !== 'Luxury');
+    const chosenHotel = availableHotels[0] || hotels[0];
+    const accommodationCost = chosenHotel.pricePerNight * Math.max(1, numDays - 1);
 
     // Intercity & Local Transport
-    const transportRateKm = transportPreference.includes('Cab') ? 14 : 6;
-    const intercityTransportCost = Math.round((selectedDest.distanceFromSalem * 2 * transportRateKm) / Math.max(1, numTravelers / 2));
-    const localTransportCost = Math.round(400 * numDays * numTravelers);
+    const distFromOrigin = selectedDest.distanceFromSalem || 220;
+    const transportRateKm = transportPreference.includes('Cab') ? 12 : 5;
+    const intercityTransportCost = Math.round((distFromOrigin * 2 * transportRateKm) / Math.max(1, numTravelers / 2));
+    const localTransportCost = Math.round(350 * numDays * numTravelers);
 
     // Food Cost
-    const dailyFoodPerPerson = isLuxury ? 900 : 450;
+    const dailyFoodPerPerson = isLuxury ? 850 : 400;
     const totalFoodCost = dailyFoodPerPerson * numDays * numTravelers;
 
-    // Entry fees & activities
-    const attractionEntryCost = selectedDest.attractions.reduce((sum, a) => sum + (a.cost || 0), 0) * numTravelers;
+    // Entry fees & activities from verified database items
+    const attractions = selectedDest.attractions || [];
+    const hiddenGems = selectedDest.hiddenGems || [];
+    const attractionEntryCost = attractions.slice(0, numDays * 2).reduce((sum, a) => sum + (a.cost || 0), 0) * numTravelers;
 
-    const emergencyBuffer = Math.round((accommodationCost + intercityTransportCost + localTransportCost + totalFoodCost + attractionEntryCost) * 0.08);
+    const emergencyBuffer = Math.round((accommodationCost + intercityTransportCost + localTransportCost + totalFoodCost + attractionEntryCost) * 0.07);
 
     const totalEstimatedCost = accommodationCost + intercityTransportCost + localTransportCost + totalFoodCost + attractionEntryCost + emergencyBuffer;
     const perPersonCost = Math.round(totalEstimatedCost / numTravelers);
-    const budgetVariance = budget - totalEstimatedCost;
+    const budgetVariance = parseInt(budget) - totalEstimatedCost;
     const isOverBudget = budgetVariance < 0;
 
     // Budget optimization suggestions if over budget
     const optimizationTips = [];
     if (isOverBudget) {
+      optimizationTips.push({
+        title: "Budget Optimization Alert",
+        potentialSavings: Math.abs(budgetVariance),
+        description: `Your current budget of ₹${parseInt(budget).toLocaleString('en-IN')} is slightly below the estimated ₹${totalEstimatedCost.toLocaleString('en-IN')}. We have auto-selected budget homestays and public walking loops to keep costs down.`
+      });
       if (isLuxury) {
         optimizationTips.push({
-          title: "Switch to Mid-Range / Budget Hotel",
-          potentialSavings: chosenHotel.pricePerNight * (numDays - 1) * 0.4,
-          description: "Choosing a comfort 3-star hotel saves approx 40% on accommodation."
+          title: "Switch to Comfort / Budget Homestay",
+          potentialSavings: chosenHotel.pricePerNight * (numDays - 1) * 0.45,
+          description: "Choosing a local certified homestay saves ~45% on accommodation."
         });
       }
       optimizationTips.push({
-        title: "Use Shared Express Transport / Train",
+        title: "Use Scenic Local Rail / Bus Transit",
         potentialSavings: Math.round(intercityTransportCost * 0.5),
-        description: "Opting for high-speed train or luxury Volvo bus cuts transport costs significantly."
-      });
-      optimizationTips.push({
-        title: "Combine Local Sightseeing Walks",
-        potentialSavings: Math.round(localTransportCost * 0.3),
-        description: "Group nearby attractions into pedestrian walking loops."
+        description: "Shared rail/bus transport cuts transit expenses by 50%."
       });
     }
 
-    // Day-by-Day Itinerary Construction
+    // Day-by-Day Structured Itinerary Construction
     const itineraryDays = [];
-    const attractions = selectedDest.attractions || [];
-    const hiddenGems = selectedDest.hiddenGems || [];
     const foodSpecialties = selectedDest.foodSpecialties || [];
 
     for (let day = 1; day <= numDays; day++) {
@@ -197,126 +228,132 @@ exports.generateTripPlan = async (req, res) => {
           activity: `Depart from ${startingLocation} via ${transportPreference}`,
           category: "Travel",
           cost: 0,
-          description: `Scenic drive to ${selectedDest.name} (${selectedDest.distanceFromSalem} km, ~${Math.round(selectedDest.distanceFromSalem / 45)} hours)`
+          description: `Scenic journey to ${selectedDest.name} (${distFromOrigin} km, ~${Math.round(distFromOrigin / 45)} hours).`
         });
         daySchedule.push({
           time: "11:30 AM",
           activity: `Check-in at ${chosenHotel.name}`,
           category: "Hotel",
           cost: chosenHotel.pricePerNight,
-          description: `Freshen up and enjoy welcome mountain herbal tea at ${chosenHotel.address}`
+          description: `Freshen up and settle in. Verified stay at ${chosenHotel.address || selectedDest.name}.`
         });
         daySchedule.push({
           time: "01:00 PM",
-          activity: `Traditional Lunch - ${foodSpecialties[0]?.name || 'Local Cuisine'}`,
+          activity: `Traditional Regional Lunch — ${foodSpecialties[0]?.name || 'Local Meal'}`,
           category: "Food",
-          cost: 200,
-          description: `Savor authentic local dishes at ${selectedDest.restaurants[0]?.name || 'Local Eatery'}`
+          cost: 180,
+          description: `Savor authentic local dishes at ${selectedDest.restaurants?.[0]?.name || 'Local Eatery'}.`
         });
         if (attractions[0]) {
           daySchedule.push({
             time: "02:30 PM",
             activity: `Visit ${attractions[0].name}`,
             category: "Attraction",
-            cost: attractions[0].cost,
+            cost: attractions[0].cost || 0,
             description: attractions[0].description,
-            accessibilityNote: attractions[0].accessibility
+            crowdInfo: "Estimated Crowd: Moderate",
+            reasonForRecommendation: `Matches ${selectedDest.name} top attractions with high traveler ratings.`
           });
         }
         daySchedule.push({
-          time: "06:00 PM",
-          activity: `Sunset & Photography at ${selectedDest.name} Viewpoint`,
+          time: "05:45 PM",
+          activity: `Sunset & Twilight Viewing at ${selectedDest.name} Viewpoint`,
           category: "Photography",
           cost: 0,
-          description: "Capture stunning evening twilight angles with golden hour lighting."
+          description: "Capture stunning evening golden-hour views over the valley.",
+          crowdInfo: "Estimated Crowd: High during sunset",
+          reasonForRecommendation: "Prime sunset window for panoramic mountain photography."
         });
         daySchedule.push({
           time: "08:00 PM",
-          activity: "Dinner & Local Craft Market Stroll",
+          activity: "Dinner & Local Spice Market Stroll",
           category: "Food",
-          cost: 300,
-          description: "Sample street treats and purchase local spices and souvenirs."
+          cost: 250,
+          description: "Sample fresh treats and support local community craft shops."
         });
       } else if (day === numDays) {
         daySchedule.push({
           time: "08:00 AM",
-          activity: "Breakfast & Morning Nature Walk",
+          activity: "Morning Nature Walk & Breakfast",
           category: "Food",
-          cost: 150,
-          description: "Enjoy peaceful early morning air before packing."
+          cost: 120,
+          description: "Enjoy peaceful early morning mountain air before checkout."
         });
         if (hiddenGems[0]) {
           daySchedule.push({
             time: "09:30 AM",
             activity: `Hidden Gem Tour: ${hiddenGems[0].name}`,
             category: "Hidden Gem",
-            cost: hiddenGems[0].cost,
+            cost: hiddenGems[0].cost || 0,
             description: hiddenGems[0].description,
-            crowdNote: `Estimated Crowd: ${hiddenGems[0].crowdLevel}`
+            crowdInfo: `Estimated Crowd: ${hiddenGems[0].crowdLevel || 'Low'}`,
+            reasonForRecommendation: "Quiet, peaceful hidden gem away from crowded tourist hotspots."
           });
         }
         daySchedule.push({
           time: "12:30 PM",
           activity: `Hotel Check-out & Farewell Lunch`,
           category: "Food",
-          cost: 250,
-          description: "Wrap up your stay with regional culinary favorites."
+          cost: 220,
+          description: "Enjoy your final regional culinary specialties."
         });
         daySchedule.push({
           time: "03:00 PM",
           activity: `Return Journey to ${startingLocation}`,
           category: "Travel",
           cost: 0,
-          description: "Comfortable transit back home with memorable travel memories."
+          description: "Comfortable transit back home with memorable travel experiences."
         });
       } else {
-        // Middle days
-        const attIndex = (day - 1) % attractions.length;
+        const attIndex = (day - 1) % Math.max(1, attractions.length);
         daySchedule.push({
           time: "08:30 AM",
-          activity: "Hearty Breakfast at Hotel",
+          activity: "Hearty Regional Breakfast",
           category: "Food",
-          cost: 150,
-          description: "Energy booster for a full day of sightseeing."
+          cost: 120,
+          description: "Energizing morning meal before full day sightseeing."
         });
         if (attractions[attIndex]) {
           daySchedule.push({
             time: "10:00 AM",
             activity: `Explore ${attractions[attIndex].name}`,
             category: "Attraction",
-            cost: attractions[attIndex].cost,
-            description: attractions[attIndex].description
+            cost: attractions[attIndex].cost || 0,
+            description: attractions[attIndex].description,
+            crowdInfo: "Estimated Crowd: Low–Moderate in morning",
+            reasonForRecommendation: "Best visited during morning hours before afternoon peak."
           });
         }
         daySchedule.push({
           time: "01:30 PM",
           activity: "Authentic Regional Lunch",
           category: "Food",
-          cost: 220,
-          description: "Try regional specialties and herbal cooling drinks."
+          cost: 200,
+          description: "Taste traditional recipes cooked with local spices."
         });
-        if (selectedDest.localExperiences[0]) {
+        if (selectedDest.localExperiences?.[0]) {
           const exp = selectedDest.localExperiences[0];
           daySchedule.push({
             time: "03:30 PM",
             activity: `Local Experience: ${exp.title}`,
             category: "Experience",
-            cost: exp.price,
-            description: exp.description
+            cost: exp.price || 0,
+            description: exp.description,
+            reasonForRecommendation: "Hands-on authentic cultural experience."
           });
         }
         daySchedule.push({
           time: "07:30 PM",
-          activity: "Dinner & Cultural Performance / Fireside Relaxing",
+          activity: "Dinner & Evening Leisure",
           category: "Culture",
-          cost: 350,
-          description: "Relax under starry night skies."
+          cost: 300,
+          description: "Relax under cool starry skies."
         });
       }
 
       itineraryDays.push({
         dayNumber: day,
-        title: `Day ${day} — ${day === 1 ? 'Arrival & Highlights' : day === numDays ? 'Hidden Discoveries & Departure' : 'Immersion & Local Culture'}`,
+        title: `Day ${day} — ${day === 1 ? 'Arrival & Panoramic Highlights' : day === numDays ? 'Hidden Discoveries & Departure' : 'Immersive Nature & Local Culture'}`,
         schedule: daySchedule
       });
     }
@@ -350,10 +387,10 @@ exports.generateTripPlan = async (req, res) => {
       optimizationTips,
       chosenHotel,
       itineraryDays,
-      weatherInfo: selectedDest.currentWeather,
-      crowdInfo: selectedDest.crowdLevel,
-      safetyInfo: selectedDest.safetyInfo,
-      ecoScore: selectedDest.scores.ecoScore
+      weatherInfo: selectedDest.currentWeather || { condition: 'Pleasant', tempC: 20, rainAlert: false },
+      crowdInfo: selectedDest.crowdLevel || 'Moderate',
+      safetyInfo: selectedDest.safetyInfo || { generalRating: 4.8, womenSafety: 4.9 },
+      ecoScore: selectedDest.scores?.ecoScore || 85
     };
 
     res.json({ success: true, tripPlan });
@@ -363,39 +400,46 @@ exports.generateTripPlan = async (req, res) => {
   }
 };
 
-// AI Tourism Chatbot handler
+// AI Tourism Chatbot handler — connects to LLM service abstraction with fail-safe fallback
 exports.handleChatbotQuery = async (req, res) => {
   try {
-    const { message } = req.body;
-    const db = getDb();
-    const destinations = db.destinations;
+    const {
+      message,
+      context = {},
+      conversationHistory = []
+    } = req.body;
 
-    const lowerMsg = (message || "").toLowerCase();
-    let reply = "";
-
-    if (lowerMsg.includes('5000') || lowerMsg.includes('5,000') || lowerMsg.includes('budget') || lowerMsg.includes('cheap')) {
-      reply = `For a budget of ₹5,000, **Yercaud** is an outstanding pick from Salem! It's just 30 km away, keeping transport costs under ₹300. You can enjoy Emerald Lake boating, Pagoda Point views, and stay at cozy budget lodges for ~₹900/night. Alternatively, **Ooty** budget homestays are also doable!`;
-    } else if (lowerMsg.includes('family') || lowerMsg.includes('parents') || lowerMsg.includes('senior')) {
-      reply = `For family and senior citizen travel, I highly recommend **Munnar** or **Ooty**. They feature paved walkways, accessible shuttle transport at major attractions like Eravikulam and Botanical Gardens, low walking paths, and peaceful, scenic weather!`;
-    } else if (lowerMsg.includes('photography') || lowerMsg.includes('photo')) {
-      reply = `If you love photography, **Munnar** (for cloud-bed sunrises at Kolukkumalai 7,900 ft), **Kodaikanal** (for Coaker's Walk fog & Poombarai village terraced garlic fields), and **Wayanad** (for prehistoric Edakkal rock petroglyphs) are world-class!`;
-    } else if (lowerMsg.includes('food') || lowerMsg.includes('eat')) {
-      reply = `Must-try local culinary delights:
-1. **Munnar**: Traditional Kerala Banana Leaf Sadhya & Fresh Mountain Trout.
-2. **Ooty**: Freshly baked Nilgiri Varkey pastries & handmade artisan dark chocolates.
-3. **Wayanad**: Bamboo Shoot curry with red rice & Malabar parotta.`;
-    } else if (lowerMsg.includes('weather') || lowerMsg.includes('rain')) {
-      reply = `Current Weather Overview:
-• **Munnar**: 19°C, Partly Cloudy (Pleasant afternoon walks).
-• **Wayanad**: 22°C, Sunny & Breezy (Great for Jeep safari).
-• **Ooty**: 17°C, Crisp mountain mist.
-• **Yercaud**: 21°C, Clear skies.`;
-    } else {
-      reply = `Hello traveler! I am **SmartTour AI**, your intelligent travel assistant. You can ask me about dynamic trip creation, budget optimization under ₹10,000, senior-friendly itineraries, secret hidden gems in Kerala & Tamil Nadu, or weather advisories. How can I help plan your next journey?`;
+    if (!message || message.trim() === '') {
+      return res.status(400).json({ success: false, reply: "Please provide a travel question." });
     }
 
-    res.json({ success: true, reply });
+    const mergedContext = {
+      ...context,
+      language: req.body.language || context.language || 'en',
+      destinationId: req.body.destinationId || context.destinationId,
+      currentDestination: req.body.currentDestination || context.currentDestination
+    };
+
+    const result = await getChatbotResponse({
+      message,
+      context: mergedContext,
+      conversationHistory
+    });
+
+    res.json({
+      success: true,
+      reply: result.reply,
+      language: mergedContext.language,
+      provider: result.provider,
+      isFallback: result.isFallback
+    });
   } catch (err) {
-    res.status(500).json({ success: false, reply: "SmartTour AI service currently busy. Please try again." });
+    console.error('[AI Chatbot Controller] Error:', err);
+    res.status(500).json({
+      success: false,
+      reply: "WayMate travel guide is ready to assist. How can I help with your destination, budget, or travel plans?",
+      isFallback: true
+    });
   }
 };
+

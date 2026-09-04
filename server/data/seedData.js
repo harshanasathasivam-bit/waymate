@@ -1,6 +1,96 @@
 // Pre-seeded database for SmartTour platform
 const seedDestinations = [
   {
+    id: "chennai",
+    name: "Chennai",
+    state: "Tamil Nadu",
+    region: "South India",
+    tagline: "Coastal heritage, ancient Dravidian temples & vibrant culinary streets",
+    description: "Chennai is a major cultural and economic hub situated along the Coromandel Coast of Tamil Nadu. Renowned for Marina Beach, centuries-old Kapaleeshwarar temple, vibrant Carnatic music season, and rich South Indian culinary heritage.",
+    heroImage: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=1200&q=80"
+    ],
+    coordinates: { lat: 13.0499, lng: 80.2824 },
+    distanceFromSalem: 340,
+    distanceFromBangalore: 350,
+    distanceFromChennai: 0,
+    distanceFromKochi: 680,
+    avgDailyBudgetBudget: 2200,
+    avgDailyBudgetLuxury: 8000,
+    bestSeason: "October to March",
+    peakSeason: "December to February",
+    offSeason: "May to July (Summer)",
+    climate: "Tropical Coastal Climate (26°C - 34°C)",
+    categories: ["Heritage", "Culture", "Coastal", "Food & Dining", "Family", "Shopping"],
+    scores: {
+      budgetScore: 90,
+      natureScore: 78,
+      cultureScore: 98,
+      adventureScore: 65,
+      familyScore: 95,
+      accessibilityScore: 98,
+      ecoScore: 82
+    },
+    currentWeather: {
+      temp: "32°C",
+      condition: "Warm Coastal Breeze",
+      rainProbability: "10%",
+      humidity: "72%",
+      forecast: "Warm coastal day with pleasant evening sea breeze. Perfect for evening beach walks.",
+      rainAlert: false,
+      indoorAlternative: "Visit Government Museum Bronze Gallery or DakshinaChitra."
+    },
+    crowdLevel: {
+      status: "Moderate",
+      badgeColor: "🟡",
+      peakHours: "05:00 PM - 08:30 PM",
+      bestVisitingTime: "06:30 AM - 09:30 AM",
+      quietAlternative: "Broken Bridge & Adyar Estuary Sunset"
+    },
+    safetyInfo: {
+      overall: "Very safe cosmopolitan destination. 24/7 tourist police on major beaches.",
+      policeContact: "+91 44 2844 8000 / 112 (Marina Tourist Police)",
+      hospitalContact: "+91 44 2829 0200 (Apollo Main Hospital)",
+      touristHelpdesk: "1800-4253-1111",
+      safeTips: ["Stay hydrated with fresh tender coconuts.", "Observe modest attire inside ancient temples.", "Prefer metered autos or rideshare apps."]
+    },
+    attractions: [
+      {
+        id: "chn-1",
+        name: "Marina Beach & Lighthouse",
+        category: "Coastal Landmark",
+        rating: 4.7,
+        reviewsCount: 3840,
+        distance: "2.4 km away",
+        estimatedCost: "Free Entry (₹50 for Lighthouse)",
+        shortDesc: "World's second-longest urban beach. Perfect for cool evening sea breeze, fresh roasted corn, and panoramic coastal views from the vintage lighthouse.",
+        bestTime: "Best for sunset (05:00 PM - 07:30 PM)",
+        photo: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80",
+        lat: 13.0499,
+        lng: 80.2824,
+        tags: ["Sunset", "Beach Walk", "Street Snacks"]
+      },
+      {
+        id: "chn-2",
+        name: "Kapaleeshwarar Temple, Mylapore",
+        category: "Ancient Dravidian Heritage",
+        rating: 4.9,
+        reviewsCount: 2950,
+        distance: "3.8 km away",
+        estimatedCost: "Free Entry",
+        shortDesc: "7th-century architectural marvel dedicated to Lord Shiva, featuring an intricately carved 37-meter rainbow Gopuram and traditional sacred temple tank.",
+        bestTime: "06:00 AM - 08:30 AM & 05:30 PM - 08:00 PM",
+        photo: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=800&q=80",
+        lat: 13.0336,
+        lng: 80.2698,
+        tags: ["Temple", "Dravidian Architecture", "Sacred Tank"]
+      }
+    ]
+  },
+  {
     id: "munnar",
     name: "Munnar",
     state: "Kerala",

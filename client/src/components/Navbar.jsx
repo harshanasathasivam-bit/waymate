@@ -1,171 +1,309 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Compass, Sparkles, Map, Shield, Heart, User, Menu, X, Bell, LayoutDashboard, Layers, Bookmark } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { useLanguage } from '../i18n/LanguageContext';
+import {
+  Compass, Map, Bookmark, Radio, Home as HomeIcon,
+  User, Shield, ChevronDown, MapPin, Globe
+} from 'lucide-react';
 
-export default function Navbar({ user, onLogout, onOpenSOS }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const navigate = useNavigate();
+import { useAuth } from '../context/AuthContext';
+
+export default function Navbar({
+  destinations = [],
+  currentDestination,
+  onSelectDestination,
+  onOpenSOS,
+  savedCount = 0
+}) {
+  const location = useLocation();
+  const { currentLang, setLanguage, t, currentLangMeta, supportedLangs } = useLanguage();
+  const { user, isAuthenticated } = useAuth();
+  const [destDropdownOpen, setDestDropdownOpen] = useState(false);
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+
+  const isActive = (path) => location.pathname === path;
 
   return (
-    <nav style={{
-      position: 'sticky',
-      top: 0,
-      zIndex: 1000,
-      background: 'rgba(15, 23, 42, 0.85)',
-      backdropFilter: 'blur(16px)',
-      borderBottom: '1px solid rgba(255,255,255,0.1)',
-      padding: '14px 24px'
-    }}>
-      <div style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
-        {/* Brand Logo */}
-        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #10b981 0%, #0d9488 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)'
-          }}>
-            <Sparkles size={22} color="#ffffff" />
-          </div>
-          <div>
-            <span style={{ fontSize: '1.4rem', fontWeight: 800, fontFamily: 'Outfit, sans-serif' }} className="gradient-text">
-              SmartTour
-            </span>
-            <span style={{ fontSize: '0.65rem', display: 'block', color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '-4px' }}>
-              AI Personal Tourism
-            </span>
-          </div>
-        </Link>
+    <header className="app-navbar">
+      <div className="nav-container">
+        
+        {/* Brand & Quick Destination Picker */}
+        <div className="nav-brand-group">
+          <Link to="/" className="nav-brand">
+            <div className="nav-brand-icon">
+              <Compass size={20} />
+            </div>
+            <span className="nav-brand-title">{t('nav.brand', 'WAYMATE')}</span>
+          </Link>
 
-        {/* Desktop Nav Links */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }} className="desktop-menu">
-          <Link to="/destinations" style={linkStyle}>
-            <Compass size={18} /> Destinations
-          </Link>
-          <Link to="/planner" style={linkStyleHighlight}>
-            <Sparkles size={18} /> AI Trip Planner
-          </Link>
-          <Link to="/hidden-gems" style={linkStyle}>
-            <Map size={18} /> Hidden Gems
-          </Link>
-          <Link to="/compare" style={linkStyle}>
-            <Layers size={18} /> Compare
-          </Link>
-          <Link to="/experiences" style={linkStyle}>
-            <Heart size={18} /> Experiences
-          </Link>
-          <Link to="/safety" style={linkStyle}>
-            <Shield size={18} /> Safety & SOS
-          </Link>
-          {user?.role === 'admin' && (
-            <Link to="/admin" style={{ ...linkStyle, color: '#fbbf24' }}>
-              <LayoutDashboard size={18} /> Admin
-            </Link>
-          )}
+          {/* Quick Destination Switcher */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setDestDropdownOpen(!destDropdownOpen)}
+              style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-light)',
+                borderRadius: 'var(--radius-full)',
+                padding: '5px 12px',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <MapPin size={13} color="var(--brand-terracotta)" />
+              <span>{currentDestination?.name}</span>
+              <ChevronDown size={13} color="var(--text-muted)" />
+            </button>
+
+            {destDropdownOpen && (
+              <div style={{
+                position: 'absolute',
+                top: '40px',
+                left: 0,
+                width: '240px',
+                background: '#ffffff',
+                border: '1px solid var(--border-light)',
+                borderRadius: 'var(--radius-md)',
+                padding: '8px',
+                boxShadow: 'var(--shadow-floating)',
+                zIndex: 2000,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px'
+              }}>
+                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', padding: '6px 10px' }}>
+                  {t('nav.selectDest', 'Select Destination')}
+                </span>
+                {destinations.map(d => (
+                  <button
+                    key={d.id}
+                    onClick={() => {
+                      onSelectDestination(d);
+                      setDestDropdownOpen(false);
+                    }}
+                    style={{
+                      background: d.id === currentDestination?.id ? 'var(--bg-surface)' : 'transparent',
+                      border: 'none',
+                      borderRadius: '8px',
+                      padding: '8px 12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      color: d.id === currentDestination?.id ? 'var(--brand-terracotta)' : 'var(--text-primary)',
+                      cursor: 'pointer',
+                      fontSize: '0.86rem',
+                      fontWeight: 600,
+                      textAlign: 'left'
+                    }}
+                  >
+                    <span>{d.name}</span>
+                    <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>{d.currentWeather?.temp}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Right Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          {/* Emergency SOS Button */}
-          <button 
-            onClick={onOpenSOS}
-            className="badge badge-rose"
-            style={{ cursor: 'pointer', padding: '8px 14px', border: 'none' }}
+        {/* Clean Top Navigation */}
+        <nav className="nav-links">
+          <Link
+            to="/explore"
+            className={`nav-link-btn ${isActive('/explore') ? 'active' : ''}`}
           >
-            <Shield size={16} /> SOS
-          </button>
+            <Compass size={16} /> {t('nav.explore', 'Explore')}
+          </Link>
 
-          {/* Notification Bell */}
+          <Link
+            to="/trips"
+            className={`nav-link-btn ${isActive('/trips') || isActive('/trip-planner') ? 'active' : ''}`}
+          >
+            <Map size={16} /> {t('nav.trips', 'Trips')}
+          </Link>
+
+          <Link
+            to="/saved"
+            className={`nav-link-btn ${isActive('/saved') ? 'active' : ''}`}
+          >
+            <Bookmark size={16} /> {t('nav.saved', 'Saved')} {savedCount > 0 && `(${savedCount})`}
+          </Link>
+
+          <Link
+            to="/nearby"
+            className={`nav-link-btn ${isActive('/nearby') ? 'active' : ''}`}
+          >
+            <Radio size={16} /> {t('nav.nearby', 'Nearby')}
+          </Link>
+
+          <Link
+            to="/stays"
+            className={`nav-link-btn ${isActive('/stays') ? 'active' : ''}`}
+          >
+            <HomeIcon size={16} /> {t('nav.stays', 'Stays')}
+          </Link>
+
+          <Link
+            to="/profile"
+            className={`nav-link-btn ${isActive('/profile') ? 'active' : ''}`}
+          >
+            <User size={16} /> {t('nav.profile', 'Profile')}
+          </Link>
+        </nav>
+
+        {/* Right Action Area: Global Language Selector + Emergency SOS */}
+        <div className="nav-actions-group">
+          
+          {/* Global Website Language Selector */}
           <div style={{ position: 'relative' }}>
-            <button 
-              onClick={() => setNotificationsOpen(!notificationsOpen)}
-              style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '6px' }}
+            <button
+              onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+              style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-light)',
+                borderRadius: 'var(--radius-full)',
+                padding: '5px 12px',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                whiteSpace: 'nowrap'
+              }}
+              title="Change Website Language"
             >
-              <Bell size={20} />
-              <span style={{
-                position: 'absolute',
-                top: 0,
-                right: 0,
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                background: '#10b981'
-              }} />
+              <Globe size={14} color="var(--brand-terracotta)" />
+              <span>{currentLangMeta.native}</span>
+              <ChevronDown size={12} color="var(--text-muted)" />
             </button>
-            {notificationsOpen && (
-              <div className="glass-panel" style={{
+
+            {langDropdownOpen && (
+              <div style={{
                 position: 'absolute',
+                top: '36px',
                 right: 0,
-                top: '40px',
-                width: '280px',
-                padding: '16px',
-                zIndex: 100
+                width: '160px',
+                background: '#ffffff',
+                border: '1px solid var(--border-light)',
+                borderRadius: 'var(--radius-md)',
+                boxShadow: 'var(--shadow-floating)',
+                zIndex: 2100,
+                display: 'flex',
+                flexDirection: 'column',
+                padding: '5px',
+                gap: '2px'
               }}>
-                <h4 style={{ fontSize: '0.9rem', marginBottom: '8px', color: '#f8fafc' }}>Notifications</h4>
-                <div style={{ fontSize: '0.8rem', color: '#94a3b8', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                  🌤️ <strong>Munnar Weather Alert:</strong> Mild evening mist expected. Great for tea garden walks.
-                </div>
-                <div style={{ fontSize: '0.8rem', color: '#94a3b8', padding: '8px 0' }}>
-                  💡 <strong>Budget Tip:</strong> Save 15% on Ooty trips by booking local toy train early.
-                </div>
+                <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', padding: '4px 8px' }}>
+                  Select Language
+                </span>
+                {supportedLangs.map(l => (
+                  <button
+                    key={l.code}
+                    onClick={() => {
+                      setLanguage(l.code);
+                      setLangDropdownOpen(false);
+                    }}
+                    style={{
+                      background: l.code === currentLang ? 'var(--bg-surface)' : 'transparent',
+                      border: 'none',
+                      padding: '7px 9px',
+                      fontSize: '0.82rem',
+                      fontWeight: l.code === currentLang ? 800 : 500,
+                      color: l.code === currentLang ? 'var(--brand-terracotta)' : 'var(--text-primary)',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      borderRadius: '6px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <span>{l.native}</span>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{l.name}</span>
+                  </button>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Dashboard / User Profile */}
-          {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Link to="/dashboard" className="btn-secondary" style={{ padding: '8px 14px', fontSize: '0.85rem' }}>
-                <User size={16} /> {user.name.split(' ')[0]}
-              </Link>
-              <button onClick={onLogout} style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.8rem' }}>
-                Logout
-              </button>
-            </div>
+          {/* User Auth Link */}
+          {isAuthenticated && user ? (
+            <Link
+              to="/profile"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-light)',
+                borderRadius: 'var(--radius-full)',
+                padding: '3px 10px 3px 4px',
+                textDecoration: 'none',
+                color: 'var(--text-primary)',
+                fontSize: '0.78rem',
+                fontWeight: 700
+              }}
+              title="My Account"
+            >
+              <img
+                src={user.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80"}
+                alt={user.name}
+                style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover' }}
+              />
+              <span>{user.name?.split(' ')[0]}</span>
+            </Link>
           ) : (
-            <Link to="/auth" className="btn-primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
-              Sign In
+            <Link
+              to="/auth"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-light)',
+                borderRadius: 'var(--radius-full)',
+                padding: '5px 12px',
+                textDecoration: 'none',
+                color: 'var(--text-primary)',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <User size={13} color="var(--brand-terracotta)" />
+              <span>{t('auth.signIn', 'Sign In')}</span>
             </Link>
           )}
 
-          {/* Mobile Menu Toggle */}
-          <button 
-            onClick={() => setMenuOpen(!menuOpen)}
-            style={{ background: 'transparent', border: 'none', color: '#ffffff', cursor: 'pointer', display: 'none' }}
-            className="mobile-toggle"
+          {/* SOS Trigger */}
+          <button
+            onClick={onOpenSOS}
+            style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.25)',
+              color: '#dc2626',
+              borderRadius: 'var(--radius-full)',
+              padding: '5px 12px',
+              fontSize: '0.76rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              whiteSpace: 'nowrap'
+            }}
           >
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            <Shield size={13} /> {t('nav.safety', 'Safety & SOS')}
           </button>
         </div>
+
       </div>
-    </nav>
+    </header>
   );
 }
-
-const linkStyle = {
-  color: '#cbd5e1',
-  textDecoration: 'none',
-  fontSize: '0.9rem',
-  fontWeight: 500,
-  display: 'flex',
-  alignItems: 'center',
-  gap: '6px',
-  transition: 'color 0.2s ease'
-};
-
-const linkStyleHighlight = {
-  ...linkStyle,
-  color: '#34d399',
-  fontWeight: 600
-};

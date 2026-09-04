@@ -51,13 +51,20 @@ let db = {
   }
 };
 
-// Auto-persist to JSON file if available
 function loadStore() {
   try {
     if (fs.existsSync(DB_FILE)) {
       const raw = fs.readFileSync(DB_FILE, 'utf8');
       const loaded = JSON.parse(raw);
       db = { ...db, ...loaded };
+      
+      // Ensure any newly added seed destinations are present
+      seedDestinations.forEach(sd => {
+        if (!db.destinations.some(d => d.id === sd.id)) {
+          db.destinations.unshift(sd);
+        }
+      });
+      
       console.log('⚡ Loaded persistent data store from store.json');
     } else {
       saveStore();
