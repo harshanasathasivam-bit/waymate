@@ -9,9 +9,11 @@ import {
 import { INITIAL_COMPANIONS } from '../data/travelDatabase';
 import { useLanguage } from '../i18n/LanguageContext';
 import { getCrowdStatus } from '../services/crowdService';
+import DestinationPickerModal from '../components/DestinationPickerModal';
 
 export default function Home({
   destination,
+  destinations = [],
   onSelectDestination,
   onSavePlace,
   isSaved,
@@ -20,6 +22,7 @@ export default function Home({
 }) {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const [destModalOpen, setDestModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Attractions');
 
@@ -185,14 +188,39 @@ export default function Home({
       <section className="hero-editorial" style={{ backgroundImage: `linear-gradient(180deg, rgba(24, 24, 27, 0.45) 0%, rgba(24, 24, 27, 0.88) 100%), url("${destination?.heroImage}")` }}>
         <div style={{ maxWidth: '1360px', margin: '0 auto', width: '100%', position: 'relative', zIndex: 2 }}>
           
-          {/* Greeting Pill */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255, 255, 255, 0.25)', borderRadius: 'var(--radius-full)', padding: '6px 14px', marginBottom: '16px' }}>
-            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#ffffff' }}>
-              {t('home.goodEvening', 'Good evening 👋')}
-            </span>
-            <span style={{ fontSize: '0.74rem', color: 'var(--brand-sand)', borderLeft: '1px solid rgba(255,255,255,0.3)', paddingLeft: '8px' }}>
-              {destination?.currentWeather?.condition} • {destination?.currentWeather?.temp}
-            </span>
+          {/* Greeting Pill & Destination Selector */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '16px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255, 255, 255, 0.25)', borderRadius: 'var(--radius-full)', padding: '6px 14px' }}>
+              <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#ffffff' }}>
+                {t('home.goodEvening', 'Good evening 👋')}
+              </span>
+              <span style={{ fontSize: '0.74rem', color: 'var(--brand-sand)', borderLeft: '1px solid rgba(255,255,255,0.3)', paddingLeft: '8px' }}>
+                {destination?.currentWeather?.condition} • {destination?.currentWeather?.temp}
+              </span>
+            </div>
+
+            <button
+              onClick={() => setDestModalOpen(true)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255, 255, 255, 0.35)',
+                borderRadius: 'var(--radius-full)',
+                padding: '6px 14px',
+                color: '#ffffff',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.15s'
+              }}
+              title="Select any destination in Tamil Nadu"
+            >
+              <MapPin size={13} color="var(--brand-sand)" />
+              <span>Change Place ({destination?.name})</span>
+            </button>
           </div>
 
           <h1 style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-display)', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '12px' }}>
@@ -707,6 +735,15 @@ export default function Home({
         </section>
 
       </div>
+
+      {/* Destination Picker Modal */}
+      <DestinationPickerModal
+        isOpen={destModalOpen}
+        onClose={() => setDestModalOpen(false)}
+        destinations={destinations}
+        currentDestination={destination}
+        onSelectDestination={onSelectDestination}
+      />
     </div>
   );
 }

@@ -23,11 +23,34 @@ import DestinationDetail from './pages/DestinationDetail';
 import { DESTINATIONS } from './data/travelDatabase';
 
 export default function App() {
-  const [destinations] = useState(DESTINATIONS);
-  const [currentDestination, setCurrentDestination] = useState(DESTINATIONS[0]);
+  const [destinations, setDestinations] = useState(DESTINATIONS);
+  const [currentDestination, setCurrentDestination] = useState(() => {
+    try {
+      const saved = localStorage.getItem('waymate_active_destination');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const match = DESTINATIONS.find(d => d.id === parsed.id || d.name.toLowerCase() === parsed.name?.toLowerCase());
+        return match || parsed;
+      }
+    } catch (e) {}
+    return DESTINATIONS[0];
+  });
   const [savedPlaces, setSavedPlaces] = useState([]);
   const [sosOpen, setSosOpen] = useState(false);
   const [activePlaceDetail, setActivePlaceDetail] = useState(null);
+
+  const handleSelectDestination = (dest) => {
+    setCurrentDestination(dest);
+    try {
+      localStorage.setItem('waymate_active_destination', JSON.stringify(dest));
+      setDestinations(prev => {
+        if (!prev.some(d => d.id === dest.id || d.name.toLowerCase() === dest.name.toLowerCase())) {
+          return [dest, ...prev];
+        }
+        return prev;
+      });
+    } catch (e) {}
+  };
 
   // Load saved places from localStorage
   useEffect(() => {
@@ -97,7 +120,7 @@ export default function App() {
           <Navbar
             destinations={destinations}
             currentDestination={currentDestination}
-            onSelectDestination={setCurrentDestination}
+            onSelectDestination={handleSelectDestination}
             onOpenSOS={() => setSosOpen(true)}
             savedCount={savedPlaces.length}
           />
@@ -110,7 +133,8 @@ export default function App() {
                 element={
                   <Home
                     destination={currentDestination}
-                    onSelectDestination={setCurrentDestination}
+                    destinations={destinations}
+                    onSelectDestination={handleSelectDestination}
                     onSavePlace={handleSavePlace}
                     isSaved={isSaved}
                     onOpenSOS={() => setSosOpen(true)}
@@ -124,6 +148,8 @@ export default function App() {
                 element={
                   <Explore
                     destination={currentDestination}
+                    destinations={destinations}
+                    onSelectDestination={handleSelectDestination}
                     onSavePlace={handleSavePlace}
                     isSaved={isSaved}
                     onOpenPlaceDetail={handleOpenPlaceDetail}

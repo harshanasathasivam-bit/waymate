@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
+import DestinationPickerModal from './DestinationPickerModal';
 
 export default function Navbar({
   destinations = [],
@@ -18,7 +19,7 @@ export default function Navbar({
   const location = useLocation();
   const { currentLang, setLanguage, t, currentLangMeta, supportedLangs } = useLanguage();
   const { user, isAuthenticated } = useAuth();
-  const [destDropdownOpen, setDestDropdownOpen] = useState(false);
+  const [destModalOpen, setDestModalOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;
@@ -36,77 +37,58 @@ export default function Navbar({
             <span className="nav-brand-title">{t('nav.brand', 'WAYMATE')}</span>
           </Link>
 
-          {/* Quick Destination Switcher */}
-          <div style={{ position: 'relative' }}>
+          {/* Quick Destination Switcher for Tamil Nadu */}
+          <div>
             <button
-              onClick={() => setDestDropdownOpen(!destDropdownOpen)}
+              onClick={() => setDestModalOpen(true)}
               style={{
                 background: 'var(--bg-surface)',
-                border: '1px solid var(--border-light)',
+                border: '1.5px solid var(--border-light)',
                 borderRadius: 'var(--radius-full)',
-                padding: '5px 12px',
-                fontSize: '0.78rem',
+                padding: '6px 14px',
+                fontSize: '0.8rem',
                 fontWeight: 700,
                 color: 'var(--text-primary)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '5px',
-                whiteSpace: 'nowrap'
+                gap: '6px',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease'
               }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--brand-terracotta)';
+                e.currentTarget.style.background = '#ffffff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border-light)';
+                e.currentTarget.style.background = 'var(--bg-surface)';
+              }}
+              title="Click to search and select places in Tamil Nadu"
             >
-              <MapPin size={13} color="var(--brand-terracotta)" />
-              <span>{currentDestination?.name}</span>
+              <MapPin size={14} color="var(--brand-terracotta)" />
+              <span>{currentDestination?.name || 'Chennai'}</span>
+              <span style={{
+                fontSize: '0.68rem',
+                color: 'var(--brand-terracotta)',
+                background: 'rgba(194, 65, 12, 0.08)',
+                padding: '1px 6px',
+                borderRadius: '4px',
+                fontWeight: 700
+              }}>
+                TN
+              </span>
               <ChevronDown size={13} color="var(--text-muted)" />
             </button>
 
-            {destDropdownOpen && (
-              <div style={{
-                position: 'absolute',
-                top: '40px',
-                left: 0,
-                width: '240px',
-                background: '#ffffff',
-                border: '1px solid var(--border-light)',
-                borderRadius: 'var(--radius-md)',
-                padding: '8px',
-                boxShadow: 'var(--shadow-floating)',
-                zIndex: 2000,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '4px'
-              }}>
-                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', padding: '6px 10px' }}>
-                  {t('nav.selectDest', 'Select Destination')}
-                </span>
-                {destinations.map(d => (
-                  <button
-                    key={d.id}
-                    onClick={() => {
-                      onSelectDestination(d);
-                      setDestDropdownOpen(false);
-                    }}
-                    style={{
-                      background: d.id === currentDestination?.id ? 'var(--bg-surface)' : 'transparent',
-                      border: 'none',
-                      borderRadius: '8px',
-                      padding: '8px 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      color: d.id === currentDestination?.id ? 'var(--brand-terracotta)' : 'var(--text-primary)',
-                      cursor: 'pointer',
-                      fontSize: '0.86rem',
-                      fontWeight: 600,
-                      textAlign: 'left'
-                    }}
-                  >
-                    <span>{d.name}</span>
-                    <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>{d.currentWeather?.temp}</span>
-                  </button>
-                ))}
-              </div>
-            )}
+            {/* Comprehensive Tamil Nadu Destination & District Picker Modal */}
+            <DestinationPickerModal
+              isOpen={destModalOpen}
+              onClose={() => setDestModalOpen(false)}
+              destinations={destinations}
+              currentDestination={currentDestination}
+              onSelectDestination={onSelectDestination}
+            />
           </div>
         </div>
 

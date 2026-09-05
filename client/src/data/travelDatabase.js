@@ -1,8 +1,6 @@
-// Comprehensive Travel Database for WayMate
-// Featuring Chennai, Munnar, Ooty, and Wayanad with unified data schema,
-// standardized categories, explicit subcategories, GPS coordinates, galleries & verified metadata.
+import { CURATED_TN_DESTINATIONS, TAMIL_NADU_DISTRICTS, createCustomTNDestination } from './tamilNaduDestinations';
 
-export const DESTINATIONS = [
+const RAW_BASE_DESTINATIONS = [
   // ==========================================
   // 1. CHENNAI (Tamil Nadu)
   // ==========================================
@@ -3258,6 +3256,15 @@ export const DESTINATIONS = [
     ]
   }
 ];
+
+// Merged destination catalog prioritizing Tamil Nadu destinations
+export const DESTINATIONS = [
+  ...RAW_BASE_DESTINATIONS.filter(d => d.state === 'Tamil Nadu'),
+  ...CURATED_TN_DESTINATIONS,
+  ...RAW_BASE_DESTINATIONS.filter(d => d.state !== 'Tamil Nadu')
+];
+
+export { TAMIL_NADU_DISTRICTS, createCustomTNDestination };
 
 // Travel Circle Companions
 export const INITIAL_COMPANIONS = [

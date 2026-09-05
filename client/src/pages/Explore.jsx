@@ -9,14 +9,18 @@ import {
   Search, Clock, DollarSign, ChevronRight,
   Map, List, X, Shield, Sparkles, Users, ArrowUpRight, Eye
 } from 'lucide-react';
+import DestinationPickerModal from '../components/DestinationPickerModal';
 
 export default function Explore({
   destination,
+  destinations = [],
+  onSelectDestination,
   onSavePlace,
   isSaved,
   onOpenPlaceDetail
 }) {
   const { t } = useLanguage();
+  const [destModalOpen, setDestModalOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   
   const initialSearch = searchParams.get('search') || '';
@@ -28,6 +32,14 @@ export default function Explore({
   const [activeSubcategory, setActiveSubcategory] = useState(initialSubcategory);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [showMap, setShowMap] = useState(false);
+
+  // Check if search query matches another Tamil Nadu destination
+  const matchingOtherDest = useMemo(() => {
+    if (!searchQuery || searchQuery.trim().length < 3) return null;
+    const q = searchQuery.toLowerCase().trim();
+    if (destination?.name?.toLowerCase().includes(q)) return null;
+    return destinations.find(d => d.id !== destination?.id && d.name.toLowerCase().includes(q));
+  }, [searchQuery, destination, destinations]);
 
   // Synchronize when URL search parameters change
   useEffect(() => {
@@ -256,9 +268,30 @@ export default function Explore({
                 </button>
               </div>
 
-              <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-display)', marginBottom: '12px' }}>
-                {destination?.name} Map Discovery
-              </h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                <h1 style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-display)', margin: 0 }}>
+                  {destination?.name} Map Discovery
+                </h1>
+                <button
+                  onClick={() => setDestModalOpen(true)}
+                  style={{
+                    background: 'rgba(194, 65, 12, 0.08)',
+                    border: '1px solid var(--brand-terracotta)',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '3px 10px',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    color: 'var(--brand-terracotta)',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                  title="Select another place in Tamil Nadu"
+                >
+                  <MapPin size={11} /> Change Place
+                </button>
+              </div>
 
               {/* Primary Category Filter Pills */}
               <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '6px' }}>
@@ -390,11 +423,34 @@ export default function Explore({
                   Category & Subcategory Intelligence
                 </span>
               </div>
-              <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-display)', letterSpacing: '-0.02em' }}>
-                Explore {destination?.name}
-              </h1>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                Showing <strong style={{ color: 'var(--text-primary)' }}>{filteredPlaces.length}</strong> {activeCategory !== 'all' ? t(CATEGORY_TABS.find(c => c.id === activeCategory)?.labelKey, CATEGORY_TABS.find(c => c.id === activeCategory)?.defaultLabel) : 'places'} in {destination?.name}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-display)', letterSpacing: '-0.02em', margin: 0 }}>
+                  Explore {destination?.name}
+                </h1>
+                <button
+                  onClick={() => setDestModalOpen(true)}
+                  style={{
+                    background: 'rgba(194, 65, 12, 0.08)',
+                    border: '1px solid var(--brand-terracotta)',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '4px 12px',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    color: 'var(--brand-terracotta)',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    transition: 'all 0.15s'
+                  }}
+                  title="Select any destination or district in Tamil Nadu"
+                >
+                  <MapPin size={13} />
+                  <span>Change Place</span>
+                </button>
+              </div>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
+                Showing <strong style={{ color: 'var(--text-primary)' }}>{filteredPlaces.length}</strong> {activeCategory !== 'all' ? t(CATEGORY_TABS.find(c => c.id === activeCategory)?.labelKey, CATEGORY_TABS.find(c => c.id === activeCategory)?.defaultLabel) : 'places'} in {destination?.name}, Tamil Nadu
               </p>
             </div>
 
@@ -440,6 +496,36 @@ export default function Explore({
               </button>
             </div>
           </div>
+
+          {/* Quick Switch destination suggestion if user types another Tamil Nadu city */}
+          {matchingOtherDest && (
+            <div
+              onClick={() => {
+                onSelectDestination && onSelectDestination(matchingOtherDest);
+                setSearchQuery('');
+              }}
+              style={{
+                background: 'linear-gradient(135deg, rgba(194, 65, 12, 0.08) 0%, rgba(249, 115, 22, 0.08) 100%)',
+                border: '1px solid var(--brand-terracotta)',
+                borderRadius: '12px',
+                padding: '10px 18px',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                cursor: 'pointer'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.86rem', color: 'var(--text-primary)', fontWeight: 600 }}>
+                <Compass size={16} color="var(--brand-terracotta)" />
+                <span>Looking for places in <strong>{matchingOtherDest.name}</strong>?</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', fontWeight: 700, color: 'var(--brand-terracotta)' }}>
+                <span>Switch to {matchingOtherDest.name}</span>
+                <ChevronRight size={14} />
+              </div>
+            </div>
+          )}
 
           {/* Primary Category Filter Bar */}
           <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '14px' }}>
@@ -662,6 +748,15 @@ export default function Explore({
 
         </div>
       )}
+
+      {/* Tamil Nadu Places Selector Modal */}
+      <DestinationPickerModal
+        isOpen={destModalOpen}
+        onClose={() => setDestModalOpen(false)}
+        destinations={destinations}
+        currentDestination={destination}
+        onSelectDestination={onSelectDestination}
+      />
 
     </div>
   );
