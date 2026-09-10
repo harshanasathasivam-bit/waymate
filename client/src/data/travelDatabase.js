@@ -1,4 +1,4 @@
-import { CURATED_TN_DESTINATIONS, TAMIL_NADU_DISTRICTS, createCustomTNDestination } from './tamilNaduDestinations';
+import { CURATED_TN_DESTINATIONS, TAMIL_NADU_DISTRICTS, createCustomTNDestination } from './tamilNaduDestinations.js';
 
 const RAW_BASE_DESTINATIONS = [
   // ==========================================

@@ -166,6 +166,7 @@ export default function App() {
                 element={
                   <Trips
                     destination={currentDestination}
+                    onOpenPlaceDetail={handleOpenPlaceDetail}
                   />
                 }
               />
@@ -175,6 +176,7 @@ export default function App() {
                 element={
                   <Trips
                     destination={currentDestination}
+                    onOpenPlaceDetail={handleOpenPlaceDetail}
                   />
                 }
               />
@@ -279,11 +281,13 @@ export default function App() {
 
           {/* Global Place Detail Modal System */}
           <PlaceDetailModal
+            isOpen={Boolean(activePlaceDetail)}
             place={activePlaceDetail}
             onClose={handleClosePlaceDetail}
             onSavePlace={handleSavePlace}
             isSaved={isSaved}
             onAddToTrip={handleAddToTrip}
+            destination={currentDestination}
             currentDestination={currentDestination}
           />
 

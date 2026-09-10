@@ -31,6 +31,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/destinations', destinationRoutes);
 app.use('/api/places', placeRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/trips', aiRoutes);
 app.use('/api/itineraries', itineraryRoutes);
 app.use('/api/enquiries', enquiryRoutes);
 app.use('/api/admin', adminRoutes);

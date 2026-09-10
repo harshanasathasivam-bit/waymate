@@ -1,807 +1,711 @@
 import React, { useState, useEffect } from 'react';
 import {
-  LayoutDashboard, Users, MapPin, Sparkles, Sliders, Plus, Trash2,
-  CheckCircle, Clock, DollarSign, RefreshCw, ShieldAlert, Check, X,
-  ExternalLink, Edit2, AlertTriangle, Eye, ShieldCheck, Globe
+  LayoutDashboard, Users, Star, MapPin, Calendar, DollarSign,
+  Cpu, TrendingUp, CheckCircle, ArrowUpRight, Sparkles, Pause, Play,
+  Check, ChevronRight, RefreshCw, ShieldCheck, Heart
 } from 'lucide-react';
-import {
-  syncPlaces, fetchReviewQueue, verifyPlaceAdmin,
-  fetchAdminReports, resolveAdminReport
-} from '../services/placesService';
 
 export default function Admin() {
-  const [analytics, setAnalytics] = useState(null);
-  const [enquiries, setEnquiries] = useState([]);
-  const [weights, setWeights] = useState({
-    budgetMatch: 25,
-    interestMatch: 25,
-    durationMatch: 15,
-    weatherMatch: 10,
-    travelDistance: 10,
-    familySuitability: 5,
-    accessibility: 5,
-    sustainability: 5
-  });
+  const [activeTab, setActiveTab] = useState('overview');
+  const [paused, setPaused] = useState(false);
+  const [toast, setToast] = useState('');
 
-  const [newDestName, setNewDestName] = useState('');
-  const [newDestState, setNewDestState] = useState('Tamil Nadu');
-  const [newDestBudget, setNewDestBudget] = useState(2000);
-  const [successMsg, setSuccessMsg] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-
-  // AI Tourism Discovery & Review States
-  const [reviewPlaces, setReviewPlaces] = useState([]);
-  const [reviewLoading, setReviewLoading] = useState(false);
-  const [userReports, setUserReports] = useState([]);
-  const [reportsLoading, setReportsLoading] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [syncSummary, setSyncSummary] = useState(null);
-  const [selectedSyncDest, setSelectedSyncDest] = useState('Chennai');
-  const [editingPlace, setEditingPlace] = useState(null);
-
-  useEffect(() => {
-    // 1. Fetch Analytics
-    fetch('http://localhost:5000/api/admin/analytics')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.analytics) {
-          setAnalytics(data.analytics);
-          if (data.analytics.weights) setWeights(data.analytics.weights);
-        }
-      })
-      .catch(err => console.error(err));
-
-    // 2. Fetch Enquiries
-    fetch('http://localhost:5000/api/enquiries')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) setEnquiries(data.enquiries);
-      })
-      .catch(err => console.error(err));
-
-    // 3. Load Review Queue & Reports
-    loadReviewQueue();
-    loadReports();
-  }, []);
-
-  const loadReviewQueue = async () => {
-    setReviewLoading(true);
-    try {
-      const data = await fetchReviewQueue();
-      if (data.success) {
-        setReviewPlaces(data.places || []);
-      }
-    } catch (err) {
-      console.warn('Review queue error:', err.message);
-    } finally {
-      setReviewLoading(false);
-    }
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 3000);
   };
 
-  const loadReports = async () => {
-    setReportsLoading(true);
-    try {
-      const data = await fetchAdminReports();
-      if (data.success) {
-        setUserReports(data.reports || []);
-      }
-    } catch (err) {
-      console.warn('Reports error:', err.message);
-    } finally {
-      setReportsLoading(false);
-    }
-  };
+  const navItems = [
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'users', label: 'Users', icon: Users },
+    { id: 'reviews', label: 'Reviews', icon: Star },
+    { id: 'places', label: 'Places', icon: MapPin },
+    { id: 'bookings', label: 'Bookings', icon: Calendar },
+    { id: 'revenue', label: 'Revenue', icon: DollarSign },
+    { id: 'system', label: 'System', icon: Cpu }
+  ];
 
-  // Trigger External Sync (OpenStreetMap & Wikimedia)
-  const handleTriggerSync = async () => {
-    setIsSyncing(true);
-    setSyncSummary(null);
-    setErrorMsg('');
+  // 7-Day Chart Coordinates for smooth SVG curve
+  // Mon: 1,420, Tue: 1,680, Wed: 1,540, Thu: 2,120, Fri: 2,480, Sat: 3,150, Sun: 2,890
+  const chartData = [
+    { day: 'Mon', value: 1420, x: 40, y: 150 },
+    { day: 'Tue', value: 1680, x: 120, y: 130 },
+    { day: 'Wed', value: 1540, x: 200, y: 140 },
+    { day: 'Thu', value: 2120, x: 280, y: 95 },
+    { day: 'Fri', value: 2480, x: 360, y: 70 },
+    { day: 'Sat', value: 3150, x: 440, y: 30 },
+    { day: 'Sun', value: 2890, x: 520, y: 48 }
+  ];
 
-    try {
-      const res = await syncPlaces(selectedSyncDest);
-      if (res.success) {
-        setSyncSummary(res.summary);
-        setSuccessMsg(`Synchronization complete for ${selectedSyncDest}! Discovered ${res.summary.discovered} places.`);
-        loadReviewQueue();
-        setTimeout(() => setSuccessMsg(''), 4000);
-      }
-    } catch (err) {
-      setErrorMsg(err.message || 'Sync failed. Please check network or rate limit.');
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  // Approve Place
-  const handleVerifyPlace = async (placeId, status = 'VERIFIED') => {
-    try {
-      await verifyPlaceAdmin(placeId, { verificationStatus: status });
-      setSuccessMsg(`Place marked as ${status}`);
-      loadReviewQueue();
-      setTimeout(() => setSuccessMsg(''), 3000);
-    } catch (err) {
-      setErrorMsg(err.message || 'Failed to update place');
-    }
-  };
-
-  // Toggle Hidden Gem Verification
-  const handleToggleHiddenGem = async (place) => {
-    try {
-      const nextVal = !place.hiddenGemVerified;
-      await verifyPlaceAdmin(place._id || place.id, {
-        hiddenGemVerified: nextVal,
-        hiddenGemCandidate: nextVal
-      });
-      setSuccessMsg(nextVal ? 'Place verified as an Official Hidden Gem!' : 'Hidden gem status removed');
-      loadReviewQueue();
-      setTimeout(() => setSuccessMsg(''), 3000);
-    } catch (err) {
-      setErrorMsg(err.message);
-    }
-  };
-
-  // Save Inline Edits
-  const handleSavePlaceEdits = async (e) => {
-    e.preventDefault();
-    if (!editingPlace) return;
-
-    try {
-      await verifyPlaceAdmin(editingPlace._id || editingPlace.id, {
-        category: editingPlace.category,
-        description: editingPlace.description,
-        openingHours: editingPlace.openingHours,
-        entryFee: editingPlace.entryFee,
-        verificationStatus: 'VERIFIED'
-      });
-      setSuccessMsg('Place edited and verified successfully');
-      setEditingPlace(null);
-      loadReviewQueue();
-      setTimeout(() => setSuccessMsg(''), 3000);
-    } catch (err) {
-      setErrorMsg(err.message);
-    }
-  };
-
-  // Resolve User Report
-  const handleResolveReport = async (reportId, status = 'RESOLVED') => {
-    try {
-      await resolveAdminReport(reportId, {
-        status,
-        adminActionNotes: 'Reviewed and addressed by administrator'
-      });
-      setSuccessMsg(`Report marked as ${status}`);
-      loadReports();
-      loadReviewQueue();
-      setTimeout(() => setSuccessMsg(''), 3000);
-    } catch (err) {
-      setErrorMsg(err.message);
-    }
-  };
-
-  const handleUpdateWeights = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch('http://localhost:5000/api/admin/weights', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ weights })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setSuccessMsg('Algorithm weights updated successfully!');
-        setTimeout(() => setSuccessMsg(''), 3000);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleAddDestination = async (e) => {
-    e.preventDefault();
-    if (!newDestName.trim()) return;
-
-    try {
-      const res = await fetch('http://localhost:5000/api/admin/destinations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: newDestName,
-          state: newDestState,
-          avgDailyBudgetBudget: newDestBudget
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setSuccessMsg(`Destination ${newDestName} added successfully!`);
-        setNewDestName('');
-        setTimeout(() => setSuccessMsg(''), 3000);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  const svgPath = "M 40,150 C 80,140 100,132 120,130 C 160,126 180,142 200,140 C 240,136 260,105 280,95 C 320,80 340,75 360,70 C 400,60 420,35 440,30 C 480,25 500,45 520,48";
+  const svgArea = `${svgPath} L 520,180 L 40,180 Z`;
 
   return (
-    <div style={{ maxWidth: '1360px', margin: '40px auto', padding: '0 24px' }}>
-      
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+    <div className="minimal-admin-layout">
+
+      {/* =================================================================== */}
+      {/* SIDEBAR */}
+      {/* =================================================================== */}
+      <aside className="minimal-admin-sidebar">
         <div>
-          <div className="badge badge-amber" style={{ marginBottom: '8px' }}>
-            <LayoutDashboard size={14} /> System Administrator Portal
-          </div>
-          <h1 style={{ fontSize: '2.2rem', fontFamily: 'Outfit, sans-serif' }}>
-            WayMate Intelligence Hub & Verification Portal
-          </h1>
-        </div>
-
-        {/* Refresh Queues Button */}
-        <button
-          onClick={() => {
-            loadReviewQueue();
-            loadReports();
-          }}
-          className="btn-secondary"
-          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-        >
-          <RefreshCw size={15} /> Refresh Queues
-        </button>
-      </div>
-
-      {/* Notifications */}
-      {successMsg && (
-        <div className="badge badge-emerald" style={{ padding: '12px 20px', fontSize: '0.9rem', width: '100%', marginBottom: '24px', justifyContent: 'center' }}>
-          <CheckCircle size={18} /> {successMsg}
-        </div>
-      )}
-
-      {errorMsg && (
-        <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171', padding: '12px 20px', borderRadius: '8px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <AlertTriangle size={18} /> {errorMsg}
-        </div>
-      )}
-
-      {/* Analytics KPI Metric Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '40px' }}>
-        <div className="glass-card" style={{ padding: '24px' }}>
-          <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Places Under Review</span>
-          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#f59e0b', margin: '6px 0' }}>
-            {reviewPlaces.length}
-          </div>
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>● Newly Discovered from OSM</span>
-        </div>
-
-        <div className="glass-card" style={{ padding: '24px' }}>
-          <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Active User Reports</span>
-          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#ef4444', margin: '6px 0' }}>
-            {userReports.filter(r => r.status === 'PENDING').length}
-          </div>
-          <span style={{ fontSize: '0.75rem', color: '#f87171' }}>● Outdated Info Flags</span>
-        </div>
-
-        <div className="glass-card" style={{ padding: '24px' }}>
-          <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Pilot Destination</span>
-          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#34d399', margin: '6px 0' }}>
-            Chennai
-          </div>
-          <span style={{ fontSize: '0.75rem', color: '#34d399' }}>● External Sync Connected</span>
-        </div>
-
-        <div className="glass-card" style={{ padding: '24px' }}>
-          <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Total Users</span>
-          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#a78bfa', margin: '6px 0' }}>
-            {analytics?.totalUsers || 128}
-          </div>
-          <span style={{ fontSize: '0.75rem', color: '#a78bfa' }}>Registered Travelers</span>
-        </div>
-      </div>
-
-      {/* ========================================================== */}
-      {/* 1. Dynamic Destination Synchronization & Review Hub */}
-      {/* ========================================================== */}
-      <div className="glass-panel" style={{ padding: '28px', marginBottom: '40px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
-          <div>
-            <h2 style={{ fontSize: '1.4rem', color: '#f8fafc', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Globe size={22} color="#10b981" /> Dynamic External Tourism Discovery (Pilot: Chennai)
-            </h2>
-            <p style={{ fontSize: '0.86rem', color: '#94a3b8', margin: 0 }}>
-              Queries OpenStreetMap Overpass API and Wikimedia to discover real places, deduplicate coordinates, and enrich factual data.
-            </p>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <select
-              value={selectedSyncDest}
-              onChange={(e) => setSelectedSyncDest(e.target.value)}
-              style={{
-                background: '#0f172a',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                color: '#f8fafc',
-                padding: '10px 16px',
-                borderRadius: '8px',
-                fontSize: '0.88rem'
-              }}
-            >
-              <option value="Chennai">Chennai (Pilot Destination)</option>
-              <option value="Madurai" disabled>Madurai (Phase 2)</option>
-              <option value="Coimbatore" disabled>Coimbatore (Phase 2)</option>
-            </select>
-
-            <button
-              onClick={handleTriggerSync}
-              disabled={isSyncing}
-              style={{
-                background: isSyncing ? '#64748b' : '#10b981',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '10px 20px',
-                color: '#ffffff',
-                fontWeight: 700,
-                fontSize: '0.88rem',
-                cursor: isSyncing ? 'not-allowed' : 'pointer',
-                display: 'flex',
+          <div className="minimal-sidebar-header">
+            <div className="minimal-brand-title">
+              <span style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '7px',
+                background: '#c2410c',
+                display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px'
-              }}
-            >
-              <RefreshCw size={16} className={isSyncing ? 'animate-spin' : ''} />
-              {isSyncing ? 'Syncing External APIs...' : 'Trigger Destination Sync'}
-            </button>
+                justifyContent: 'center',
+                color: '#ffffff',
+                fontSize: '0.85rem'
+              }}>
+                <Sparkles size={16} />
+              </span>
+              WAYMATE
+            </div>
+            <div className="minimal-brand-subtitle">AI Travel Platform</div>
           </div>
+
+          <ul className="minimal-nav-list">
+            {navItems.map(item => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <li key={item.id}>
+                  <button
+                    onClick={() => setActiveTab(item.id)}
+                    className={`minimal-nav-item ${isActive ? 'active' : ''}`}
+                  >
+                    <Icon size={17} color={isActive ? '#c2410c' : '#71717a'} />
+                    <span>{item.label}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         </div>
 
-        {/* Live Sync Results Summary */}
-        {syncSummary && (
-          <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '10px', padding: '16px 20px', marginBottom: '24px' }}>
-            <div style={{ fontWeight: 700, color: '#34d399', marginBottom: '6px' }}>
-              ✓ External Discovery Completed in {syncSummary.durationMs}ms
+        <div className="minimal-sidebar-footer">
+          <div className="minimal-sidebar-profile">
+            <div className="minimal-sidebar-avatar">A</div>
+            <div>
+              <div className="minimal-sidebar-name">Admin</div>
+              <div className="minimal-sidebar-status">
+                <span className="minimal-status-dot"></span>
+                System Online
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: '20px', fontSize: '0.85rem', color: '#cbd5e1', flexWrap: 'wrap' }}>
-              <span>Discovered Raw Entities: <strong>{syncSummary.discovered}</strong></span>
-              <span>Newly Added to Review: <strong>{syncSummary.newlyAdded}</strong></span>
-              <span>Existing Updated: <strong>{syncSummary.updated}</strong></span>
+          </div>
+        </div>
+      </aside>
+
+      {/* =================================================================== */}
+      {/* MAIN WORKSTAGE */}
+      {/* =================================================================== */}
+      <main className="minimal-admin-main">
+
+        {/* Toast alert */}
+        {toast && (
+          <div style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            zIndex: 9999,
+            background: '#18181b',
+            color: '#ffffff',
+            padding: '12px 20px',
+            borderRadius: '10px',
+            fontSize: '0.88rem',
+            fontWeight: 600,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <CheckCircle size={16} color="#34d399" /> {toast}
+          </div>
+        )}
+
+        {/* ----------------------------------------------------------------- */}
+        {/* TAB 1: OVERVIEW DASHBOARD */}
+        {/* ----------------------------------------------------------------- */}
+        {activeTab === 'overview' && (
+          <div>
+            {/* Header */}
+            <div className="minimal-page-header">
+              <h1 className="minimal-page-title">Overview</h1>
+              <p className="minimal-page-subtitle">Your WayMate platform at a glance.</p>
+            </div>
+
+            {/* TOP 4 SIMPLE STAT CARDS */}
+            <div className="minimal-stat-grid">
+              
+              {/* TOTAL USERS */}
+              <div className="minimal-stat-card">
+                <div className="minimal-stat-header">
+                  <span className="minimal-stat-label">TOTAL USERS</span>
+                </div>
+                <div className="minimal-stat-value">12,480</div>
+                <div className="minimal-stat-trend minimal-trend-positive">
+                  <ArrowUpRight size={13} /> +12.4%
+                </div>
+              </div>
+
+              {/* REVIEWS */}
+              <div className="minimal-stat-card">
+                <div className="minimal-stat-header">
+                  <span className="minimal-stat-label">REVIEWS</span>
+                </div>
+                <div className="minimal-stat-value">3,842</div>
+                <div className="minimal-stat-trend minimal-trend-positive">
+                  <ArrowUpRight size={13} /> +8.2%
+                </div>
+              </div>
+
+              {/* PLACES */}
+              <div className="minimal-stat-card">
+                <div className="minimal-stat-header">
+                  <span className="minimal-stat-label">PLACES</span>
+                </div>
+                <div className="minimal-stat-value">1,248</div>
+                <div className="minimal-stat-trend minimal-trend-neutral">
+                  AI Managed
+                </div>
+              </div>
+
+              {/* BOOKINGS */}
+              <div className="minimal-stat-card">
+                <div className="minimal-stat-header">
+                  <span className="minimal-stat-label">BOOKINGS</span>
+                </div>
+                <div className="minimal-stat-value">2,184</div>
+                <div className="minimal-stat-trend minimal-trend-positive">
+                  <ArrowUpRight size={13} /> +15.6%
+                </div>
+              </div>
+
+            </div>
+
+            {/* PLATFORM ACTIVITY (7-DAY LINE CHART) */}
+            <div className="minimal-card">
+              <div className="minimal-card-header">
+                <div>
+                  <h2 className="minimal-card-title">Platform Activity</h2>
+                  <div className="minimal-card-desc">Visitors & travelers over the last 7 days</div>
+                </div>
+                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#059669', background: '#ecfdf5', padding: '4px 10px', borderRadius: '6px' }}>
+                  +19.4% this week
+                </span>
+              </div>
+
+              {/* Minimal Clean SVG Line Chart */}
+              <div style={{ width: '100%', height: '220px', position: 'relative' }}>
+                <svg viewBox="0 0 560 200" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+                  <defs>
+                    <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#c2410c" stopOpacity="0.15" />
+                      <stop offset="100%" stopColor="#c2410c" stopOpacity="0.0" />
+                    </linearGradient>
+                  </defs>
+
+                  {/* Horizontal Grid lines */}
+                  <line x1="40" y1="30" x2="520" y2="30" stroke="#f4f4f5" strokeWidth="1" />
+                  <line x1="40" y1="80" x2="520" y2="80" stroke="#f4f4f5" strokeWidth="1" />
+                  <line x1="40" y1="130" x2="520" y2="130" stroke="#f4f4f5" strokeWidth="1" />
+                  <line x1="40" y1="180" x2="520" y2="180" stroke="#e4e4e7" strokeWidth="1" />
+
+                  {/* Gradient Area */}
+                  <path d={svgArea} fill="url(#chartGradient)" />
+
+                  {/* Clean Line */}
+                  <path d={svgPath} fill="none" stroke="#c2410c" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+
+                  {/* Data Points & Labels */}
+                  {chartData.map((pt, i) => (
+                    <g key={i}>
+                      <circle cx={pt.x} cy={pt.y} r="4" fill="#ffffff" stroke="#c2410c" strokeWidth="2.5" />
+                      <text x={pt.x} y="196" textAnchor="middle" fontSize="11" fontWeight="600" fill="#a1a1aa">
+                        {pt.day}
+                      </text>
+                    </g>
+                  ))}
+                </svg>
+              </div>
+            </div>
+
+            {/* TWO-COLUMN SECTION */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px' }}>
+              
+              {/* LEFT COLUMN: POPULAR INTERESTS & RECENT ACTIVITY */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                
+                {/* POPULAR INTERESTS */}
+                <div className="minimal-card" style={{ marginBottom: 0 }}>
+                  <div className="minimal-card-header">
+                    <h2 className="minimal-card-title">Popular Interests</h2>
+                  </div>
+
+                  <div className="minimal-interest-group">
+                    {[
+                      { name: 'Nature', pct: 78, color: '#059669' },
+                      { name: 'Heritage', pct: 64, color: '#c2410c' },
+                      { name: 'Adventure', pct: 48, color: '#0284c7' },
+                      { name: 'Photography', pct: 42, color: '#7c3aed' }
+                    ].map(item => (
+                      <div key={item.name} className="minimal-interest-item">
+                        <div className="minimal-interest-header">
+                          <span>{item.name}</span>
+                          <span style={{ color: item.color }}>{item.pct}%</span>
+                        </div>
+                        <div className="minimal-interest-bar-bg">
+                          <div
+                            className="minimal-interest-bar-fill"
+                            style={{ width: `${item.pct}%`, background: item.color }}
+                          ></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* RECENT ACTIVITY */}
+                <div className="minimal-card" style={{ marginBottom: 0 }}>
+                  <div className="minimal-card-header">
+                    <h2 className="minimal-card-title">Recent Activity</h2>
+                  </div>
+
+                  <div className="minimal-activity-list">
+                    <div className="minimal-activity-row">
+                      <div className="minimal-activity-text">
+                        <span>👤</span> New traveler joined WayMate
+                      </div>
+                      <span className="minimal-activity-time">2m ago</span>
+                    </div>
+
+                    <div className="minimal-activity-row">
+                      <div className="minimal-activity-text">
+                        <span>📍</span> Place information automatically updated
+                      </div>
+                      <span className="minimal-activity-time">14m ago</span>
+                    </div>
+
+                    <div className="minimal-activity-row">
+                      <div className="minimal-activity-text">
+                        <span>⭐</span> New review received for Marina Beach
+                      </div>
+                      <span className="minimal-activity-time">38m ago</span>
+                    </div>
+
+                    <div className="minimal-activity-row">
+                      <div className="minimal-activity-text">
+                        <span>🎟️</span> Booking completed for Ooty Heritage Stay
+                      </div>
+                      <span className="minimal-activity-time">1h ago</span>
+                    </div>
+
+                    <div className="minimal-activity-row">
+                      <div className="minimal-activity-text">
+                        <span>✨</span> New destination discovered by AI
+                      </div>
+                      <span className="minimal-activity-time">3h ago</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* RIGHT COLUMN: REVENUE & AI SYSTEM STATUS */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                
+                {/* REVENUE CARD */}
+                <div className="minimal-card" style={{ marginBottom: 0 }}>
+                  <div className="minimal-card-header">
+                    <h2 className="minimal-card-title">Revenue</h2>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#71717a' }}>This Month</span>
+                  </div>
+
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ fontSize: '2.6rem', fontWeight: 800, color: '#18181b', fontFamily: 'var(--font-display)', lineHeight: 1 }}>
+                      ₹2.84L
+                    </div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.84rem', fontWeight: 700, color: '#059669', marginTop: '8px' }}>
+                      <ArrowUpRight size={14} /> +14.8% from last month
+                    </div>
+                  </div>
+
+                  <div style={{ borderTop: '1px solid #f4f4f5', paddingTop: '14px', display: 'flex', justifyContent: 'space-between', fontSize: '0.84rem', color: '#71717a' }}>
+                    <span>Partner Commissions: <strong>₹1.94L</strong></span>
+                    <span>Direct Bookings: <strong>₹90.3K</strong></span>
+                  </div>
+                </div>
+
+                {/* WAYMATE AI STATUS */}
+                <div className="minimal-card" style={{ marginBottom: 0 }}>
+                  <div className="minimal-card-header">
+                    <h2 className="minimal-card-title">WayMate AI</h2>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', fontWeight: 700, color: '#059669' }}>
+                      <span className="minimal-status-dot"></span>
+                      All systems operational
+                    </div>
+                  </div>
+
+                  <div className="minimal-ai-status-box">
+                    <div className="minimal-ai-status-row">
+                      <span className="minimal-ai-label">Data updates</span>
+                      <span className="minimal-ai-badge">Automatic</span>
+                    </div>
+
+                    <div className="minimal-ai-status-row">
+                      <span className="minimal-ai-label">Recommendations</span>
+                      <span className="minimal-ai-badge">Automatic</span>
+                    </div>
+
+                    <div className="minimal-ai-status-row">
+                      <span className="minimal-ai-label">Price monitoring</span>
+                      <span className="minimal-ai-badge">Automatic</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
           </div>
         )}
 
-        {/* Review Queue Table */}
-        <h3 style={{ fontSize: '1.1rem', color: '#cbd5e1', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Clock size={16} color="#f59e0b" /> Discovered Places Pending Verification ({reviewPlaces.length})
-        </h3>
+        {/* ----------------------------------------------------------------- */}
+        {/* TAB 2: USERS */}
+        {/* ----------------------------------------------------------------- */}
+        {activeTab === 'users' && (
+          <div>
+            <div className="minimal-page-header">
+              <h1 className="minimal-page-title">Users</h1>
+              <p className="minimal-page-subtitle">Registered travelers and active explorers.</p>
+            </div>
 
-        {reviewPlaces.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '32px', color: '#94a3b8', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' }}>
-            <CheckCircle2 size={32} color="#10b981" style={{ margin: '0 auto 8px' }} />
-            <p style={{ margin: 0 }}>Review queue is clear! All discovered places have been verified or published.</p>
-          </div>
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.86rem', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8' }}>
-                  <th style={{ padding: '12px 14px' }}>Place & Category</th>
-                  <th style={{ padding: '12px 14px' }}>Confidence & Status</th>
-                  <th style={{ padding: '12px 14px' }}>Source & Link</th>
-                  <th style={{ padding: '12px 14px' }}>Timings & Fee</th>
-                  <th style={{ padding: '12px 14px', textAlign: 'right' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reviewPlaces.map(place => (
-                  <tr key={place._id || place.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                    <td style={{ padding: '14px' }}>
-                      <div style={{ fontWeight: 700, color: '#f8fafc' }}>{place.name}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '2px' }}>
-                        {place.category}
-                      </div>
-                      <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: '4px', maxWidth: '280px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                        {place.description}
-                      </div>
-                    </td>
-
-                    <td style={{ padding: '14px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{
-                          background: place.dataConfidenceScore >= 80 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                          color: place.dataConfidenceScore >= 80 ? '#34d399' : '#fbbf24',
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          fontWeight: 700,
-                          fontSize: '0.75rem'
-                        }}>
-                          {place.dataConfidenceScore || 50}% Conf.
-                        </span>
-                        {place.hiddenGemCandidate && (
-                          <span style={{
-                            background: 'rgba(168, 85, 247, 0.15)',
-                            color: '#c084fc',
-                            padding: '2px 8px',
-                            borderRadius: '4px',
-                            fontWeight: 700,
-                            fontSize: '0.72rem'
-                          }}>
-                            ✨ Gem Candidate
-                          </span>
-                        )}
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '4px' }}>
-                        Status: <strong style={{ color: place.verificationStatus === 'USER_REPORTED' ? '#f87171' : '#f59e0b' }}>{place.verificationStatus}</strong>
-                      </div>
-                    </td>
-
-                    <td style={{ padding: '14px' }}>
-                      <div style={{ color: '#cbd5e1' }}>{place.sourceName || 'OpenStreetMap'}</div>
-                      {place.sourceUrl && (
-                        <a
-                          href={place.sourceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ color: '#38bdf8', fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', gap: '3px', marginTop: '2px' }}
-                        >
-                          Inspect Source <ExternalLink size={11} />
-                        </a>
-                      )}
-                      <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '2px' }}>
-                        {new Date(place.lastVerifiedAt || place.updatedAt || Date.now()).toLocaleDateString()}
-                      </div>
-                    </td>
-
-                    <td style={{ padding: '14px' }}>
-                      <div style={{ fontSize: '0.78rem', color: '#cbd5e1' }}>
-                        🕒 {place.openingHours || 'Not available'}
-                      </div>
-                      <div style={{ fontSize: '0.78rem', color: '#34d399', marginTop: '2px' }}>
-                        🎟️ {place.entryFee || 'Not available'}
-                      </div>
-                    </td>
-
-                    <td style={{ padding: '14px', textAlign: 'right' }}>
-                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                        {/* Approve Button */}
-                        <button
-                          onClick={() => handleVerifyPlace(place._id || place.id, 'VERIFIED')}
-                          title="Approve & Publish to Users"
-                          style={{
-                            background: '#10b981',
-                            border: 'none',
-                            borderRadius: '6px',
-                            padding: '6px 10px',
-                            color: '#ffffff',
-                            fontWeight: 700,
-                            fontSize: '0.75rem',
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                        >
-                          <Check size={13} /> Approve
-                        </button>
-
-                        {/* Hidden Gem Toggle */}
-                        <button
-                          onClick={() => handleToggleHiddenGem(place)}
-                          title="Verify as Hidden Gem"
-                          style={{
-                            background: place.hiddenGemVerified ? '#9333ea' : 'rgba(147, 51, 234, 0.15)',
-                            border: '1px solid #9333ea',
-                            borderRadius: '6px',
-                            padding: '6px 10px',
-                            color: place.hiddenGemVerified ? '#ffffff' : '#c084fc',
-                            fontWeight: 700,
-                            fontSize: '0.75rem',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          ✨ {place.hiddenGemVerified ? 'Verified Gem' : 'Mark Gem'}
-                        </button>
-
-                        {/* Edit Inline */}
-                        <button
-                          onClick={() => setEditingPlace({ ...place })}
-                          title="Edit Details"
-                          style={{
-                            background: 'rgba(255,255,255,0.08)',
-                            border: '1px solid rgba(255,255,255,0.15)',
-                            borderRadius: '6px',
-                            padding: '6px 10px',
-                            color: '#cbd5e1',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          <Edit2 size={13} />
-                        </button>
-                      </div>
-                    </td>
+            <div className="minimal-table-wrapper">
+              <table className="minimal-table">
+                <thead>
+                  <tr>
+                    <th>Traveler</th>
+                    <th>Home Location</th>
+                    <th>Trips Planned</th>
+                    <th>Status</th>
+                    <th>Joined</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {[
+                    { name: 'Aarav Sharma', email: 'aarav@example.com', loc: 'Chennai, TN', trips: 4, joined: 'Sep 2026' },
+                    { name: 'Priya Sundaram', email: 'priya.s@example.com', loc: 'Bangalore, KA', trips: 7, joined: 'Aug 2026' },
+                    { name: 'Karthik Raja', email: 'karthik.r@example.com', loc: 'Salem, TN', trips: 3, joined: 'Sep 2026' },
+                    { name: 'Meera Iyer', email: 'meera.i@example.com', loc: 'Coimbatore, TN', trips: 5, joined: 'Jul 2026' },
+                    { name: 'Rahul Varma', email: 'rahul.v@example.com', loc: 'Kochi, KL', trips: 2, joined: 'Sep 2026' }
+                  ].map(u => (
+                    <tr key={u.email}>
+                      <td>
+                        <div style={{ fontWeight: 700, color: '#18181b' }}>{u.name}</div>
+                        <div style={{ fontSize: '0.78rem', color: '#71717a' }}>{u.email}</div>
+                      </td>
+                      <td>{u.loc}</td>
+                      <td style={{ fontWeight: 700 }}>{u.trips} trips</td>
+                      <td>
+                        <span style={{ background: '#ecfdf5', color: '#059669', padding: '3px 8px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: 700 }}>
+                          Active
+                        </span>
+                      </td>
+                      <td style={{ color: '#71717a', fontSize: '0.82rem' }}>{u.joined}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
-        {/* Inline Edit Modal */}
-        {editingPlace && (
-          <div
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(0,0,0,0.7)',
-              backdropFilter: 'blur(6px)',
-              zIndex: 9999,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '16px'
-            }}
-          >
-            <div style={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '540px', color: '#f8fafc' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ margin: 0, fontSize: '1.15rem' }}>Edit Place: {editingPlace.name}</h3>
-                <button onClick={() => setEditingPlace(null)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
-                  <X size={18} />
+        {/* ----------------------------------------------------------------- */}
+        {/* TAB 3: REVIEWS */}
+        {/* ----------------------------------------------------------------- */}
+        {activeTab === 'reviews' && (
+          <div>
+            <div className="minimal-page-header">
+              <h1 className="minimal-page-title">Reviews</h1>
+              <p className="minimal-page-subtitle">Traveler feedback and ratings across places.</p>
+            </div>
+
+            <div className="minimal-table-wrapper">
+              <table className="minimal-table">
+                <thead>
+                  <tr>
+                    <th>Traveler & Rating</th>
+                    <th>Destination / Place</th>
+                    <th>Comment</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { user: 'Aarav Sharma', place: 'Marina Beach Promenade', rating: 5, comment: 'Lighthouse evening view was spectacular. Accurate timing recommendations!', date: 'Today' },
+                    { user: 'Priya Sundaram', place: 'Kapaleeshwarar Temple', rating: 5, comment: 'Spiritual and serene. The morning pooja slots suggested by AI were perfect.', date: 'Yesterday' },
+                    { user: 'Karthik Raja', place: 'Kodaikanal Pine Forest', rating: 4, comment: 'Great mist walk. Very scenic and peaceful trails.', date: '2 days ago' },
+                    { user: 'Meera Iyer', place: 'Ooty Botanical Gardens', rating: 5, comment: 'Clean, green, and well maintained. Excellent family spot.', date: '3 days ago' }
+                  ].map((r, i) => (
+                    <tr key={i}>
+                      <td>
+                        <div style={{ fontWeight: 700, color: '#18181b' }}>{r.user}</div>
+                        <div style={{ color: '#d97706', fontSize: '0.8rem', marginTop: '2px' }}>
+                          {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
+                        </div>
+                      </td>
+                      <td style={{ fontWeight: 600 }}>{r.place}</td>
+                      <td style={{ color: '#52525b', fontSize: '0.84rem' }}>"{r.comment}"</td>
+                      <td style={{ color: '#71717a', fontSize: '0.82rem' }}>{r.date}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ----------------------------------------------------------------- */}
+        {/* TAB 4: PLACES */}
+        {/* ----------------------------------------------------------------- */}
+        {activeTab === 'places' && (
+          <div>
+            <div className="minimal-page-header">
+              <h1 className="minimal-page-title">Places</h1>
+              <p className="minimal-page-subtitle">1,248 tourist places autonomously managed by AI.</p>
+            </div>
+
+            <div className="minimal-table-wrapper">
+              <table className="minimal-table">
+                <thead>
+                  <tr>
+                    <th>Place Name</th>
+                    <th>Region</th>
+                    <th>Category</th>
+                    <th>Timings & Entry</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { name: 'Kapaleeshwarar Temple', region: 'Chennai', cat: 'Heritage', timing: '05:30 AM - 09:00 PM', fee: 'Free (Darshan ₹50)' },
+                    { name: 'Marina Beach & Lighthouse', region: 'Chennai', cat: 'Coastal', timing: 'Open 24 Hours', fee: 'Free' },
+                    { name: 'Guindy National Park', region: 'Chennai', cat: 'Nature', timing: '09:00 AM - 05:30 PM', fee: '₹20' },
+                    { name: 'Pillar Rocks', region: 'Kodaikanal', cat: 'Viewpoint', timing: '09:00 AM - 04:30 PM', fee: '₹10' },
+                    { name: 'Dhanushkodi Ghost Town', region: 'Rameshwaram', cat: 'Heritage', timing: '06:00 AM - 06:00 PM', fee: 'Free' }
+                  ].map((p, i) => (
+                    <tr key={i}>
+                      <td style={{ fontWeight: 700, color: '#18181b' }}>{p.name}</td>
+                      <td>{p.region}</td>
+                      <td>
+                        <span style={{ background: '#f4f4f5', padding: '3px 8px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: 600 }}>
+                          {p.cat}
+                        </span>
+                      </td>
+                      <td style={{ fontSize: '0.82rem', color: '#52525b' }}>{p.timing} • {p.fee}</td>
+                      <td>
+                        <span style={{ background: '#ecfdf5', color: '#059669', padding: '3px 8px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: 700 }}>
+                          AI Verified
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ----------------------------------------------------------------- */}
+        {/* TAB 5: BOOKINGS */}
+        {/* ----------------------------------------------------------------- */}
+        {activeTab === 'bookings' && (
+          <div>
+            <div className="minimal-page-header">
+              <h1 className="minimal-page-title">Bookings</h1>
+              <p className="minimal-page-subtitle">2,184 completed partner bookings and itinerary packages.</p>
+            </div>
+
+            <div className="minimal-table-wrapper">
+              <table className="minimal-table">
+                <thead>
+                  <tr>
+                    <th>Booking ID</th>
+                    <th>Traveler</th>
+                    <th>Service / Destination</th>
+                    <th>Amount</th>
+                    <th>Commission</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { id: 'BK-9421', user: 'Aarav Sharma', service: 'Ooty Heritage Tea Estate Stay', amt: '₹6,400', comm: '₹768', status: 'Confirmed' },
+                    { id: 'BK-9420', user: 'Priya Sundaram', service: 'Kodaikanal Guided Nature Trail', amt: '₹1,800', comm: '₹270', status: 'Confirmed' },
+                    { id: 'BK-9419', user: 'Karthik Raja', service: 'Rameshwaram Coastal Homestay', amt: '₹4,200', comm: '₹504', status: 'Confirmed' },
+                    { id: 'BK-9418', user: 'Meera Iyer', service: 'Chennai Heritage Temple Tour', amt: '₹2,500', comm: '₹375', status: 'Confirmed' }
+                  ].map(b => (
+                    <tr key={b.id}>
+                      <td style={{ fontWeight: 700, fontFamily: 'monospace', color: '#18181b' }}>{b.id}</td>
+                      <td>{b.user}</td>
+                      <td style={{ fontWeight: 600 }}>{b.service}</td>
+                      <td style={{ fontWeight: 700 }}>{b.amt}</td>
+                      <td style={{ color: '#059669', fontWeight: 700 }}>{b.comm}</td>
+                      <td>
+                        <span style={{ background: '#ecfdf5', color: '#059669', padding: '3px 8px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: 700 }}>
+                          {b.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ----------------------------------------------------------------- */}
+        {/* TAB 6: REVENUE */}
+        {/* ----------------------------------------------------------------- */}
+        {activeTab === 'revenue' && (
+          <div>
+            <div className="minimal-page-header">
+              <h1 className="minimal-page-title">Revenue</h1>
+              <p className="minimal-page-subtitle">Monthly monetization performance and partner splits.</p>
+            </div>
+
+            <div className="minimal-stat-grid" style={{ marginBottom: '24px' }}>
+              <div className="minimal-stat-card">
+                <span className="minimal-stat-label">THIS MONTH</span>
+                <div className="minimal-stat-value">₹2.84L</div>
+                <span className="minimal-stat-trend minimal-trend-positive">+14.8% vs last month</span>
+              </div>
+
+              <div className="minimal-stat-card">
+                <span className="minimal-stat-label">GROSS BOOKING VALUE</span>
+                <div className="minimal-stat-value">₹14.8L</div>
+                <span className="minimal-stat-trend minimal-trend-neutral">228 bookings</span>
+              </div>
+
+              <div className="minimal-stat-card">
+                <span className="minimal-stat-label">PARTNER COMMISSION</span>
+                <div className="minimal-stat-value">₹1.94L</div>
+                <span className="minimal-stat-trend minimal-trend-positive">Verified stays & tours</span>
+              </div>
+            </div>
+
+            <div className="minimal-card">
+              <div className="minimal-card-header">
+                <h2 className="minimal-card-title">Category Breakdown</h2>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {[
+                  { name: 'Hotels & Homestays', amt: '₹1,19,490', pct: 42, color: '#c2410c' },
+                  { name: 'Activities & Experiences', amt: '₹79,660', pct: 28, color: '#059669' },
+                  { name: 'Curated Tours & Guides', amt: '₹51,210', pct: 18, color: '#0284c7' },
+                  { name: 'Transport & Rentals', amt: '₹34,140', pct: 12, color: '#7c3aed' }
+                ].map(item => (
+                  <div key={item.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#fafaf9', borderRadius: '10px' }}>
+                    <div style={{ fontWeight: 600, color: '#18181b' }}>{item.name} ({item.pct}%)</div>
+                    <div style={{ fontWeight: 800, color: item.color }}>{item.amt}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ----------------------------------------------------------------- */}
+        {/* TAB 7: SYSTEM */}
+        {/* ----------------------------------------------------------------- */}
+        {activeTab === 'system' && (
+          <div>
+            <div className="minimal-page-header">
+              <h1 className="minimal-page-title">System</h1>
+              <p className="minimal-page-subtitle">Overall AI health and emergency platform controls.</p>
+            </div>
+
+            <div className="minimal-card" style={{ marginBottom: '24px' }}>
+              <div className="minimal-card-header">
+                <div>
+                  <h2 className="minimal-card-title">Autonomous AI Operations</h2>
+                  <div className="minimal-card-desc">AI automatically updates platform data, prices, and recommendations.</div>
+                </div>
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  color: paused ? '#ef4444' : '#059669',
+                  background: paused ? '#fef2f2' : '#ecfdf5',
+                  padding: '4px 12px',
+                  borderRadius: '6px'
+                }}>
+                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: paused ? '#ef4444' : '#059669' }}></span>
+                  {paused ? 'Autonomous Updates Paused' : 'Autonomous Updates Active'}
+                </span>
+              </div>
+
+              <div style={{ borderTop: '1px solid #f4f4f5', paddingTop: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
+                <span style={{ fontSize: '0.86rem', color: '#71717a' }}>
+                  Safety switch to temporarily hold automated database commits in case of external source anomalies.
+                </span>
+
+                <button
+                  onClick={() => {
+                    const next = !paused;
+                    setPaused(next);
+                    showToast(next ? 'Autonomous updates paused' : 'Autonomous updates resumed');
+                  }}
+                  style={{
+                    background: paused ? '#059669' : '#18181b',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '10px',
+                    padding: '9px 18px',
+                    fontSize: '0.86rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  {paused ? <Play size={14} /> : <Pause size={14} />}
+                  {paused ? 'Resume AI Updates' : 'Pause AI Updates'}
                 </button>
               </div>
-
-              <form onSubmit={handleSavePlaceEdits} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Category</label>
-                  <input
-                    type="text"
-                    value={editingPlace.category || ''}
-                    onChange={e => setEditingPlace({ ...editingPlace, category: e.target.value })}
-                    style={adminInputStyle}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Description</label>
-                  <textarea
-                    rows={3}
-                    value={editingPlace.description || ''}
-                    onChange={e => setEditingPlace({ ...editingPlace, description: e.target.value })}
-                    style={adminInputStyle}
-                  />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Opening Hours</label>
-                    <input
-                      type="text"
-                      value={editingPlace.openingHours || ''}
-                      onChange={e => setEditingPlace({ ...editingPlace, openingHours: e.target.value })}
-                      style={adminInputStyle}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '4px' }}>Entry Fee</label>
-                    <input
-                      type="text"
-                      value={editingPlace.entryFee || ''}
-                      onChange={e => setEditingPlace({ ...editingPlace, entryFee: e.target.value })}
-                      style={adminInputStyle}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px' }}>
-                  <button type="button" onClick={() => setEditingPlace(null)} className="btn-secondary">
-                    Cancel
-                  </button>
-                  <button type="submit" className="btn-primary">
-                    Save & Approve Place
-                  </button>
-                </div>
-              </form>
             </div>
-          </div>
-        )}
-      </div>
 
-      {/* ========================================================== */}
-      {/* 2. User Outdated Information Reports Moderation Inbox */}
-      {/* ========================================================== */}
-      <div className="glass-panel" style={{ padding: '28px', marginBottom: '40px' }}>
-        <h2 style={{ fontSize: '1.4rem', color: '#f8fafc', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <ShieldAlert size={22} color="#ef4444" /> Traveler Reports & Outdated Information Inbox
-        </h2>
-        <p style={{ fontSize: '0.86rem', color: '#94a3b8', marginBottom: '20px' }}>
-          Community reports submitted by travelers for incorrect timings, closed locations, or pricing changes.
-        </p>
-
-        {userReports.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '24px', color: '#94a3b8', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' }}>
-            <CheckCircle size={28} color="#10b981" style={{ margin: '0 auto 6px' }} />
-            <p style={{ margin: 0 }}>No unresolved traveler reports at this time.</p>
-          </div>
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.86rem', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8' }}>
-                  <th style={{ padding: '10px 14px' }}>Place Name</th>
-                  <th style={{ padding: '10px 14px' }}>Issue Type</th>
-                  <th style={{ padding: '10px 14px' }}>Traveler Details & Correction</th>
-                  <th style={{ padding: '10px 14px' }}>Status</th>
-                  <th style={{ padding: '10px 14px', textAlign: 'right' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {userReports.map(report => (
-                  <tr key={report._id || report.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                    <td style={{ padding: '12px 14px', fontWeight: 700, color: '#f8fafc' }}>
-                      {report.placeName || report.placeId?.name}
-                    </td>
-                    <td style={{ padding: '12px 14px' }}>
-                      <span style={{
-                        background: 'rgba(239, 68, 68, 0.15)',
-                        color: '#f87171',
-                        padding: '2px 8px',
-                        borderRadius: '4px',
-                        fontWeight: 700,
-                        fontSize: '0.74rem'
-                      }}>
-                        {report.issueType}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 14px' }}>
-                      <div style={{ color: '#cbd5e1' }}>{report.description}</div>
-                      {report.suggestedCorrection && (
-                        <div style={{ fontSize: '0.75rem', color: '#34d399', marginTop: '3px' }}>
-                          Suggested: {report.suggestedCorrection}
-                        </div>
-                      )}
-                      <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '2px' }}>
-                        By {report.reportedBy} • {new Date(report.createdAt).toLocaleDateString()}
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px 14px' }}>
-                      <span style={{
-                        color: report.status === 'RESOLVED' ? '#34d399' : '#fbbf24',
-                        fontWeight: 700,
-                        fontSize: '0.78rem'
-                      }}>
-                        {report.status}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 14px', textAlign: 'right' }}>
-                      {report.status !== 'RESOLVED' && (
-                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                          <button
-                            onClick={() => handleResolveReport(report._id, 'RESOLVED')}
-                            style={{
-                              background: '#10b981',
-                              border: 'none',
-                              borderRadius: '6px',
-                              padding: '5px 10px',
-                              color: '#ffffff',
-                              fontWeight: 700,
-                              fontSize: '0.74rem',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            Mark Resolved
-                          </button>
-                          <button
-                            onClick={() => handleResolveReport(report._id, 'DISMISSED')}
-                            style={{
-                              background: 'rgba(255,255,255,0.08)',
-                              border: 'none',
-                              borderRadius: '6px',
-                              padding: '5px 10px',
-                              color: '#94a3b8',
-                              fontSize: '0.74rem',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            Dismiss
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* ========================================================== */}
-      {/* 3. Existing Recommendation Weights & Destination Form */}
-      {/* ========================================================== */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '32px' }}>
-        
-        {/* Recommendation Engine Weights Configurator */}
-        <div className="glass-panel" style={{ padding: '28px' }}>
-          <h3 style={{ fontSize: '1.25rem', color: '#f8fafc', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Sliders size={20} color="#10b981" /> Algorithm Weighting Configurator
-          </h3>
-          <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '20px' }}>
-            Adjust the weight percentage assigned to each parameter during destination match scoring.
-          </p>
-
-          <form onSubmit={handleUpdateWeights} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {Object.keys(weights).map(key => (
-              <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <label style={{ fontSize: '0.85rem', color: '#cbd5e1', textTransform: 'capitalize' }}>
-                  {key.replace(/([A-Z])/g, ' $1')}
-                </label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input
-                    type="number"
-                    value={weights[key]}
-                    onChange={e => setWeights({ ...weights, [key]: parseInt(e.target.value) || 0 })}
-                    style={{ width: '70px', background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', color: '#34d399', padding: '6px 10px', borderRadius: '6px', textAlign: 'center', fontWeight: 'bold' }}
-                  />
-                  <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>%</span>
+            <div className="minimal-card">
+              <div className="minimal-card-header">
+                <h2 className="minimal-card-title">System Status</h2>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', background: '#fafaf9', borderRadius: '10px', fontSize: '0.86rem' }}>
+                  <span style={{ color: '#52525b', fontWeight: 600 }}>API Gateway</span>
+                  <span style={{ color: '#059669', fontWeight: 700 }}>Operational (22ms)</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', background: '#fafaf9', borderRadius: '10px', fontSize: '0.86rem' }}>
+                  <span style={{ color: '#52525b', fontWeight: 600 }}>Database Cluster</span>
+                  <span style={{ color: '#059669', fontWeight: 700 }}>Connected</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', background: '#fafaf9', borderRadius: '10px', fontSize: '0.86rem' }}>
+                  <span style={{ color: '#52525b', fontWeight: 600 }}>External Tourism Sync</span>
+                  <span style={{ color: '#059669', fontWeight: 700 }}>Synchronized (Just now)</span>
                 </div>
               </div>
-            ))}
-
-            <button type="submit" className="btn-primary" style={{ marginTop: '16px', justifyContent: 'center' }}>
-              Save Weight Configuration
-            </button>
-          </form>
-        </div>
-
-        {/* Destination Management CRUD */}
-        <div className="glass-panel" style={{ padding: '28px' }}>
-          <h3 style={{ fontSize: '1.25rem', color: '#f8fafc', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Plus size={20} color="#34d399" /> Add New Destination
-          </h3>
-
-          <form onSubmit={handleAddDestination} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '4px' }}>Destination Name</label>
-              <input
-                type="text"
-                placeholder="e.g. Coorg, Goa, Manali..."
-                value={newDestName}
-                onChange={e => setNewDestName(e.target.value)}
-                style={adminInputStyle}
-              />
             </div>
+          </div>
+        )}
 
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '4px' }}>State</label>
-              <input
-                type="text"
-                value={newDestState}
-                onChange={e => setNewDestState(e.target.value)}
-                style={adminInputStyle}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '4px' }}>Est. Daily Budget (₹)</label>
-              <input
-                type="number"
-                value={newDestBudget}
-                onChange={e => setNewDestBudget(parseInt(e.target.value) || 1000)}
-                style={adminInputStyle}
-              />
-            </div>
-
-            <button type="submit" className="btn-primary" style={{ marginTop: '10px', justifyContent: 'center' }}>
-              Publish Destination
-            </button>
-          </form>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }
-
-const adminInputStyle = {
-  width: '100%',
-  background: '#0f172a',
-  border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: '8px',
-  padding: '10px 14px',
-  color: '#ffffff',
-  fontSize: '0.9rem'
-};

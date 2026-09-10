@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -46,6 +46,134 @@ function MapRecenter({ center, zoom = 12 }) {
     }
   }, [center, zoom, map]);
   return null;
+}
+
+function PopupCard({ place, isHiddenGem, lat, lng, onSelectPlace }) {
+  const btnRef = useRef(null);
+  const titleRef = useRef(null);
+
+  const triggerSelect = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (onSelectPlace) {
+      onSelectPlace(place);
+    }
+  };
+
+  useEffect(() => {
+    const btn = btnRef.current;
+    const title = titleRef.current;
+    if (btn) {
+      btn.addEventListener('click', triggerSelect);
+      btn.addEventListener('touchend', triggerSelect);
+    }
+    if (title) {
+      title.addEventListener('click', triggerSelect);
+    }
+    return () => {
+      if (btn) {
+        btn.removeEventListener('click', triggerSelect);
+        btn.removeEventListener('touchend', triggerSelect);
+      }
+      if (title) {
+        title.removeEventListener('click', triggerSelect);
+      }
+    };
+  }, [place, onSelectPlace]);
+
+  return (
+    <div style={{ padding: '6px', maxWidth: '240px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginBottom: '4px' }}>
+        <span style={{ fontSize: '0.68rem', fontWeight: 800, color: isHiddenGem ? '#9333ea' : '#c2410c', textTransform: 'uppercase' }}>
+          {isHiddenGem ? '✨ Potential Hidden Gem' : place.category}
+        </span>
+        {place.dataConfidenceScore && (
+          <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#059669', background: 'rgba(5, 150, 105, 0.1)', padding: '1px 5px', borderRadius: '4px' }}>
+            {place.dataConfidenceScore}% Conf.
+          </span>
+        )}
+      </div>
+
+      <h4
+        ref={titleRef}
+        onClick={triggerSelect}
+        style={{ fontSize: '0.94rem', fontWeight: 800, margin: '2px 0 4px 0', color: '#18181b', cursor: 'pointer' }}
+        title="Click to view full details"
+      >
+        {place.name || place.title}
+      </h4>
+
+      {(place.shortDesc || place.description) && (
+        <p style={{ fontSize: '0.78rem', color: '#52525b', margin: '0 0 6px 0', lineHeight: 1.4, maxHeight: '48px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {place.shortDesc || place.description}
+        </p>
+      )}
+
+      {place.entryFee && place.entryFee !== 'Not available' && (
+        <div style={{ fontSize: '0.74rem', color: '#18181b', fontWeight: 700, marginBottom: '4px' }}>
+          Fee: <span style={{ color: '#059669' }}>{place.entryFee}</span>
+        </div>
+      )}
+
+      {place.openingHours && place.openingHours !== 'Not available' && (
+        <div style={{ fontSize: '0.72rem', color: '#71717a', marginBottom: '8px' }}>
+          🕒 {place.openingHours}
+        </div>
+      )}
+
+      {place.pricePerNight && (
+        <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#18181b', marginBottom: '8px' }}>
+          ₹{place.pricePerNight.toLocaleString('en-IN')} / night
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: '6px', marginTop: '6px', borderTop: '1px solid #e4e4e7', paddingTop: '6px' }}>
+        <button
+          ref={btnRef}
+          type="button"
+          onClick={triggerSelect}
+          onMouseDown={triggerSelect}
+          style={{
+            flex: 1,
+            background: '#18181b',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '4px',
+            padding: '6px 10px',
+            fontSize: '0.74rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            textAlign: 'center'
+          }}
+        >
+          Place Details
+        </button>
+        <a
+          href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            background: '#f4f4f5',
+            color: '#0284c7',
+            border: '1px solid #e4e4e7',
+            borderRadius: '4px',
+            padding: '6px 10px',
+            fontSize: '0.74rem',
+            fontWeight: 700,
+            textDecoration: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '2px'
+          }}
+        >
+          Directions
+        </a>
+      </div>
+    </div>
+  );
 }
 
 export default function MapView({
@@ -105,85 +233,13 @@ export default function MapView({
               }}
             >
               <Popup>
-                <div style={{ padding: '6px', maxWidth: '240px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '0.68rem', fontWeight: 800, color: isHiddenGem ? '#9333ea' : '#c2410c', textTransform: 'uppercase' }}>
-                      {isHiddenGem ? '✨ Potential Hidden Gem' : place.category}
-                    </span>
-                    {place.dataConfidenceScore && (
-                      <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#059669', background: 'rgba(5, 150, 105, 0.1)', padding: '1px 5px', borderRadius: '4px' }}>
-                        {place.dataConfidenceScore}% Conf.
-                      </span>
-                    )}
-                  </div>
-
-                  <h4 style={{ fontSize: '0.94rem', fontWeight: 800, margin: '2px 0 4px 0', color: '#18181b' }}>
-                    {place.name || place.title}
-                  </h4>
-
-                  {(place.shortDesc || place.description) && (
-                    <p style={{ fontSize: '0.78rem', color: '#52525b', margin: '0 0 6px 0', lineHeight: 1.4, maxHeight: '48px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {place.shortDesc || place.description}
-                    </p>
-                  )}
-
-                  {place.entryFee && place.entryFee !== 'Not available' && (
-                    <div style={{ fontSize: '0.74rem', color: '#18181b', fontWeight: 700, marginBottom: '4px' }}>
-                      Fee: <span style={{ color: '#059669' }}>{place.entryFee}</span>
-                    </div>
-                  )}
-
-                  {place.openingHours && place.openingHours !== 'Not available' && (
-                    <div style={{ fontSize: '0.72rem', color: '#71717a', marginBottom: '8px' }}>
-                      🕒 {place.openingHours}
-                    </div>
-                  )}
-
-                  {place.pricePerNight && (
-                    <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#18181b', marginBottom: '8px' }}>
-                      ₹{place.pricePerNight.toLocaleString('en-IN')} / night
-                    </div>
-                  )}
-
-                  <div style={{ display: 'flex', gap: '6px', marginTop: '6px', borderTop: '1px solid #e4e4e7', paddingTop: '6px' }}>
-                    <button
-                      onClick={() => onSelectPlace && onSelectPlace(place)}
-                      style={{
-                        flex: 1,
-                        background: '#18181b',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: '4px',
-                        padding: '4px 8px',
-                        fontSize: '0.72rem',
-                        fontWeight: 700,
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Place Details
-                    </button>
-                    <a
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        background: '#f4f4f5',
-                        color: '#0284c7',
-                        border: '1px solid #e4e4e7',
-                        borderRadius: '4px',
-                        padding: '4px 8px',
-                        fontSize: '0.72rem',
-                        fontWeight: 700,
-                        textDecoration: 'none',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '2px'
-                      }}
-                    >
-                      Directions
-                    </a>
-                  </div>
-                </div>
+                <PopupCard
+                  place={place}
+                  isHiddenGem={isHiddenGem}
+                  lat={lat}
+                  lng={lng}
+                  onSelectPlace={onSelectPlace}
+                />
               </Popup>
             </Marker>
           );

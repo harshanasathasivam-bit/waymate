@@ -17,11 +17,16 @@ export default function PlaceDetailModal({
   onClose,
   onSavePlace,
   isSaved,
-  destination
+  onAddToTrip,
+  destination,
+  currentDestination
 }) {
   const { t } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const effectiveDest = destination || currentDestination;
+  const isModalOpen = isOpen !== undefined ? isOpen : Boolean(place);
 
   // Reporting modal state
   const [reportModalOpen, setReportModalOpen] = useState(false);
@@ -156,7 +161,7 @@ export default function PlaceDetailModal({
     }
   };
 
-  if (!isOpen || !place) return null;
+  if (!isModalOpen || !place) return null;
 
   const crowd = place.crowd || getCrowdStatus(place, '05:00 PM');
   const gallery = place.gallery || [
@@ -173,34 +178,40 @@ export default function PlaceDetailModal({
   const placeCoords = (place.lat && place.lng) ? [place.lat, place.lng] : [13.0499, 80.2824];
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(24, 24, 27, 0.75)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 2500,
-      padding: '20px',
-      overflowY: 'auto'
-    }}>
-      <div style={{
-        maxWidth: '920px',
-        width: '100%',
-        maxHeight: '92vh',
-        background: '#ffffff',
-        borderRadius: 'var(--radius-xl)',
-        boxShadow: 'var(--shadow-floating)',
-        border: '1px solid var(--border-light)',
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(24, 24, 27, 0.75)',
+        backdropFilter: 'blur(8px)',
         display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        position: 'relative'
-      }}>
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+        padding: '20px',
+        overflowY: 'auto'
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          maxWidth: '920px',
+          width: '100%',
+          maxHeight: '92vh',
+          background: '#ffffff',
+          borderRadius: 'var(--radius-xl)',
+          boxShadow: 'var(--shadow-floating)',
+          border: '1px solid var(--border-light)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          position: 'relative'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
 
         {/* Top Floating Close Button */}
         <button
@@ -288,7 +299,7 @@ export default function PlaceDetailModal({
                 </h1>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px', fontSize: '0.86rem', color: '#e4e4e7' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <MapPin size={15} color="var(--brand-terracotta)" /> {destination?.name || 'Destination'}, {destination?.state || 'India'}
+                    <MapPin size={15} color="var(--brand-terracotta)" /> {effectiveDest?.name || 'Destination'}, {effectiveDest?.state || 'India'}
                   </span>
                   <span>•</span>
                   <span>📍 {place.distance || '2.4 km from center'}</span>
@@ -396,6 +407,7 @@ export default function PlaceDetailModal({
               {/* Add to Trip Planner */}
               <button
                 onClick={() => {
+                  if (onAddToTrip) onAddToTrip(place);
                   onClose();
                   navigate('/trips');
                 }}

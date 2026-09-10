@@ -58,6 +58,118 @@ export const DESTINATION_WEATHER_PROFILES = {
     advisory: "Great day for Edakkal cave exploration and waterfall nature walks.",
     rainAlternativeCategories: ["Heritage Cave", "Spice Factory", "Indoor Craft Village"]
   },
+  kodaikanal: {
+    lat: 10.2381,
+    lng: 77.4892,
+    tempC: 17,
+    condition: "Pleasant Mountain Mist",
+    icon: "🌫️",
+    humidity: "62%",
+    rainAlert: false,
+    precipitationMm: 1,
+    uvIndex: 5,
+    sunsetTime: "06:22 PM",
+    advisory: "Misty pine breezes. Ideal for walking around Kodai Lake and Coaker's Walk.",
+    rainAlternativeCategories: ["Wax Museum", "Orchidarium", "Artisan Chocolate Workshop"]
+  },
+  madurai: {
+    lat: 9.9252,
+    lng: 78.1198,
+    tempC: 32,
+    condition: "Warm & Clear Skies",
+    icon: "☀️",
+    humidity: "58%",
+    rainAlert: false,
+    precipitationMm: 0,
+    uvIndex: 8,
+    sunsetTime: "06:20 PM",
+    advisory: "Warm daytime weather. Evening is ideal for temple corridor exploration and street food walks.",
+    rainAlternativeCategories: ["Palace Museum", "Gandhi Memorial Museum", "Art Galleries"]
+  },
+  thanjavur: {
+    lat: 10.7870,
+    lng: 79.1378,
+    tempC: 32,
+    condition: "Sunny & Gentle Breeze",
+    icon: "☀️",
+    humidity: "56%",
+    rainAlert: false,
+    precipitationMm: 0,
+    uvIndex: 8,
+    sunsetTime: "06:18 PM",
+    advisory: "Clear sunny weather. Excellent lighting for Big Temple morning and golden hour photography.",
+    rainAlternativeCategories: ["Maratha Palace", "Bronze Gallery", "Artisan Workshops"]
+  },
+  tiruchirappalli: {
+    lat: 10.7905,
+    lng: 78.7047,
+    tempC: 32,
+    condition: "Sunny with River Breeze",
+    icon: "🌤️",
+    humidity: "55%",
+    rainAlert: false,
+    precipitationMm: 0,
+    uvIndex: 8,
+    sunsetTime: "06:19 PM",
+    advisory: "Climb Rockfort during early morning or sunset for cool Kaveri river breezes.",
+    rainAlternativeCategories: ["Temple Museum", "Srirangam Mandapam", "Heritage Walk"]
+  },
+  kanyakumari: {
+    lat: 8.0883,
+    lng: 77.5385,
+    tempC: 29,
+    condition: "Ocean Breeze & Clear Horizons",
+    icon: "🌊",
+    humidity: "74%",
+    rainAlert: false,
+    precipitationMm: 0,
+    uvIndex: 7,
+    sunsetTime: "06:26 PM",
+    advisory: "Crisp oceanic winds with clear horizons. Perfect for 05:45 AM sunrise and evening sunset views.",
+    rainAlternativeCategories: ["Gandhi Memorial Mandapam", "Wax Museum", "Indoor Aquarium"]
+  },
+  mahabalipuram: {
+    lat: 12.6208,
+    lng: 80.1944,
+    tempC: 30,
+    condition: "Warm Coastal Breeze",
+    icon: "🏖️",
+    humidity: "70%",
+    rainAlert: false,
+    precipitationMm: 0,
+    uvIndex: 8,
+    sunsetTime: "06:16 PM",
+    advisory: "Pleasant seaside day. Perfect for beach strolls and ancient rock carving exploration.",
+    rainAlternativeCategories: ["Sculpture Studio", "Maritime Museum", "Heritage Center"]
+  },
+  tiruvannamalai: {
+    lat: 12.2253,
+    lng: 79.0747,
+    tempC: 31,
+    condition: "Serene & Sunny",
+    icon: "☀️",
+    humidity: "52%",
+    rainAlert: false,
+    precipitationMm: 0,
+    uvIndex: 8,
+    sunsetTime: "06:18 PM",
+    advisory: "Peaceful atmosphere. Best time for Girivalam circuit is early morning before 09:00 AM.",
+    rainAlternativeCategories: ["Ashram Meditation Hall", "Temple Corridors", "Library"]
+  },
+  coimbatore: {
+    lat: 11.0168,
+    lng: 76.9558,
+    tempC: 28,
+    condition: "Pleasant Foothill Breeze",
+    icon: "🌤️",
+    humidity: "62%",
+    rainAlert: false,
+    precipitationMm: 0,
+    uvIndex: 7,
+    sunsetTime: "06:24 PM",
+    advisory: "Comfortable temperature with Western Ghats breeze. Great day for temple and nature trail visits.",
+    rainAlternativeCategories: ["GD Car Museum", "Textile Museum", "Indoor Science Center"]
+  },
   yercaud: {
     lat: 11.7753,
     lng: 78.2093,
@@ -77,9 +189,9 @@ export const DESTINATION_WEATHER_PROFILES = {
 /**
  * Get current weather profile and actionable recommendations for destination
  */
-export function getDestinationWeather(destinationId = 'yercaud') {
-  const key = (destinationId || '').toLowerCase();
-  const profile = DESTINATION_WEATHER_PROFILES[key] || DESTINATION_WEATHER_PROFILES.yercaud;
+export function getDestinationWeather(destinationId) {
+  const key = (destinationId || 'chennai').toLowerCase();
+  const profile = DESTINATION_WEATHER_PROFILES[key] || DESTINATION_WEATHER_PROFILES.chennai || Object.values(DESTINATION_WEATHER_PROFILES)[0];
 
   return {
     ...profile,
@@ -94,11 +206,11 @@ export function getDestinationWeather(destinationId = 'yercaud') {
 /**
  * Fetch live weather from Open-Meteo with seasonal profile fallback
  */
-export async function fetchLiveDestinationWeather(destinationId = 'yercaud') {
+export async function fetchLiveDestinationWeather(destinationId) {
   const fallback = getDestinationWeather(destinationId);
   try {
-    const lat = fallback.lat || 11.7753;
-    const lng = fallback.lng || 78.2093;
+    const lat = fallback.lat || 13.0827;
+    const lng = fallback.lng || 80.2707;
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`;
     
     const controller = new AbortController();

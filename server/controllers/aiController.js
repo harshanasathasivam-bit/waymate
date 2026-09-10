@@ -1,100 +1,139 @@
 const { getDb } = require('../config/db');
 const { getChatbotResponse, parseNaturalLanguageTripPrompt } = require('../services/llmService');
 
-// Calculate Match Score between user input and a destination
+// Semantic interest keywords map
+const INTEREST_SYNONYMS = {
+  nature: ['nature', 'hills', 'waterfalls', 'falls', 'forest', 'mountains', 'lake', 'scenic', 'wildlife', 'green', 'valley', 'mist', 'stream', 'botanical'],
+  heritage: ['heritage', 'history', 'ancient', 'chola', 'palace', 'fort', 'monument', 'unesco', 'architecture', 'historical'],
+  temples: ['temples', 'temple', 'spiritual', 'gopuram', 'dravidian', 'deity', 'pooja', 'sacred', 'darshan'],
+  coastal: ['coastal', 'beach', 'sea', 'ocean', 'coast', 'shore', 'island', 'lighthouse', 'promenade'],
+  food: ['food', 'cuisine', 'tiffin', 'dining', 'culinary', 'biryani', 'seafood', 'mess', 'coffee', 'jigarthanda', 'snack', 'halwa', 'macaroons', 'feast'],
+  photography: ['photography', 'viewpoints', 'viewpoint', 'scenic', 'panoramic', 'sunset', 'sunrise', 'hills', 'coastal', 'nature', 'mist', 'valley', 'falls'],
+  adventure: ['adventure', 'trekking', 'boating', 'coracle', 'falls', 'trails', 'hiking', 'rafting', 'waterfall', 'canyon'],
+  hills: ['hills', 'hill', 'hill station', 'mountains', 'mist', 'valleys', 'tea estates', 'western ghats', 'highlands', 'tea'],
+  culture: ['culture', 'art', 'dance', 'handloom', 'tradition', 'craft', 'classical', 'music', 'bronze', 'silk'],
+  spiritual: ['spiritual', 'temples', 'temple', 'ashram', 'holy', 'prayer', 'sacred', 'meditation', 'girivalam', 'pilgrimage']
+};
+
+// Multi-factor Match Scoring Engine
 function calculateMatchScore(destination, userRequirements, weights = {}) {
   let score = 0;
   const reasons = [];
 
   const defaultWeights = {
-    budgetMatch: 25,
-    interestMatch: 25,
-    durationMatch: 15,
-    weatherMatch: 10,
-    travelDistance: 10,
-    familySuitability: 5,
-    accessibility: 5,
-    sustainability: 5,
+    budgetMatch: 30,
+    durationMatch: 20,
+    travelTypeMatch: 20,
+    interestMatch: 20,
+    weatherDistanceMatch: 10,
     ...weights
   };
 
-  // 1. Budget Match (25%)
-  const dailyBudget = userRequirements.budget / (userRequirements.days || 1);
-  const destAvgCost = userRequirements.hotelPreference === 'Luxury' ? destination.avgDailyBudgetLuxury : destination.avgDailyBudgetBudget;
-  const budgetRatio = dailyBudget / (destAvgCost || 2000);
+  const days = Math.min(5, Math.max(1, parseInt(userRequirements.days) || 2));
+  const budget = Math.max(1500, parseInt(userRequirements.budget) || 5000);
+  const travelers = Math.max(1, parseInt(userRequirements.travelers) || 2);
+  const travelType = userRequirements.travelType || 'Couple';
+  const interests = Array.isArray(userRequirements.interests) && userRequirements.interests.length > 0 ? userRequirements.interests : ['Nature', 'Food'];
+  const isLuxury = userRequirements.hotelPreference === 'Luxury' || userRequirements.hotelPreference === 'Premium';
+
+  // 1. Budget Compatibility (30 pts)
+  const destAvgCost = isLuxury ? (destination.avgDailyBudgetLuxury || 5500) : (destination.avgDailyBudgetBudget || 1400);
+  const estTripCost = destAvgCost * days;
+  const budgetRatio = budget / estTripCost;
   let budgetScoreVal = 0;
-  if (budgetRatio >= 0.9 && budgetRatio <= 1.5) {
+
+  if (budgetRatio >= 0.85 && budgetRatio <= 1.55) {
     budgetScoreVal = 100;
-    reasons.push(`Perfectly fits your ₹${userRequirements.budget.toLocaleString('en-IN')} budget`);
-  } else if (budgetRatio > 1.5) {
-    budgetScoreVal = 90;
-    reasons.push(`Comfortably within your ₹${userRequirements.budget.toLocaleString('en-IN')} budget`);
-  } else if (budgetRatio >= 0.7) {
-    budgetScoreVal = 70;
-    reasons.push(`Manageable within budget with light optimization`);
+    reasons.push(`Budget of ₹${budget.toLocaleString('en-IN')} fits comfortably for ${days} days`);
+  } else if (budgetRatio > 1.55) {
+    budgetScoreVal = Math.max(72, Math.round(96 - (budgetRatio - 1.55) * 6));
+    reasons.push(`Easily affordable within ₹${budget.toLocaleString('en-IN')}`);
+  } else if (budgetRatio >= 0.70) {
+    budgetScoreVal = 80;
+    reasons.push(`Manageable within budget with smart value stays`);
   } else {
-    budgetScoreVal = 40;
+    budgetScoreVal = Math.max(25, Math.round(budgetRatio * 55));
   }
   score += (budgetScoreVal * (defaultWeights.budgetMatch / 100));
 
-  // 2. Interest Match (25%)
-  let interestMatches = 0;
-  const userInterests = userRequirements.interests || [];
-  if (userInterests.length > 0 && destination.categories) {
-    userInterests.forEach(interest => {
-      if (destination.categories.includes(interest)) {
-        interestMatches++;
-      }
-    });
-    const interestScoreVal = Math.min(100, (interestMatches / userInterests.length) * 100);
-    score += (interestScoreVal * (defaultWeights.interestMatch / 100));
-    if (interestMatches > 0) {
-      reasons.push(`Matches your interest in ${userInterests.slice(0, 2).join(' & ')}`);
-    }
-  } else {
-    score += (80 * (defaultWeights.interestMatch / 100));
-  }
+  // 2. Duration Suitability (20 pts)
+  const destCats = (destination.categories || []).map(c => String(c).toLowerCase());
+  const isHillStation = destCats.some(c => c.includes('hill') || c.includes('nature'));
+  const isCompact = ['yercaud', 'hogenakkal', 'courtallam', 'mahabalipuram', 'tiruvannamalai'].includes(destination.id);
+  const isExtended = ['ooty', 'kodaikanal', 'munnar', 'wayanad'].includes(destination.id);
+  
+  let idealMin = isCompact ? 1 : isExtended ? 3 : 2;
+  let idealMax = isCompact ? 2 : isExtended ? 5 : 4;
 
-  // 3. Duration Match (15%)
-  let durationScoreVal = 90;
-  if (userRequirements.days >= 2 && userRequirements.days <= 5) {
+  let durationScoreVal = 60;
+  if (days >= idealMin && days <= idealMax) {
     durationScoreVal = 100;
-    reasons.push(`Ideal for a ${userRequirements.days}-day trip`);
+    reasons.push(`Ideal duration for a ${days}-day itinerary`);
+  } else if (Math.abs(days - idealMin) === 1 || Math.abs(days - idealMax) === 1) {
+    durationScoreVal = 82;
+    reasons.push(`Well-suited for a ${days}-day visit`);
+  } else {
+    durationScoreVal = 48;
   }
   score += (durationScoreVal * (defaultWeights.durationMatch / 100));
 
-  // 4. Weather Match (10%)
-  const rainAlert = destination.currentWeather?.rainAlert;
-  const weatherScoreVal = rainAlert ? 60 : 95;
-  score += (weatherScoreVal * (defaultWeights.weatherMatch / 100));
-  if (!rainAlert && destination.currentWeather?.condition) {
-    reasons.push(`Favorable weather forecast (${destination.currentWeather.condition})`);
+  // 3. Travel Type Suitability (20 pts)
+  let travelTypeScoreVal = 80;
+  const scores = destination.scores || {};
+  if (travelType === 'Family') {
+    travelTypeScoreVal = scores.familyScore || 90;
+    if (travelTypeScoreVal >= 92) reasons.push(`Exceptional family-friendly amenities & relaxed sightseeing`);
+  } else if (travelType === 'Friends') {
+    const advScore = scores.adventureScore || 65;
+    const natScore = scores.natureScore || 75;
+    travelTypeScoreVal = Math.min(100, Math.round((advScore * 0.55 + natScore * 0.45)));
+    if (travelTypeScoreVal >= 85) reasons.push(`Great adventure trails & scenic viewpoints for friends`);
+  } else if (travelType === 'Solo') {
+    const cultScore = scores.cultureScore || 85;
+    const accessScore = scores.accessibilityScore || 85;
+    travelTypeScoreVal = Math.min(100, Math.round((cultScore * 0.55 + accessScore * 0.45)));
+    if (travelTypeScoreVal >= 85) reasons.push(`Safe, culturally enriching & walkable for solo travelers`);
+  } else if (travelType === 'Couple') {
+    const natureScore = scores.natureScore || 85;
+    const cultScore = scores.cultureScore || 80;
+    travelTypeScoreVal = Math.min(100, Math.round(natureScore * 0.65 + cultScore * 0.35));
+    if (travelTypeScoreVal >= 85) reasons.push(`Romantic misty panoramas and scenic heritage walks`);
   }
+  score += (travelTypeScoreVal * (defaultWeights.travelTypeMatch / 100));
 
-  // 5. Travel Distance (10%)
-  let distScoreVal = 85;
-  if (destination.distanceFromSalem && destination.distanceFromSalem <= 300) {
-    distScoreVal = 100;
-    reasons.push(`Convenient distance (${destination.distanceFromSalem} km from starting point)`);
+  // 4. Interests Alignment with Synonyms (20 pts)
+  let interestScoreVal = 70;
+  if (interests.length > 0) {
+    let matches = 0;
+    const destTags = (destination.tags || []).map(t => String(t).toLowerCase());
+    const destText = `${destination.name || ''} ${destination.tagline || ''} ${destination.description || ''}`.toLowerCase();
+
+    interests.forEach(interest => {
+      const intLower = String(interest).toLowerCase();
+      const synonyms = INTEREST_SYNONYMS[intLower] || [intLower];
+
+      const matchCat = destCats.some(c => synonyms.some(syn => c.includes(syn) || syn.includes(c)));
+      const matchTag = destTags.some(t => synonyms.some(syn => t.includes(syn) || syn.includes(t)));
+      const matchText = synonyms.some(syn => destText.includes(syn));
+
+      if (matchCat || matchTag || matchText) {
+        matches++;
+      }
+    });
+
+    interestScoreVal = Math.min(100, Math.round((matches / interests.length) * 100));
+    if (matches > 0) {
+      reasons.push(`Matches your passion for ${interests.slice(0, 2).join(' & ')}`);
+    }
   }
-  score += (distScoreVal * (defaultWeights.travelDistance / 100));
+  score += (interestScoreVal * (defaultWeights.interestMatch / 100));
 
-  // 6. Family Suitability (5%)
-  const familyScoreVal = userRequirements.travelType === 'Family' ? (destination.scores?.familyScore || 85) : 85;
-  score += (familyScoreVal * (defaultWeights.familySuitability / 100));
+  // 5. Weather, Accessibility & Distance (10 pts)
+  const weatherScoreVal = destination.currentWeather?.rainAlert ? 65 : 95;
+  score += (weatherScoreVal * (defaultWeights.weatherDistanceMatch / 100));
 
-  // 7. Accessibility (5%)
-  let accessScoreVal = destination.scores?.accessibilityScore || 80;
-  if (userRequirements.accessibilityNeeded) {
-    reasons.push(`Includes senior & wheelchair friendly options`);
-  }
-  score += (accessScoreVal * (defaultWeights.accessibility / 100));
-
-  // 8. Sustainability (5%)
-  score += ((destination.scores?.ecoScore || 80) * (defaultWeights.sustainability / 100));
-
-  const matchPercentage = Math.min(99, Math.round(score));
-  const explanation = `Recommended because it ${reasons.slice(0, 3).join(', ')}.`;
+  const matchPercentage = Math.min(99, Math.max(50, Math.round(score)));
+  const explanation = reasons.length > 0 ? reasons.slice(0, 3).join('. ') + '.' : `Great match for your travel parameters.`;
 
   return {
     matchPercentage,
@@ -102,6 +141,89 @@ function calculateMatchScore(destination, userRequirements, weights = {}) {
     reasons
   };
 }
+
+// Top 3 Dynamic Destination Recommendations Endpoint
+exports.recommendDestinations = async (req, res) => {
+  try {
+    const {
+      budget = 10000,
+      days = 3,
+      travelType = 'Family',
+      travelers = 2,
+      interests = ['Nature', 'Heritage', 'Food'],
+      hotelPreference = 'Budget',
+      startingLocation = 'Salem'
+    } = req.body;
+
+    const db = getDb();
+    const weights = db.adminSettings?.weights || {};
+    const allDestinations = db.destinations || [];
+
+    const scored = allDestinations.map(dest => {
+      const match = calculateMatchScore(dest, {
+        budget: Number(budget),
+        days: Number(days),
+        travelType,
+        travelers: Number(travelers),
+        interests,
+        hotelPreference,
+        startingLocation
+      }, weights);
+
+      // Estimate realistic budget range based on user's target budget and travel constraints
+      const numDays = Math.max(1, Number(days));
+      const numTravelers = Math.max(1, Number(travelers));
+      const roomsNeeded = travelType === 'Family' || travelType === 'Couple' 
+        ? Math.max(1, Math.ceil(numTravelers / 3)) 
+        : travelType === 'Solo' ? 1 : Math.max(1, Math.ceil(numTravelers / 2));
+
+      const isStrictBudget = (Number(budget) / numDays) < 2800;
+      const baseRoom = isStrictBudget ? 750 : (hotelPreference === 'Luxury' ? 3500 : 1200);
+      const foodPerDay = (isStrictBudget ? 180 : 350) * numTravelers;
+      const localTransitPerDay = isStrictBudget ? 200 : (250 * numTravelers);
+      const calculatedDaily = (baseRoom * roomsNeeded) + foodPerDay + localTransitPerDay;
+      const calculatedTotal = calculatedDaily * numDays;
+
+      const targetBudget = Number(budget) || calculatedTotal;
+      const minEst = Math.round(Math.min(targetBudget * 0.85, Math.max(calculatedTotal * 0.88, targetBudget * 0.75)));
+      const maxEst = Math.round(Math.min(targetBudget * 1.08, Math.max(calculatedTotal * 1.08, targetBudget * 1.02)));
+
+      return {
+        id: dest.id,
+        name: dest.name,
+        state: dest.state,
+        tagline: dest.tagline,
+        description: dest.description || dest.tagline,
+        heroImage: dest.heroImage || (dest.attractions && dest.attractions[0]?.photo) || "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80",
+        categories: dest.categories || [],
+        matchPercentage: match.matchPercentage,
+        explanation: match.explanation,
+        matchReasons: match.reasons,
+        estimatedBudgetRange: `₹${minEst.toLocaleString('en-IN')} - ₹${maxEst.toLocaleString('en-IN')}`,
+        avgDailyBudget: calculatedDaily,
+        idealDays: (dest.categories?.some(c => c.toLowerCase().includes('hill')) ? '3-5 Days' : '2-3 Days'),
+        suitableTravelTypes: (dest.scores?.familyScore >= 90 ? ['Family', 'Friends', 'Couple', 'Solo'] : ['Friends', 'Solo', 'Couple']),
+        currentWeather: dest.currentWeather || { temp: "28°C", condition: "Pleasant" }
+      };
+    });
+
+    // Sort descending by match score
+    scored.sort((a, b) => b.matchPercentage - a.matchPercentage);
+
+    // Return Top 3 recommendations
+    const top3 = scored.slice(0, 3);
+
+    res.json({
+      success: true,
+      count: top3.length,
+      recommendations: top3,
+      allRanked: scored
+    });
+  } catch (err) {
+    console.error('Destination recommendation error:', err);
+    res.status(500).json({ success: false, message: "Error calculating recommendations", error: err.message });
+  }
+};
 
 // Generate complete AI trip plan
 exports.generateTripPlan = async (req, res) => {

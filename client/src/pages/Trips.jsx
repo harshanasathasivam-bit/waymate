@@ -5,33 +5,57 @@ import {
   getStopAlternatives,
   parseNaturalLanguageClientPrompt,
   reoptimizeItineraryStops,
+  rankDestinations,
   PLANNER_DESTINATIONS
-} from '../services/travelPlannerService';
-import { getCrowdStatus, getNearbySmartAlternatives } from '../services/crowdService';
-import { getDestinationWeather, getWeatherImpactForStop } from '../services/weatherService';
+} from '../services/travelPlannerService.js';
+import { getCrowdStatus, getNearbySmartAlternatives } from '../services/crowdService.js';
+import { getDestinationWeather, getWeatherImpactForStop } from '../services/weatherService.js';
 import {
   Map, Calendar, Clock, DollarSign, ArrowUp, ArrowDown,
   Plus, Trash2, CheckCircle2, Share2, Sparkles, Navigation,
   List, Sliders, RefreshCw, AlertCircle, Info, ChevronRight,
   TrendingDown, Compass, Coffee, Check, X, Shield, Users, AlertTriangle,
-  Sun, CloudRain, Wind, Bookmark, Save, FolderOpen
+  Sun, CloudRain, Wind, Bookmark, Save, FolderOpen, Award
 } from 'lucide-react';
 
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
-export default function Trips({ destination }) {
+const ALL_INTEREST_OPTIONS = [
+  'Nature', 'Heritage', 'Temples', 'Coastal', 'Food', 'Photography', 'Adventure', 'Hills', 'Culture', 'Spiritual'
+];
+
+export default function Trips({ destination, onOpenPlaceDetail }) {
   const { t } = useLanguage();
   const { user } = useAuth();
 
-  // Input parameters state (restored from active state if available)
-  const [selectedDestId, setSelectedDestId] = useState(destination?.id || 'yercaud');
-  const [daysCount, setDaysCount] = useState(2);
-  const [budget, setBudget] = useState(5000);
+  // Input parameters state (dynamic recommendation inputs)
+  const [budget, setBudget] = useState(10000);
+  const [daysCount, setDaysCount] = useState(3);
+  const [travelType, setTravelType] = useState('Family');
   const [travelStyle, setTravelStyle] = useState('Budget');
-  const [travelersCount, setTravelersCount] = useState(2);
+  const [travelersCount, setTravelersCount] = useState(3);
   const [startingLocation, setStartingLocation] = useState('Salem');
-  const [selectedInterests, setSelectedInterests] = useState(['Nature', 'Food', 'Photography']);
+  const [selectedInterests, setSelectedInterests] = useState(['Heritage', 'Temples', 'Food']);
+
+  // Dynamic Top 3 Destination Recommendations Engine
+  const topRecommendations = useMemo(() => {
+    const recs = rankDestinations({
+      budget,
+      days: daysCount,
+      travelType,
+      travelers: travelersCount,
+      interests: selectedInterests,
+      travelStyle,
+      startingLocation
+    });
+    return Array.isArray(recs) ? recs : (recs?.top3 || []);
+  }, [budget, daysCount, travelType, travelersCount, selectedInterests, travelStyle, startingLocation]);
+
+  // Selected destination state
+  const [selectedDestId, setSelectedDestId] = useState(
+    destination?.id || (topRecommendations[0]?.id || 'madurai')
+  );
 
   // Saved Trips Modal State
   const [showSavedModal, setShowSavedModal] = useState(false);
@@ -52,7 +76,7 @@ export default function Trips({ destination }) {
 
   const [selectedDayIdx, setSelectedDayIdx] = useState(0);
   const [showMap, setShowMap] = useState(false);
-  const [replacingStop, setReplacingStop] = useState(null); // stop object being replaced
+  const [replacingStop, setReplacingStop] = useState(null);
   const [shareSuccess, setShareSuccess] = useState(false);
 
   // Weather Profile for selected destination
@@ -66,15 +90,16 @@ export default function Trips({ destination }) {
       destinationId: selectedDestId,
       daysCount,
       budget,
+      travelType,
       travelStyle,
       travelersCount,
       interests: selectedInterests,
       startingLocation
     });
-  }, [selectedDestId, daysCount, budget, travelStyle, travelersCount, selectedInterests, startingLocation]);
+  }, [selectedDestId, daysCount, budget, travelType, travelStyle, travelersCount, selectedInterests, startingLocation]);
 
   // Local mutable days state for interactive reordering and replacement
-  const [days, setDays] = useState(itinerary.days);
+  const [days, setDays] = useState(itinerary?.days || []);
 
   // Fetch saved trips from backend on mount
   useEffect(() => {
@@ -96,27 +121,43 @@ export default function Trips({ destination }) {
 
   // Sync days whenever destination or day count fundamentally regenerates
   useEffect(() => {
-    setDays(itinerary.days);
-    setSelectedDayIdx(0);
+    if (itinerary?.days) {
+      setDays(itinerary.days);
+      setSelectedDayIdx(0);
+    }
   }, [itinerary]);
+
+  // Toggle Interest Pill
+  const handleToggleInterest = (interest) => {
+    setSelectedInterests(prev => {
+      if (prev.includes(interest)) {
+        if (prev.length <= 1) return prev;
+        return prev.filter(i => i !== interest);
+      } else {
+        return [...prev, interest];
+      }
+    });
+  };
 
   // Save current trip to persistent storage & backend
   const handleSaveItinerary = async () => {
+    const destName = itinerary?.summary?.destinationName || 'Custom Trip';
     const tripToSave = {
       id: `trip_${Date.now()}`,
       userId: user?.id || 'guest',
-      title: `${itinerary.summary.destinationName} ${daysCount}-Day Journey`,
-      destination: { id: selectedDestId, name: itinerary.summary.destinationName },
+      title: `${destName} ${daysCount}-Day Journey`,
+      destination: { id: selectedDestId, name: destName },
       summary: {
         days: daysCount,
         budgetInput: budget,
-        estimatedTotalCost: itinerary.summary.estimatedTotalCost,
+        estimatedTotalCost: itinerary?.summary?.estimatedTotalCost || budget,
         travelers: travelersCount,
+        travelType,
         travelStyle,
         startingLocation
       },
-      days: days, // preserve all user stop adjustments
-      budgetBreakdown: itinerary.budgetBreakdown,
+      days: days,
+      budgetBreakdown: itinerary?.budgetBreakdown,
       createdAt: new Date().toISOString()
     };
 
@@ -140,6 +181,7 @@ export default function Trips({ destination }) {
     if (savedTrip.destination?.id) setSelectedDestId(savedTrip.destination.id);
     if (savedTrip.summary?.days) setDaysCount(savedTrip.summary.days);
     if (savedTrip.summary?.budgetInput) setBudget(savedTrip.summary.budgetInput);
+    if (savedTrip.summary?.travelType) setTravelType(savedTrip.summary.travelType);
     if (savedTrip.summary?.travelStyle) setTravelStyle(savedTrip.summary.travelStyle);
     if (savedTrip.summary?.travelers) setTravelersCount(savedTrip.summary.travelers);
     if (savedTrip.summary?.startingLocation) setStartingLocation(savedTrip.summary.startingLocation);
@@ -163,7 +205,7 @@ export default function Trips({ destination }) {
     } catch (e) {}
   };
 
-  const currentDay = days[selectedDayIdx] || days[0] || { stops: [] };
+  const currentDay = (days && days[selectedDayIdx]) || (days && days[0]) || { stops: [] };
 
   // Calculate crowd status for all current day stops
   const currentStopsWithCrowd = useMemo(() => {
@@ -179,7 +221,7 @@ export default function Trips({ destination }) {
     if (crowdedIdx === -1) return null;
 
     const crowdedStop = currentStopsWithCrowd[crowdedIdx];
-    const existingTitles = currentDay.stops.map(s => s.title);
+    const existingTitles = (currentDay.stops || []).map(s => s.title);
     const alternatives = getNearbySmartAlternatives({
       currentPlace: crowdedStop,
       destinationId: selectedDestId,
@@ -203,7 +245,7 @@ export default function Trips({ destination }) {
     const { index, stop } = crowdedStopInfo;
     const newStop = {
       id: `alt-${Date.now()}`,
-      time: stop.time, // take current slot
+      time: stop.time,
       title: alt.name,
       category: alt.category,
       cost: alt.costStr,
@@ -220,7 +262,6 @@ export default function Trips({ destination }) {
       }
     };
 
-    // Shift crowded stop time by approx 1 hour
     const updatedStops = [...currentDay.stops];
     const delayedStop = {
       ...updatedStops[index],
@@ -228,7 +269,6 @@ export default function Trips({ destination }) {
       desc: `${updatedStops[index].desc} (Rescheduled for low evening crowds).`
     };
 
-    // Insert alternative before delayed stop
     updatedStops.splice(index, 1, newStop, delayedStop);
 
     const newDays = [...days];
@@ -243,7 +283,7 @@ export default function Trips({ destination }) {
     const { index } = crowdedStopInfo;
     const newStop = {
       id: `rep-${Date.now()}`,
-      time: currentDay.stops[index].time,
+      time: currentDay.stops[index]?.time || "02:30 PM",
       title: alt.name,
       category: alt.category,
       cost: alt.costStr,
@@ -318,7 +358,7 @@ export default function Trips({ destination }) {
     setReplacingStop(null);
   };
 
-  // AI Natural Language Prompt Handler (Backend AI -> Client Fail-safe Fallback)
+  // AI Natural Language Prompt Handler
   const handleGenerateWithAI = async (customPrompt) => {
     const promptToUse = (customPrompt || aiPromptInput || '').trim();
     if (!promptToUse) return;
@@ -341,6 +381,7 @@ export default function Trips({ destination }) {
           if (sum.budgetInput) setBudget(sum.budgetInput);
           if (sum.days) setDaysCount(sum.days);
           if (sum.travelers) setTravelersCount(sum.travelers);
+          if (sum.travelType) setTravelType(sum.travelType);
           if (sum.startingLocation) setStartingLocation(sum.startingLocation);
           setAiSuccessMsg(`✨ AI Plan created for ${data.tripPlan.destination?.name || 'your trip'}!`);
           setIsAiGenerating(false);
@@ -348,17 +389,17 @@ export default function Trips({ destination }) {
         }
       }
     } catch (err) {
-      console.warn('[AI Plan] Backend extraction failed, using client parser fallback:', err);
+      console.warn('[AI Plan] Backend extraction fallback:', err);
     }
 
-    // Client-side grounded parser fallback
+    // Client parser fallback
     const parsed = parseNaturalLanguageClientPrompt(promptToUse);
-    setSelectedDestId(parsed.destinationId);
-    setBudget(parsed.budget);
-    setDaysCount(parsed.daysCount);
-    setTravelersCount(parsed.travelersCount);
-    setTravelStyle(parsed.travelStyle);
-    setSelectedInterests(parsed.interests);
+    if (parsed.destinationId) setSelectedDestId(parsed.destinationId);
+    if (parsed.budget) setBudget(parsed.budget);
+    if (parsed.daysCount) setDaysCount(parsed.daysCount);
+    if (parsed.travelersCount) setTravelersCount(parsed.travelersCount);
+    if (parsed.travelStyle) setTravelStyle(parsed.travelStyle);
+    if (parsed.interests) setSelectedInterests(parsed.interests);
     setAiSuccessMsg(`✨ Plan created from: "${promptToUse.slice(0, 45)}..."`);
     setIsAiGenerating(false);
   };
@@ -374,17 +415,19 @@ export default function Trips({ destination }) {
 
   // Add custom stop
   const handleAddStop = () => {
+    const firstStopLat = currentDay.stops?.[0]?.lat || 11.6643;
+    const firstStopLng = currentDay.stops?.[0]?.lng || 78.1460;
     const newStop = {
       id: `custom-${Date.now()}`,
       time: "04:30 PM",
-      title: "Local Specialty Craft & Coffee Stroll",
+      title: "Local Heritage Craft & Tea Stroll",
       category: "Local Discovery",
       cost: "Free",
       costNum: 0,
       duration: "1.5 hrs",
       desc: "Added to customized itinerary based on explorer preference.",
-      lat: itinerary.destination.coordinates.lat,
-      lng: itinerary.destination.coordinates.lng,
+      lat: firstStopLat,
+      lng: firstStopLng,
       transition: {
         distance: "1.1 km",
         travelTime: "5 mins walk",
@@ -396,10 +439,10 @@ export default function Trips({ destination }) {
     setDays(newDays);
   };
 
-  // Smart Action: Reduce Cost (convert paid activities to free nature scenic spots)
+  // Smart Action: Reduce Cost
   const handleReduceCost = () => {
     const updatedStops = currentDay.stops.map(s => {
-      if (s.costNum > 100 && !s.category.includes('Food')) {
+      if (s.costNum > 100 && !s.category?.includes('Food')) {
         return {
           ...s,
           title: `${s.title} (Scenic Viewpoint Access)`,
@@ -429,14 +472,17 @@ export default function Trips({ destination }) {
 
   // Share Plan
   const handleShareTrip = () => {
-    navigator.clipboard?.writeText(`WayMate Smart Trip: ${daysCount} Days in ${itinerary.summary.destinationName} (Budget ₹${budget})`);
+    const destName = itinerary?.summary?.destinationName || 'Tamil Nadu';
+    navigator.clipboard?.writeText(`WayMate Smart Trip: ${daysCount} Days in ${destName} (Budget ₹${budget})`);
     setShareSuccess(true);
     setTimeout(() => setShareSuccess(false), 3000);
   };
 
-  const routePolyline = currentDay.stops
-    ?.map(s => [s.lat, s.lng])
-    ?.filter(coord => coord[0] && coord[1]) || [];
+  const routePolyline = (currentDay.stops || [])
+    .map(s => [s.lat, s.lng])
+    .filter(coord => coord[0] && coord[1]);
+
+  const destTitle = itinerary?.summary?.destinationName || 'Destination';
 
   return (
     <div style={{ position: 'relative', minHeight: 'calc(100vh - 71px)', background: 'var(--bg-page)' }}>
@@ -474,7 +520,7 @@ export default function Trips({ destination }) {
                   </button>
                 </div>
                 <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                  Day 0{currentDay.dayNumber} Connected Route
+                  Day 0{currentDay.dayNumber || 1} Connected Route ({destTitle})
                 </h2>
               </div>
 
@@ -502,7 +548,7 @@ export default function Trips({ destination }) {
 
               {/* Timeline list in split mode */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {currentDay.stops.map((stop, i) => (
+                {(currentDay.stops || []).map((stop, i) => (
                   <div key={stop.id || i} style={{ background: '#ffffff', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)', padding: '14px', display: 'flex', gap: '12px' }}>
                     <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--brand-terracotta)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.76rem', fontWeight: 800, flexShrink: 0 }}>
                       {i + 1}
@@ -519,13 +565,14 @@ export default function Trips({ destination }) {
 
             <div className="split-map-container" style={{ width: '45%' }}>
               <MapView
-                places={currentDay.stops}
+                places={currentDay.stops || []}
                 routePolyline={routePolyline}
+                onSelectPlace={(p) => onOpenPlaceDetail && onOpenPlaceDetail(p)}
               />
             </div>
           </div>
         ) : (
-          /* Full Width Smart Trip Planner (Clean & Editorial) */
+          /* Full Width Smart Trip Planner */
           <div>
             
             {/* Header */}
@@ -534,14 +581,14 @@ export default function Trips({ destination }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                   <Sparkles size={18} color="var(--brand-terracotta)" />
                   <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--brand-terracotta)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                    {t('planner.budgetEngine', 'Smart Itinerary & Budget Engine')}
+                    {t('planner.budgetEngine', 'Dynamic Recommendation & Itinerary Engine')}
                   </span>
                 </div>
                 <h1 style={{ fontSize: '2.3rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-display)', letterSpacing: '-0.02em' }}>
-                  {t('planner.title', 'Trip Planner for')} {itinerary.summary.destinationName}
+                  {t('planner.title', 'Trip Planner for')} {destTitle}
                 </h1>
                 <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)' }}>
-                  {t('planner.subtitle', 'Intelligent, clustered daily travel plans crafted around your exact budget and travel style.')}
+                  Intelligent destination matching, clustered daily schedules, and live crowd optimization across Tamil Nadu.
                 </p>
               </div>
 
@@ -652,18 +699,18 @@ export default function Trips({ destination }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                 <Sparkles size={18} color="var(--brand-terracotta)" />
                 <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--brand-terracotta)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  AI Itinerary Creator
+                  AI Journey Matcher & Planner
                 </span>
               </div>
               
               <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
-                Describe your dream getaway in plain natural language (destination, days, budget, interests):
+                Describe your dream trip in plain language or use the structured controls below:
               </p>
 
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '12px' }}>
                 <input
                   type="text"
-                  placeholder='e.g. "I have ₹5000 and want to visit Yercaud for 2 days. I like nature and food."'
+                  placeholder='e.g. "We have ₹10,000 for a 3-day family temple and food trip to Madurai"'
                   value={aiPromptInput}
                   onChange={e => setAiPromptInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleGenerateWithAI()}
@@ -701,7 +748,7 @@ export default function Trips({ destination }) {
                   }}
                 >
                   <Sparkles size={16} />
-                  {isAiGenerating ? 'Generating...' : 'Generate Plan'}
+                  {isAiGenerating ? 'Generating...' : 'Match & Plan'}
                 </button>
               </div>
 
@@ -709,10 +756,10 @@ export default function Trips({ destination }) {
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-muted)' }}>Quick Examples:</span>
                 {[
-                  { label: "🌿 ₹5,000 • 2 Days in Yercaud", prompt: "I have ₹5000 and want to visit Yercaud for 2 days. I like nature and food." },
-                  { label: "⛰️ ₹7,500 • 3 Days in Munnar", prompt: "I have ₹7500 and want a 3 day nature and photography trip to Munnar." },
-                  { label: "🏛️ ₹4,500 • 2 Days in Chennai", prompt: "I have ₹4500 and want a 2 day heritage and coastal food trip to Chennai." },
-                  { label: "🌲 ₹6,000 • 2 Days in Ooty", prompt: "I have ₹6000 and want to visit Ooty for 2 days for pine forests and lake walks." }
+                  { label: "🏛️ ₹10k • 3 Days Family Madurai", prompt: "I have ₹10000 for a 3 day family trip to Madurai with temple and heritage visits." },
+                  { label: "🌲 ₹25k • 5 Days Friends Ooty", prompt: "We have ₹25000 for a 5 day friends group trip to Ooty for tea estates and viewpoints." },
+                  { label: "🌊 ₹5k • 2 Days Solo Mahabalipuram", prompt: "I have ₹5000 for a 2 day solo coastal and heritage tour to Mahabalipuram." },
+                  { label: "🛕 ₹8k • 3 Days Trichy & Thanjavur", prompt: "I have ₹8000 for a 3 day heritage architecture trip to Thanjavur." }
                 ].map((pill, idx) => (
                   <button
                     key={idx}
@@ -753,12 +800,12 @@ export default function Trips({ destination }) {
               boxShadow: 'var(--shadow-sm)',
               marginBottom: '28px'
             }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '20px' }}>
                 
-                {/* Destination Selector */}
+                {/* Destination Dropdown */}
                 <div>
                   <label style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
-                    {t('planner.destination', 'Destination')}
+                    {t('planner.destination', 'Active Destination')}
                   </label>
                   <select
                     value={selectedDestId}
@@ -784,7 +831,7 @@ export default function Trips({ destination }) {
                 {/* Duration */}
                 <div>
                   <label style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
-                    {t('planner.duration', 'Duration')}
+                    {t('planner.duration', 'Trip Duration')}
                   </label>
                   <select
                     value={daysCount}
@@ -805,7 +852,41 @@ export default function Trips({ destination }) {
                     <option value={2}>2 Days Weekend</option>
                     <option value={3}>3 Days Full Escape</option>
                     <option value={4}>4 Days Deep Dive</option>
-                    <option value={5}>5 Days Extended</option>
+                    <option value={5}>5 Days Extended Journey</option>
+                  </select>
+                </div>
+
+                {/* Travel Type (Family / Friends / Solo / Couple) */}
+                <div>
+                  <label style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
+                    Travel Type
+                  </label>
+                  <select
+                    value={travelType}
+                    onChange={e => {
+                      const newType = e.target.value;
+                      setTravelType(newType);
+                      if (newType === 'Solo') setTravelersCount(1);
+                      else if (newType === 'Couple') setTravelersCount(2);
+                      else if (newType === 'Family') setTravelersCount(Math.max(3, travelersCount));
+                      else if (newType === 'Friends') setTravelersCount(Math.max(3, travelersCount));
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1.5px solid var(--border-light)',
+                      background: 'var(--bg-surface)',
+                      fontSize: '0.9rem',
+                      fontWeight: 700,
+                      color: 'var(--text-primary)',
+                      outline: 'none'
+                    }}
+                  >
+                    <option value="Family">👨‍👩‍👧 Family Trip</option>
+                    <option value="Friends">🎒 Friends Group</option>
+                    <option value="Solo">🚶 Solo Traveler</option>
+                    <option value="Couple">💑 Couple Getaway</option>
                   </select>
                 </div>
 
@@ -838,7 +919,7 @@ export default function Trips({ destination }) {
                 {/* Travelers */}
                 <div>
                   <label style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
-                    {t('planner.travelers', 'Travelers Count')}
+                    {t('planner.travelers', 'Travelers')}
                   </label>
                   <select
                     value={travelersCount}
@@ -855,36 +936,38 @@ export default function Trips({ destination }) {
                       outline: 'none'
                     }}
                   >
-                    <option value={1}>Solo (1 Person)</option>
-                    <option value={2}>Duo (2 People)</option>
-                    <option value={3}>Small Group (3 People)</option>
-                    <option value={4}>Family (4 People)</option>
+                    <option value={1}>1 Person</option>
+                    <option value={2}>2 People</option>
+                    <option value={3}>3 People</option>
+                    <option value={4}>4 People</option>
+                    <option value={5}>5+ People</option>
                   </select>
                 </div>
 
               </div>
 
-              {/* 2. Dynamic Budget Slider */}
+              {/* Dynamic Budget Slider */}
               <div style={{
                 background: 'var(--bg-tint-warm)',
                 border: '1px solid #fde68a',
                 borderRadius: 'var(--radius-md)',
-                padding: '20px 24px'
+                padding: '18px 22px',
+                marginBottom: '18px'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <span style={{ fontSize: '0.84rem', fontWeight: 800, color: '#92400e', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Sliders size={16} color="#d97706" /> {t('planner.budgetControl', 'Dynamic Budget Control')}:
+                    <Sliders size={16} color="#d97706" /> {t('planner.budgetControl', 'Trip Budget Target')}:
                   </span>
                   <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--brand-terracotta)', fontFamily: 'var(--font-display)' }}>
                     ₹{budget.toLocaleString('en-IN')}
-                    <span style={{ fontSize: '0.76rem', fontWeight: 600, color: 'var(--text-muted)' }}> {t('planner.totalTrip', '(Total Trip)')}</span>
+                    <span style={{ fontSize: '0.76rem', fontWeight: 600, color: 'var(--text-muted)' }}> (Total Est. Budget)</span>
                   </div>
                 </div>
 
                 <input
                   type="range"
                   min="2000"
-                  max="25000"
+                  max="40000"
                   step="500"
                   value={budget}
                   onChange={e => setBudget(Number(e.target.value))}
@@ -897,14 +980,268 @@ export default function Trips({ destination }) {
                 />
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: '#92400e', marginTop: '6px', fontWeight: 600 }}>
-                  <span>₹2,000 (Backpacker Tier)</span>
-                  <span>₹8,000 (Comfort Tier)</span>
-                  <span>₹25,000+ (Premium Tier)</span>
+                  <span>₹2,000 (Solo / Day Escapes)</span>
+                  <span>₹10,000 (Weekend Explorer)</span>
+                  <span>₹25,000+ (Extended Multi-day)</span>
                 </div>
+              </div>
+
+              {/* Interests Multi-Select Pills */}
+              <div>
+                <span style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+                  Select Interests & Themes:
+                </span>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {ALL_INTEREST_OPTIONS.map(interest => {
+                    const isSelected = selectedInterests.includes(interest);
+                    return (
+                      <button
+                        key={interest}
+                        onClick={() => handleToggleInterest(interest)}
+                        style={{
+                          background: isSelected ? 'var(--brand-terracotta)' : 'var(--bg-surface)',
+                          color: isSelected ? '#ffffff' : 'var(--text-primary)',
+                          border: isSelected ? '1px solid var(--brand-terracotta)' : '1px solid var(--border-light)',
+                          borderRadius: 'var(--radius-full)',
+                          padding: '5px 14px',
+                          fontSize: '0.78rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        {isSelected && <Check size={13} />}
+                        {interest}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+            </div>
+
+            {/* TOP 3 DESTINATION RECOMMENDATION CARDS */}
+            <div style={{
+              background: '#ffffff',
+              border: '1.5px solid var(--border-light)',
+              borderRadius: 'var(--radius-xl)',
+              padding: '28px',
+              boxShadow: 'var(--shadow-sm)',
+              marginBottom: '28px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <Sparkles size={16} color="var(--brand-terracotta)" />
+                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--brand-terracotta)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                      Dynamic Tamil Nadu Recommendation Engine
+                    </span>
+                  </div>
+                  <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-display)', margin: 0 }}>
+                    Top 3 Recommended Destinations for You
+                  </h2>
+                  <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', marginTop: '4px', margin: 0 }}>
+                    Ranked dynamically based on ₹{budget.toLocaleString('en-IN')} budget, {daysCount} days, {travelType} travel, and {selectedInterests.join(', ')}.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.76rem', color: 'var(--text-muted)', background: 'var(--bg-surface)', padding: '6px 14px', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-light)' }}>
+                  <Award size={15} color="var(--brand-terracotta)" />
+                  <span>Showing Top 3 Matches</span>
+                </div>
+              </div>
+
+              {/* 3 Grid Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: '20px' }}>
+                {topRecommendations.map((rec, rankIdx) => {
+                  const isSelected = selectedDestId === rec.id;
+                  const rankBadge = rankIdx === 0
+                    ? { label: '🥇 #1 Best Match', bg: 'linear-gradient(135deg, #fef3c7, #fde68a)', color: '#92400e', border: '#fcd34d' }
+                    : rankIdx === 1
+                    ? { label: '🥈 #2 Strong Match', bg: 'linear-gradient(135deg, #f1f5f9, #e2e8f0)', color: '#334155', border: '#cbd5e1' }
+                    : { label: '🥉 #3 Great Choice', bg: 'linear-gradient(135deg, #ffedd5, #fed7aa)', color: '#9a3412', border: '#fdba74' };
+
+                  const estMin = rec.budgetRange?.min || 5000;
+                  const estMax = rec.budgetRange?.max || 12000;
+                  const idealDaysStr = rec.idealDurationDays ? `${rec.idealDurationDays[0]}-${rec.idealDurationDays[rec.idealDurationDays.length - 1]} Days` : (rec.idealDays || '2-3 Days');
+
+                  return (
+                    <div
+                      key={rec.id}
+                      style={{
+                        background: isSelected ? 'linear-gradient(180deg, #fffaf5 0%, #ffffff 100%)' : '#ffffff',
+                        border: isSelected ? '2px solid var(--brand-terracotta)' : '1px solid var(--border-light)',
+                        borderRadius: 'var(--radius-lg)',
+                        overflow: 'hidden',
+                        boxShadow: isSelected ? '0 8px 24px rgba(194, 65, 12, 0.15)' : 'var(--shadow-sm)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        transition: 'all 0.25s ease',
+                        position: 'relative'
+                      }}
+                    >
+                      {/* Card Image Banner */}
+                      <div style={{ position: 'relative', height: '145px', background: '#1e293b', overflow: 'hidden' }}>
+                        <img
+                          src={rec.heroImage || "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800&auto=format&fit=crop&q=80"}
+                          alt={rec.name}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.88 }}
+                        />
+                        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 60%)' }} />
+
+                        {/* Rank Ribbon */}
+                        <div style={{
+                          position: 'absolute',
+                          top: '10px',
+                          left: '10px',
+                          background: rankBadge.bg,
+                          color: rankBadge.color,
+                          border: `1px solid ${rankBadge.border}`,
+                          padding: '3px 10px',
+                          borderRadius: '999px',
+                          fontSize: '0.72rem',
+                          fontWeight: 800,
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+                        }}>
+                          {rankBadge.label}
+                        </div>
+
+                        {/* Match Score Badge */}
+                        <div style={{
+                          position: 'absolute',
+                          top: '10px',
+                          right: '10px',
+                          background: rec.matchPercentage >= 90 ? '#059669' : rec.matchPercentage >= 75 ? '#0284c7' : '#d97706',
+                          color: '#ffffff',
+                          padding: '3px 10px',
+                          borderRadius: '999px',
+                          fontSize: '0.74rem',
+                          fontWeight: 800,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+                        }}>
+                          <Sparkles size={12} /> {rec.matchPercentage}% Match
+                        </div>
+
+                        {/* Destination Title on Image */}
+                        <div style={{ position: 'absolute', bottom: '10px', left: '14px', right: '14px' }}>
+                          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.6)' }}>
+                            {rec.name}
+                          </h3>
+                          <p style={{ fontSize: '0.74rem', color: '#e2e8f0', margin: '2px 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {rec.tagline}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Card Body */}
+                      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
+                        
+                        {/* Short Description */}
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.45 }}>
+                          {rec.description || rec.tagline}
+                        </p>
+
+                        {/* Key Metrics Grid */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', background: 'var(--bg-surface)', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)' }}>
+                          <div>
+                            <span style={{ fontSize: '0.66rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Est. Budget Range</span>
+                            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--brand-terracotta)', marginTop: '1px' }}>
+                              ₹{estMin.toLocaleString('en-IN')} - ₹{estMax.toLocaleString('en-IN')}
+                            </div>
+                          </div>
+
+                          <div>
+                            <span style={{ fontSize: '0.66rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Ideal Duration</span>
+                            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '1px' }}>
+                              {idealDaysStr}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Travel Type Tags */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Best For:</span>
+                          {(rec.suitableTravelTypes || []).map((type, tIdx) => {
+                            const isMatch = type.toLowerCase() === travelType.toLowerCase();
+                            return (
+                              <span
+                                key={tIdx}
+                                style={{
+                                  background: isMatch ? 'rgba(194, 65, 12, 0.12)' : 'var(--bg-surface)',
+                                  color: isMatch ? 'var(--brand-terracotta)' : 'var(--text-secondary)',
+                                  border: isMatch ? '1px solid #fed7aa' : '1px solid var(--border-light)',
+                                  borderRadius: '999px',
+                                  padding: '2px 8px',
+                                  fontSize: '0.68rem',
+                                  fontWeight: 700
+                                }}
+                              >
+                                {type}
+                              </span>
+                            );
+                          })}
+                        </div>
+
+                        {/* Why Recommended Reasons */}
+                        <div style={{ borderTop: '1px dashed var(--border-light)', paddingTop: '10px', marginTop: '2px' }}>
+                          <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--brand-terracotta)', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
+                            Why Recommended:
+                          </span>
+                          <ul style={{ margin: 0, paddingLeft: '16px', fontSize: '0.74rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            {(rec.reasons || rec.matchReasons || []).slice(0, 3).map((reason, rIdx) => (
+                              <li key={rIdx} style={{ lineHeight: 1.4 }}>{reason}</li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* Select Button */}
+                        <button
+                          onClick={() => setSelectedDestId(rec.id)}
+                          style={{
+                            width: '100%',
+                            marginTop: '8px',
+                            padding: '10px 16px',
+                            borderRadius: 'var(--radius-full)',
+                            border: isSelected ? '1.5px solid var(--brand-emerald)' : 'none',
+                            background: isSelected ? '#ecfdf5' : 'var(--brand-terracotta)',
+                            color: isSelected ? '#059669' : '#ffffff',
+                            fontSize: '0.82rem',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            boxShadow: isSelected ? 'none' : '0 3px 10px rgba(194, 65, 12, 0.25)',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          {isSelected ? (
+                            <>
+                              <Check size={16} /> Selected & Active Itinerary
+                            </>
+                          ) : (
+                            <>
+                              <ChevronRight size={16} /> Select & Generate Itinerary
+                            </>
+                          )}
+                        </button>
+
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* 3. Budget Engine Calculation Summary Box */}
+            {/* 2. Budget Balancer Engine Summary Box */}
             <div style={{
               background: '#ffffff',
               border: '1px solid var(--border-light)',
@@ -916,10 +1253,10 @@ export default function Trips({ destination }) {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', flexWrap: 'wrap', gap: '12px' }}>
                 <div>
                   <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--brand-terracotta)', textTransform: 'uppercase' }}>
-                    Budget Balancer Engine
+                    Budget Balancer Engine • {destTitle}
                   </span>
                   <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-display)', marginTop: '2px' }}>
-                    Estimated Trip Expense: ₹{itinerary.summary.estimatedTotalCost.toLocaleString('en-IN')}
+                    Estimated Trip Expense: ₹{(itinerary?.summary?.estimatedTotalCost || 0).toLocaleString('en-IN')}
                   </h3>
                 </div>
 
@@ -927,7 +1264,7 @@ export default function Trips({ destination }) {
                   <div style={{ textAlign: 'right' }}>
                     <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--brand-emerald)', textTransform: 'uppercase' }}>Remaining Buffer</span>
                     <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--brand-emerald)' }}>
-                      ₹{itinerary.summary.remainingBuffer.toLocaleString('en-IN')}
+                      ₹{(itinerary?.summary?.remainingBuffer || 0).toLocaleString('en-IN')}
                     </div>
                   </div>
                 </div>
@@ -945,43 +1282,43 @@ export default function Trips({ destination }) {
               {/* Category Breakdown Cards */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
                 <div style={{ background: 'var(--bg-surface)', padding: '12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)' }}>
-                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#7c3aed' }}>🏡 STAY ({daysCount - 1} Nights)</span>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#7c3aed' }}>🏡 STAY ({Math.max(1, daysCount - 1)} Nights)</span>
                   <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>
-                    ₹{itinerary.budgetBreakdown.stay.toLocaleString('en-IN')}
+                    ₹{(itinerary?.budgetBreakdown?.stay || 0).toLocaleString('en-IN')}
                   </div>
                 </div>
 
                 <div style={{ background: 'var(--bg-surface)', padding: '12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)' }}>
                   <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#d97706' }}>🍜 FOOD & DINING</span>
                   <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>
-                    ₹{itinerary.budgetBreakdown.food.toLocaleString('en-IN')}
+                    ₹{(itinerary?.budgetBreakdown?.food || 0).toLocaleString('en-IN')}
                   </div>
                 </div>
 
                 <div style={{ background: 'var(--bg-surface)', padding: '12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)' }}>
                   <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#0284c7' }}>🚖 LOCAL TRANSIT</span>
                   <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>
-                    ₹{itinerary.budgetBreakdown.transport.toLocaleString('en-IN')}
+                    ₹{(itinerary?.budgetBreakdown?.transport || 0).toLocaleString('en-IN')}
                   </div>
                 </div>
 
                 <div style={{ background: 'var(--bg-surface)', padding: '12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)' }}>
                   <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#059669' }}>🎟️ SIGHTS & PASSES</span>
                   <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>
-                    ₹{itinerary.budgetBreakdown.activities.toLocaleString('en-IN')}
+                    ₹{(itinerary?.budgetBreakdown?.activities || 0).toLocaleString('en-IN')}
                   </div>
                 </div>
 
                 <div style={{ background: 'var(--bg-surface)', padding: '12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-light)' }}>
                   <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748b' }}>🛡️ BUFFER & MISC</span>
                   <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '2px' }}>
-                    ₹{itinerary.budgetBreakdown.miscellaneous.toLocaleString('en-IN')}
+                    ₹{(itinerary?.budgetBreakdown?.miscellaneous || 0).toLocaleString('en-IN')}
                   </div>
                 </div>
               </div>
 
               {/* Tight Budget Advisory Tier Picker if tight */}
-              {itinerary.summary.isTightBudget && (
+              {itinerary?.summary?.isTightBudget && (
                 <div style={{
                   marginTop: '18px',
                   background: 'rgba(239, 68, 68, 0.08)',
@@ -998,7 +1335,7 @@ export default function Trips({ destination }) {
                     <AlertCircle size={20} color="#dc2626" />
                     <div>
                       <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#dc2626' }}>
-                        Your ₹{budget} budget may be tight for {daysCount} days.
+                        Your ₹{budget} budget may be tight for {daysCount} days in {destTitle}.
                       </div>
                       <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)' }}>
                         Select a recommended plan tier to adjust:
@@ -1008,16 +1345,16 @@ export default function Trips({ destination }) {
 
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button
-                      onClick={() => setBudget(itinerary.tierOptions.budgetPlan)}
+                      onClick={() => setBudget(itinerary.tierOptions?.budgetPlan || budget)}
                       style={{ background: '#ffffff', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-full)', padding: '6px 12px', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}
                     >
-                      Budget Plan: ₹{itinerary.tierOptions.budgetPlan}
+                      Budget Plan: ₹{itinerary.tierOptions?.budgetPlan}
                     </button>
                     <button
-                      onClick={() => setBudget(itinerary.tierOptions.comfortPlan)}
+                      onClick={() => setBudget(itinerary.tierOptions?.comfortPlan || budget)}
                       style={{ background: 'var(--brand-terracotta)', color: '#fff', border: 'none', borderRadius: 'var(--radius-full)', padding: '6px 12px', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}
                     >
-                      Comfort Plan: ₹{itinerary.tierOptions.comfortPlan}
+                      Comfort Plan: ₹{itinerary.tierOptions?.comfortPlan}
                     </button>
                   </div>
                 </div>
@@ -1057,7 +1394,7 @@ export default function Trips({ destination }) {
               </div>
             </div>
 
-            {/* 4. Day Tabs & Smart Actions Bar */}
+            {/* 3. Day Tabs & Smart Actions Bar */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
               
               {/* Day Selection Tabs */}
@@ -1080,7 +1417,7 @@ export default function Trips({ destination }) {
                       transition: 'all 0.2s ease'
                     }}
                   >
-                    DAY 0{d.dayNumber} — {d.zone}
+                    DAY 0{d.dayNumber} — {d.assignedZone || d.zone || 'Highlights'}
                   </button>
                 ))}
               </div>
@@ -1114,7 +1451,7 @@ export default function Trips({ destination }) {
               </div>
             </div>
 
-            {/* 5. "Why This Plan?" Plain-English Insight Box */}
+            {/* 4. "Why This Plan?" Plain-English Insight Box */}
             <div style={{
               background: 'linear-gradient(135deg, #fff7ed 0%, #ffffff 100%)',
               border: '1px solid #fed7aa',
@@ -1128,15 +1465,15 @@ export default function Trips({ destination }) {
               <Info size={20} color="var(--brand-terracotta)" />
               <div>
                 <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--brand-terracotta)', textTransform: 'uppercase' }}>
-                  Why this plan?
+                  Why this plan for {destTitle}?
                 </span>
                 <p style={{ fontSize: '0.86rem', color: 'var(--text-primary)', marginTop: '2px', fontWeight: 500 }}>
-                  {currentDay.whyThisPlan}
+                  {currentDay.whyThisPlan || `Customized multi-stop exploration for ${destTitle}.`}
                 </p>
               </div>
             </div>
 
-            {/* 5.5 AI Smart Delay & Crowd Alert Card */}
+            {/* 4.5 AI Smart Delay & Crowd Alert Card */}
             {crowdedStopInfo && (
               <div style={{
                 background: '#fff7ed',
@@ -1152,7 +1489,7 @@ export default function Trips({ destination }) {
                       <AlertTriangle size={13} /> CROWD ALERT
                     </div>
                     <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#9a3412' }}>
-                      {crowdedStopInfo.stop.title} is currently crowded ({crowdedStopInfo.stop.crowd.waitTime})
+                      {crowdedStopInfo.stop.title} is currently crowded ({crowdedStopInfo.stop.crowd?.waitTime || 'High Wait'})
                     </span>
                   </div>
 
@@ -1162,11 +1499,11 @@ export default function Trips({ destination }) {
                 </div>
 
                 <p style={{ fontSize: '0.82rem', color: '#7c2d12', marginBottom: '12px', lineHeight: 1.5 }}>
-                  <strong>Why:</strong> {crowdedStopInfo.stop.crowd.whyExplanation}
+                  <strong>Why:</strong> {crowdedStopInfo.stop.crowd?.whyExplanation || 'Peak visitor influx during afternoon hours.'}
                 </p>
 
                 {/* 10 KM Alternative Recommendations */}
-                {crowdedStopInfo.alternatives.length > 0 && (
+                {(crowdedStopInfo.alternatives || []).length > 0 && (
                   <div>
                     <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#9a3412', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
                       🌿 While you wait, explore nearby (Within 10 KM):
@@ -1192,8 +1529,8 @@ export default function Trips({ destination }) {
                               <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--brand-terracotta)', textTransform: 'uppercase' }}>
                                 {alt.category}
                               </span>
-                              <span style={{ fontSize: '0.68rem', fontWeight: 800, color: alt.crowd.color, background: alt.crowd.bg, padding: '1px 6px', borderRadius: '999px', border: `1px solid ${alt.crowd.border}` }}>
-                                {alt.crowd.tag}
+                              <span style={{ fontSize: '0.68rem', fontWeight: 800, color: alt.crowd?.color || '#16a34a', background: alt.crowd?.bg || '#dcfce7', padding: '1px 6px', borderRadius: '999px', border: `1px solid ${alt.crowd?.border || '#bbf7d0'}` }}>
+                                {alt.crowd?.tag || '🟢 Low Crowd'}
                               </span>
                             </div>
 
@@ -1256,7 +1593,7 @@ export default function Trips({ destination }) {
               </div>
             )}
 
-            {/* 6. Vertical Journey Timeline with Distance & Time Transitions */}
+            {/* 5. Vertical Journey Timeline with Distance & Time Transitions */}
             <div style={{
               background: '#ffffff',
               border: '1px solid var(--border-light)',
@@ -1267,10 +1604,10 @@ export default function Trips({ destination }) {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '28px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '16px' }}>
                 <div>
                   <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>
-                    {currentDay.theme}
+                    {currentDay.dayTitle || currentDay.theme || `Day 0${currentDay.dayNumber || 1} Highlights`} ({destTitle})
                   </h3>
                   <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                    Est. Daily Cost: ₹{currentDay.dailyCost} • Approx Transit: {currentDay.dailyTravelTime} mins
+                    Est. Daily Cost: ₹{currentDay.estimatedDayCost || currentDay.dailyCost || 0} • {currentDay.stops?.length || 0} stops
                   </span>
                 </div>
 
@@ -1296,7 +1633,7 @@ export default function Trips({ destination }) {
 
               {/* Timeline Items */}
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {currentDay.stops?.map((stop, i) => (
+                {(currentDay.stops || []).map((stop, i) => (
                   <div key={stop.id || i} className="day-timeline-node">
                     
                     <div className="day-timeline-bullet">
@@ -1305,7 +1642,7 @@ export default function Trips({ destination }) {
 
                     <div className="day-timeline-content">
                       
-                      {/* Transition Route Indicator (Place A ↓ 2.4 km • 8 min ↓ Place B) */}
+                      {/* Transition Route Indicator */}
                       {stop.transition && (
                         <div style={{
                           background: 'var(--bg-surface)',
@@ -1337,17 +1674,17 @@ export default function Trips({ destination }) {
                               <span style={{
                                 fontSize: '0.68rem',
                                 fontWeight: 800,
-                                color: crowd.color,
-                                background: crowd.bg,
-                                border: `1px solid ${crowd.border}`,
+                                color: crowd?.color || '#16a34a',
+                                background: crowd?.bg || '#dcfce7',
+                                border: `1px solid ${crowd?.border || '#bbf7d0'}`,
                                 borderRadius: '999px',
                                 padding: '1px 8px',
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: '3px'
                               }}>
-                                <Users size={10} color={crowd.color} />
-                                {crowd.tag}
+                                <Users size={10} color={crowd?.color || '#16a34a'} />
+                                {crowd?.tag || '🟢 Low Crowd'}
                               </span>
                             );
                           })()}
@@ -1355,7 +1692,7 @@ export default function Trips({ destination }) {
                           {/* Weather Impact Badge */}
                           {(() => {
                             const impact = getWeatherImpactForStop(stop, weather);
-                            if (!impact.hasAdvisory) return null;
+                            if (!impact?.hasAdvisory) return null;
                             return (
                               <span style={{
                                 fontSize: '0.68rem',
@@ -1405,8 +1742,8 @@ export default function Trips({ destination }) {
                           </button>
                           <button
                             onClick={() => handleMove(i, 1)}
-                            disabled={i === currentDay.stops.length - 1}
-                            style={{ background: 'none', border: 'none', color: i === currentDay.stops.length - 1 ? 'var(--text-faint)' : 'var(--text-secondary)', cursor: i === currentDay.stops.length - 1 ? 'default' : 'pointer' }}
+                            disabled={i === (currentDay.stops?.length || 1) - 1}
+                            style={{ background: 'none', border: 'none', color: i === (currentDay.stops?.length || 1) - 1 ? 'var(--text-faint)' : 'var(--text-secondary)', cursor: i === (currentDay.stops?.length || 1) - 1 ? 'default' : 'pointer' }}
                             title="Move Down"
                           >
                             <ArrowDown size={15} />
@@ -1445,7 +1782,7 @@ export default function Trips({ destination }) {
 
       </div>
 
-      {/* 7. Replace Stop Alternative Modal */}
+      {/* Replace Stop Alternative Modal */}
       {replacingStop && (
         <div style={{
           position: 'fixed',
@@ -1476,7 +1813,7 @@ export default function Trips({ destination }) {
                   Replace "{replacingStop.title}"
                 </h3>
                 <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  Choose from 3 nearby curated alternatives in {itinerary.summary.destinationName}
+                  Choose from 3 nearby curated alternatives in {destTitle}
                 </span>
               </div>
               <button
@@ -1542,7 +1879,7 @@ export default function Trips({ destination }) {
         </div>
       )}
 
-      {/* 8. Saved Trips Modal */}
+      {/* Saved Trips Modal */}
       {showSavedModal && (
         <div style={{
           position: 'fixed',

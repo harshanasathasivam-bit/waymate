@@ -834,6 +834,731 @@ const seedDestinations = [
         description: "Stroll beneath shade trees, learn bean roasting, and taste freshly brewed Arabica coffee."
       }
     ]
+  },
+  {
+    id: "madurai",
+    name: "Madurai",
+    state: "Tamil Nadu",
+    region: "South India",
+    tagline: "The Ancient City of Temples, Jasmine & Street Food Gastronomy",
+    description: "Madurai is one of the world's oldest continuously inhabited cities. Famous for the legendary Meenakshi Amman Temple, Thirumalai Nayakkar Palace, and world-class street food.",
+    heroImage: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=80"
+    ],
+    coordinates: { lat: 9.9252, lng: 78.1198 },
+    distanceFromSalem: 235,
+    distanceFromBangalore: 435,
+    distanceFromChennai: 460,
+    distanceFromKochi: 270,
+    avgDailyBudgetBudget: 1800,
+    avgDailyBudgetLuxury: 6500,
+    bestSeason: "October to March",
+    peakSeason: "December to February",
+    offSeason: "May to July",
+    climate: "Warm & Vibrant (28°C - 36°C)",
+    categories: ["Heritage", "Culture", "Temples", "Food & Dining", "Family", "Shopping"],
+    scores: {
+      budgetScore: 92,
+      natureScore: 60,
+      cultureScore: 98,
+      adventureScore: 50,
+      familyScore: 95,
+      accessibilityScore: 88,
+      ecoScore: 82
+    },
+    currentWeather: {
+      temp: "33°C",
+      condition: "Warm & Vibrant",
+      rainProbability: "5%",
+      humidity: "60%",
+      forecast: "Warm and clear skies. Evenings are pleasant for temple visits and street tiffin walks.",
+      rainAlert: false,
+      indoorAlternative: "Visit Gandhi Memorial Museum or Thirumalai Nayakkar Palace."
+    },
+    crowdLevel: {
+      status: "Moderate",
+      badgeColor: "🟡",
+      peakHours: "06:00 PM - 09:00 PM",
+      bestVisitingTime: "06:30 AM - 09:00 AM",
+      quietAlternative: "Samanar Malai Rock-Cut Caves"
+    },
+    safetyInfo: {
+      overall: "Very safe city with active 24/7 tourist assistance near temple corridors.",
+      policeContact: "+91 452 233 4455 / 112 (Madurai City Police)",
+      hospitalContact: "+91 452 432 9000 (Apollo Speciality Hospital Madurai)",
+      touristHelpdesk: "1800-4253-1111",
+      safeTips: ["Leave footwear at authorized temple counters.", "Stay hydrated with fresh Jigarthanda."]
+    },
+    attractions: [
+      {
+        id: "mdu-1",
+        name: "Meenakshi Sundareswarar Temple",
+        category: "Ancient Dravidian Temple",
+        rating: 4.95,
+        reviewsCount: 9800,
+        distance: "Central Madurai",
+        estimatedCost: "Free Entry (₹50 for Hall of 1000 Pillars)",
+        shortDesc: "Timeless architectural masterpiece featuring 14 towering sculpted Gopurams and the 1000-pillar hall.",
+        bestTime: "06:00 AM - 08:30 AM & 06:00 PM - 09:30 PM",
+        photo: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=800&q=80",
+        lat: 9.9195, lng: 78.1193,
+        tags: ["Temple", "Sculptures", "Sacred Tank", "Heritage"]
+      },
+      {
+        id: "mdu-2",
+        name: "Thirumalai Nayakkar Mahal",
+        category: "Indo-Saracenic Palace",
+        rating: 4.7,
+        reviewsCount: 4200,
+        distance: "1.8 km from Temple",
+        estimatedCost: "₹10 Entry",
+        shortDesc: "17th-century palace built by King Thirumalai Nayak with massive circular pillars and light shows.",
+        bestTime: "09:30 AM - 01:00 PM & 06:45 PM for Light Show",
+        photo: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80",
+        lat: 9.9152, lng: 78.1235,
+        tags: ["Palace", "Light Show", "Royal Architecture"]
+      },
+      {
+        id: "mdu-3",
+        name: "Gandhi Memorial Museum",
+        category: "Historical Museum",
+        rating: 4.6,
+        reviewsCount: 2300,
+        distance: "4.5 km from center",
+        estimatedCost: "Free Entry",
+        shortDesc: "Historic museum located inside the 17th-century palace of Rani Mangammal with freedom struggle relics.",
+        bestTime: "10:00 AM - 01:00 PM & 02:00 PM - 05:30 PM",
+        photo: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=800&q=80",
+        lat: 9.9324, lng: 78.1408,
+        tags: ["Museum", "History", "Freedom Struggle"]
+      }
+    ],
+    hotels: [
+      {
+        name: "Temple View Budget Inn",
+        category: "Budget",
+        pricePerNight: 950,
+        rating: 4.3,
+        amenities: ["Free Wi-Fi", "AC", "Walking distance to Temple"],
+        accessible: true,
+        address: "Town Hall Road, Madurai"
+      },
+      {
+        name: "Heritage Madurai by GRT",
+        category: "Luxury",
+        pricePerNight: 6500,
+        rating: 4.8,
+        amenities: ["Swimming Pool", "Spa", "Multi-Cuisine Dining"],
+        accessible: true,
+        address: "Kochadai, Madurai"
+      }
+    ],
+    foodSpecialties: [
+      { name: "Famous Madurai Jigarthanda", price: 70, veg: true, vegan: true, type: "Drink / Dessert" },
+      { name: "Murugan Idli Banana Leaf Tiffin", price: 180, veg: true, vegan: true, type: "Breakfast" }
+    ],
+    restaurants: [
+      { name: "Murugan Idli Shop", category: "Authentic South Indian Tiffin", avgCost: 180, rating: 4.85 },
+      { name: "Amma Mess", category: "Traditional Non-Veg Meals", avgCost: 280, rating: 4.7 }
+    ],
+    hiddenGems: [
+      {
+        id: "hg-m1",
+        name: "Samanar Malai Rock-Cut Caves",
+        category: "Ancient Monument",
+        description: "2,200-year-old Jain rock carvings and natural lotus ponds in Keelakuyilkudi village.",
+        cost: 0,
+        crowdLevel: "Low",
+        bestTime: "07:00 AM - 09:30 AM",
+        safetyTip: "Wear comfortable walking shoes for gentle rock incline.",
+        lat: 9.9312, lng: 78.0589
+      }
+    ]
+  },
+  {
+    id: "thanjavur",
+    name: "Thanjavur",
+    state: "Tamil Nadu",
+    region: "South India",
+    tagline: "UNESCO Brihadisvara Big Temple, Chola Bronze & Classical Arts",
+    description: "Thanjavur is the cultural heartland of Tamil Nadu and the ancient capital of the Great Chola Dynasty. Home to the towering UNESCO World Heritage Brihadisvara Temple, classical Tanjore paintings, and brass handicrafts.",
+    heroImage: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=1200&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80"
+    ],
+    coordinates: { lat: 10.7870, lng: 79.1378 },
+    distanceFromSalem: 195,
+    distanceFromBangalore: 395,
+    distanceFromChennai: 345,
+    distanceFromKochi: 420,
+    avgDailyBudgetBudget: 1700,
+    avgDailyBudgetLuxury: 5500,
+    bestSeason: "October to March",
+    peakSeason: "November to February",
+    offSeason: "May to July",
+    climate: "Sunny & Cultural (28°C - 35°C)",
+    categories: ["Heritage", "Culture", "Temples", "Family", "Arts & Crafts"],
+    scores: {
+      budgetScore: 94,
+      natureScore: 65,
+      cultureScore: 100,
+      adventureScore: 45,
+      familyScore: 96,
+      accessibilityScore: 90,
+      ecoScore: 84
+    },
+    currentWeather: {
+      temp: "32°C",
+      condition: "Sunny & Clear",
+      rainProbability: "5%",
+      humidity: "58%",
+      forecast: "Clear sunny weather. Ideal for early morning and evening temple photography.",
+      rainAlert: false,
+      indoorAlternative: "Visit Thanjavur Royal Palace and Art Gallery."
+    },
+    crowdLevel: {
+      status: "Moderate",
+      badgeColor: "🟡",
+      peakHours: "05:00 PM - 08:00 PM",
+      bestVisitingTime: "06:30 AM - 08:30 AM & 04:30 PM - 06:30 PM",
+      quietAlternative: "Sangeetha Mahal & Saraswathi Mahal Library"
+    },
+    safetyInfo: {
+      overall: "Very safe pilgrimage and heritage city with welcoming local artisans.",
+      policeContact: "+91 4362 230 100 / 112",
+      hospitalContact: "+91 4362 278 000 (Thanjavur Medical College)",
+      touristHelpdesk: "1800-4253-1111",
+      safeTips: ["Temples have smooth granite floors; walk carefully when hot in midday."]
+    },
+    attractions: [
+      {
+        id: "thj-1",
+        name: "Brihadisvara Temple (Big Temple)",
+        category: "UNESCO World Heritage Site",
+        rating: 4.98,
+        reviewsCount: 12400,
+        distance: "Central Thanjavur",
+        estimatedCost: "Free Entry",
+        shortDesc: "1,000-year-old architectural marvel built entirely of granite by Emperor Raja Raja Chola I.",
+        bestTime: "06:00 AM - 08:30 AM & 05:00 PM - 08:30 PM",
+        photo: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=800&q=80",
+        lat: 10.7828, lng: 79.1318,
+        tags: ["UNESCO", "Chola Architecture", "Granite Vimana", "Sculptures"]
+      },
+      {
+        id: "thj-2",
+        name: "Thanjavur Maratha Palace & Art Gallery",
+        category: "Royal Heritage Complex",
+        rating: 4.6,
+        reviewsCount: 3800,
+        distance: "1.2 km from Big Temple",
+        estimatedCost: "₹50 Entry",
+        shortDesc: "16th-century Nayak-Maratha palace containing royal courtyards, bronze museum, and Saraswathi Mahal library.",
+        bestTime: "10:00 AM - 01:00 PM & 02:00 PM - 05:30 PM",
+        photo: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80",
+        lat: 10.7925, lng: 79.1350,
+        tags: ["Palace", "Bronze Museum", "Royal Library"]
+      }
+    ],
+    hotels: [
+      {
+        name: "Chola Heritage Budget Stay",
+        category: "Budget",
+        pricePerNight: 900,
+        rating: 4.3,
+        amenities: ["Free Wi-Fi", "AC", "Vegetarian Kitchen"],
+        accessible: true,
+        address: "Near Big Temple, Thanjavur"
+      }
+    ],
+    foodSpecialties: [
+      { name: "Traditional Thanjavur Banana Leaf Meals", price: 120, veg: true, vegan: true, type: "Lunch" }
+    ],
+    restaurants: [
+      { name: "Sathars Restaurant", category: "South Indian & Biryani", avgCost: 200, rating: 4.5 }
+    ],
+    hiddenGems: [
+      {
+        id: "hg-t1",
+        name: "Punnai Nallur Mariamman Temple",
+        category: "Sacred Temple Shrine",
+        description: "Historic shrine built by Venetian Maratha rulers with authentic medicinal curative lore.",
+        cost: 0,
+        crowdLevel: "Low",
+        bestTime: "07:00 AM - 09:00 AM",
+        safetyTip: "Mornings offer serenity without lines.",
+        lat: 10.7600, lng: 79.1800
+      }
+    ]
+  },
+  {
+    id: "tiruchirappalli",
+    name: "Tiruchirappalli (Trichy)",
+    state: "Tamil Nadu",
+    region: "South India",
+    tagline: "Historic Rockfort Temple, Srirangam & Kallanai Grand Anicut",
+    description: "Trichy blends ancient rock fortress landmarks with sacred river islands. Home to Sri Ranganathaswamy Temple, the world's largest functioning Hindu temple complex.",
+    heroImage: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80"
+    ],
+    coordinates: { lat: 10.7905, lng: 78.7047 },
+    distanceFromSalem: 140,
+    distanceFromBangalore: 335,
+    distanceFromChennai: 325,
+    distanceFromKochi: 380,
+    avgDailyBudgetBudget: 1600,
+    avgDailyBudgetLuxury: 5200,
+    bestSeason: "October to March",
+    peakSeason: "December to February",
+    offSeason: "May to July",
+    climate: "Sunny (27°C - 35°C)",
+    categories: ["Heritage", "Culture", "Temples", "Family", "History"],
+    scores: {
+      budgetScore: 95,
+      natureScore: 70,
+      cultureScore: 97,
+      adventureScore: 60,
+      familyScore: 94,
+      accessibilityScore: 88,
+      ecoScore: 80
+    },
+    currentWeather: {
+      temp: "32°C",
+      condition: "Sunny & Breezy",
+      rainProbability: "5%",
+      humidity: "55%",
+      forecast: "Clear warm sunshine with Kaveri river breeze. Excellent for early Rockfort climb.",
+      rainAlert: false,
+      indoorAlternative: "Visit Srirangam Temple Museum and Art Galleries."
+    },
+    crowdLevel: {
+      status: "Moderate",
+      badgeColor: "🟡",
+      peakHours: "06:00 PM - 08:30 PM",
+      bestVisitingTime: "06:00 AM - 08:30 AM",
+      quietAlternative: "Kallanai Grand Anicut River Walk"
+    },
+    safetyInfo: {
+      overall: "Extremely safe central transit and pilgrimage hub.",
+      policeContact: "+91 431 241 5555 / 112",
+      hospitalContact: "+91 431 407 7777 (Kauvery Hospital Trichy)",
+      touristHelpdesk: "1800-4253-1111",
+      safeTips: ["Climb Rockfort during sunrise or dusk to avoid midday heat."]
+    },
+    attractions: [
+      {
+        id: "try-1",
+        name: "Sri Ranganathaswamy Temple (Srirangam)",
+        category: "World's Largest Temple Complex",
+        rating: 4.96,
+        reviewsCount: 11200,
+        distance: "Srirangam Island",
+        estimatedCost: "Free Entry (₹100 Quick Darshan)",
+        shortDesc: "156-acre temple city with 21 majestic gopurams and the 73-meter Rajagopuram.",
+        bestTime: "06:00 AM - 08:30 AM & 05:00 PM - 09:00 PM",
+        photo: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=800&q=80",
+        lat: 10.8624, lng: 78.6901,
+        tags: ["Temple", "Rajagopuram", "Kaveri River", "Heritage"]
+      },
+      {
+        id: "try-2",
+        name: "Rockfort Ucchi Pillayar Temple",
+        category: "Ancient Citadel & Hilltop Temple",
+        rating: 4.8,
+        reviewsCount: 6500,
+        distance: "Central Trichy",
+        estimatedCost: "Free Entry (₹50 Camera)",
+        shortDesc: "83-meter high monolithic rock fortress featuring 437 stone steps and 360-degree cityscape vistas.",
+        bestTime: "06:00 AM - 08:00 AM & 05:00 PM - 07:30 PM",
+        photo: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80",
+        lat: 10.8277, lng: 78.6974,
+        tags: ["Rockfort", "Viewpoint", "Sunset", "Ganesha Temple"]
+      }
+    ],
+    hotels: [
+      {
+        name: "Rockfort View Budget Inn",
+        category: "Budget",
+        pricePerNight: 850,
+        rating: 4.3,
+        amenities: ["Free Wi-Fi", "AC", "24/7 Desk"],
+        accessible: true,
+        address: "Main Guard Gate, Trichy"
+      }
+    ],
+    foodSpecialties: [
+      { name: "Trichy Banana Leaf Tiffin & Filter Coffee", price: 100, veg: true, vegan: true, type: "Breakfast" }
+    ],
+    restaurants: [
+      { name: "Vasantha Bhavan Pure Veg", category: "South Indian Tiffin", avgCost: 150, rating: 4.6 }
+    ],
+    hiddenGems: [
+      {
+        id: "hg-tr1",
+        name: "Kallanai (Grand Anicut Dam)",
+        category: "Ancient Hydraulic Engineering",
+        description: "2nd-century AD water-diversion structure built by Chola King Karikalan, one of the oldest in the world.",
+        cost: 0,
+        crowdLevel: "Low",
+        bestTime: "04:30 PM - 06:30 PM",
+        safetyTip: "Scenic evening breeze along Kaveri embankments.",
+        lat: 10.8340, lng: 78.8240
+      }
+    ]
+  },
+  {
+    id: "kanyakumari",
+    name: "Kanyakumari",
+    state: "Tamil Nadu",
+    region: "South India",
+    tagline: "Triconfluence Point, Vivekananda Rock & Sunrise Vistas",
+    description: "The southernmost tip of the Indian subcontinent where the Bay of Bengal, Arabian Sea, and Indian Ocean meet. World-famous for watching the sunrise and sunset over the ocean from the same spot.",
+    heroImage: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
+    ],
+    coordinates: { lat: 8.0883, lng: 77.5385 },
+    distanceFromSalem: 480,
+    distanceFromBangalore: 660,
+    distanceFromChennai: 705,
+    distanceFromKochi: 290,
+    avgDailyBudgetBudget: 1900,
+    avgDailyBudgetLuxury: 6000,
+    bestSeason: "October to March",
+    peakSeason: "December to January",
+    offSeason: "June to August (Monsoon)",
+    climate: "Ocean Breeze (26°C - 32°C)",
+    categories: ["Coastal", "Heritage", "Nature", "Family", "Viewpoint"],
+    scores: {
+      budgetScore: 90,
+      natureScore: 92,
+      cultureScore: 90,
+      adventureScore: 65,
+      familyScore: 96,
+      accessibilityScore: 85,
+      ecoScore: 88
+    },
+    currentWeather: {
+      temp: "29°C",
+      condition: "Ocean Breeze & Sunny",
+      rainProbability: "10%",
+      humidity: "75%",
+      forecast: "Crisp oceanic winds with clear horizons. Ideal for 05:45 AM sunrise viewing.",
+      rainAlert: false,
+      indoorAlternative: "Visit Gandhi Memorial Mandapam or Wax Museum."
+    },
+    crowdLevel: {
+      status: "Moderate",
+      badgeColor: "🟡",
+      peakHours: "05:30 AM - 07:00 AM & 05:00 PM - 06:45 PM",
+      bestVisitingTime: "Early Sunrise & Afternoon Ferry",
+      quietAlternative: "Sunset Point & Vattakottai Fort Beach"
+    },
+    safetyInfo: {
+      overall: "Very safe coastal tourism hub with dedicated coastal guard and lifeguards.",
+      policeContact: "+91 4652 246 224 / 112 (Kanyakumari Marine Police)",
+      hospitalContact: "+91 4652 223 300 (Government Hospital Kanyakumari)",
+      touristHelpdesk: "1800-4253-1111",
+      safeTips: ["Observe red flag safety warnings on rocky shoreline."]
+    },
+    attractions: [
+      {
+        id: "kny-1",
+        name: "Vivekananda Rock Memorial & Thiruvalluvar Statue",
+        category: "Offshore Island Memorial",
+        rating: 4.92,
+        reviewsCount: 14500,
+        distance: "500m offshore (Ferry ride)",
+        estimatedCost: "₹50 Ferry + ₹20 Entry",
+        shortDesc: "Monumental rock where Swami Vivekananda attained enlightenment, and the 133-ft stone Thiruvalluvar statue.",
+        bestTime: "08:00 AM - 11:30 AM & 02:00 PM - 04:00 PM",
+        photo: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=800&q=80",
+        lat: 8.0781, lng: 77.5552,
+        tags: ["Memorial", "Ferry", "Thiruvalluvar", "Ocean Views"]
+      },
+      {
+        id: "kny-2",
+        name: "Triveni Sangam & Sunset View Point",
+        category: "Sacred Ocean Confluence",
+        rating: 4.8,
+        reviewsCount: 8900,
+        distance: "Coastline Center",
+        estimatedCost: "Free Entry",
+        shortDesc: "Scenic coastal promenade where three oceans merge with unforgettable multicolour sands.",
+        bestTime: "05:30 AM for Sunrise & 05:45 PM for Sunset",
+        photo: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+        lat: 8.0810, lng: 77.5510,
+        tags: ["Triveni Sangam", "Sunrise", "Sunset", "Ocean"]
+      }
+    ],
+    hotels: [
+      {
+        name: "Sea View Budget Inn",
+        category: "Budget",
+        pricePerNight: 950,
+        rating: 4.3,
+        amenities: ["Balcony Sea View", "Free Parking", "AC"],
+        accessible: true,
+        address: "Beach Road, Kanyakumari"
+      }
+    ],
+    foodSpecialties: [
+      { name: "Kanyakumari Fresh Fish Curry & Red Rice Meal", price: 160, veg: false, vegan: false, type: "Lunch" }
+    ],
+    restaurants: [
+      { name: "Hotel Saravana Pure Veg", category: "South Indian Tiffin", avgCost: 140, rating: 4.4 }
+    ],
+    hiddenGems: [
+      {
+        id: "hg-k1",
+        name: "Vattakottai Fort (Circular Granite Fort)",
+        category: "Coastal Fortification",
+        description: "18th-century seaside granite fort with pristine black-sand beach views, 6 km north.",
+        cost: 25,
+        crowdLevel: "Low",
+        bestTime: "03:30 PM - 05:30 PM",
+        safetyTip: "Gentle coastal breeze and green lawns.",
+        lat: 8.1250, lng: 77.5650
+      }
+    ]
+  },
+  {
+    id: "mahabalipuram",
+    name: "Mahabalipuram (Mamallapuram)",
+    state: "Tamil Nadu",
+    region: "South India",
+    tagline: "UNESCO Shore Temple, Monolithic Rathas & Coastal Surfing",
+    description: "Famous for 7th-century Pallava rock-cut architecture, the iconic Shore Temple on the Coromandel beach, Arjuna's Penance, and vibrant seafood cafes.",
+    heroImage: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80"
+    ],
+    coordinates: { lat: 12.6208, lng: 80.1944 },
+    distanceFromSalem: 310,
+    distanceFromBangalore: 345,
+    distanceFromChennai: 55,
+    distanceFromKochi: 620,
+    avgDailyBudgetBudget: 2100,
+    avgDailyBudgetLuxury: 7500,
+    bestSeason: "October to March",
+    peakSeason: "December to February",
+    offSeason: "May to July",
+    climate: "Coastal Breezy (27°C - 33°C)",
+    categories: ["Coastal", "Heritage", "UNESCO", "Solo", "Couple", "Photography"],
+    scores: {
+      budgetScore: 88,
+      natureScore: 85,
+      cultureScore: 98,
+      adventureScore: 75,
+      familyScore: 92,
+      accessibilityScore: 86,
+      ecoScore: 86
+    },
+    currentWeather: {
+      temp: "31°C",
+      condition: "Warm Coastal Breeze",
+      rainProbability: "10%",
+      humidity: "70%",
+      forecast: "Pleasant seaside day. Perfect for beach strolls and sculpture exploration.",
+      rainAlert: false,
+      indoorAlternative: "Sculpture studios along Othavadai Street."
+    },
+    crowdLevel: {
+      status: "Moderate",
+      badgeColor: "🟡",
+      peakHours: "04:30 PM - 07:00 PM",
+      bestVisitingTime: "06:00 AM - 08:30 AM",
+      quietAlternative: "Tiger Cave & Saluvankuppam Beach"
+    },
+    safetyInfo: {
+      overall: "Very safe international backpacker and family coastal destination.",
+      policeContact: "+91 44 2744 2229 / 112 (Mamallapuram Police)",
+      hospitalContact: "+91 44 2744 2244 (Government Hospital Mamallapuram)",
+      touristHelpdesk: "1800-4253-1111",
+      safeTips: ["Hire ASI-certified licensed guides at temple entrance."]
+    },
+    attractions: [
+      {
+        id: "mah-1",
+        name: "UNESCO Shore Temple",
+        category: "Ancient Coastal Stone Temple",
+        rating: 4.9,
+        reviewsCount: 10800,
+        distance: "Beachfront Mahabalipuram",
+        estimatedCost: "₹40 Entry (ASI Ticket covers all monuments)",
+        shortDesc: "8th-century structural stone temple facing the open Bay of Bengal, built by Narasimhavarman II.",
+        bestTime: "06:00 AM - 08:30 AM & 05:00 PM - 06:30 PM",
+        photo: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80",
+        lat: 12.6163, lng: 80.1983,
+        tags: ["UNESCO", "Shore Temple", "Pallava", "Ocean View"]
+      },
+      {
+        id: "mah-2",
+        name: "Pancha Rathas (Five Monolithic Chariots)",
+        category: "Monolithic Rock-Cut Architecture",
+        rating: 4.85,
+        reviewsCount: 7600,
+        distance: "1 km from Shore Temple",
+        estimatedCost: "Covered by ASI Ticket",
+        shortDesc: "5 monolithic chariot temples carved from single granite rocks named after the Pandavas.",
+        bestTime: "09:00 AM - 11:30 AM & 03:30 PM - 05:30 PM",
+        photo: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80",
+        lat: 12.6089, lng: 80.1942,
+        tags: ["Pancha Rathas", "Monolith", "Elephant Carving"]
+      }
+    ],
+    hotels: [
+      {
+        name: "Othavadai Backpacker Stay",
+        category: "Budget",
+        pricePerNight: 950,
+        rating: 4.4,
+        amenities: ["Free Wi-Fi", "Cafe", "Rooftop Ocean Breeze"],
+        accessible: true,
+        address: "Othavadai Street, Mahabalipuram"
+      }
+    ],
+    foodSpecialties: [
+      { name: "Fresh Catch Grilled Fish with Garlic Butter", price: 320, veg: false, vegan: false, type: "Dinner" }
+    ],
+    restaurants: [
+      { name: "Moonrakers Restaurant", category: "Seafood & Multi-Cuisine", avgCost: 350, rating: 4.5 }
+    ],
+    hiddenGems: [
+      {
+        id: "hg-mh1",
+        name: "Tiger Cave (Saluvankuppam)",
+        category: "Rock-Cut Amphitheatre",
+        description: "8th-century open-air mandapa flanked by carved lion heads nestled in quiet casuarina woods, 5 km north.",
+        cost: 0,
+        crowdLevel: "Low",
+        bestTime: "04:00 PM - 06:00 PM",
+        safetyTip: "Peaceful beach stroll right behind the monument.",
+        lat: 12.6680, lng: 80.2220
+      }
+    ]
+  },
+  {
+    id: "tiruvannamalai",
+    name: "Tiruvannamalai",
+    state: "Tamil Nadu",
+    region: "South India",
+    tagline: "Holy Arunachala Hill, Annamalaiyar Temple & Sacred Girivalam",
+    description: "One of the most sacred spiritual centers in India. Celebrated for Mount Arunachala representing the fire element (Agni), the grand 10-hectare Annamalaiyar Temple, and the peaceful Ramana Maharshi Ashram.",
+    heroImage: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80"
+    ],
+    coordinates: { lat: 12.2253, lng: 79.0747 },
+    distanceFromSalem: 135,
+    distanceFromBangalore: 205,
+    distanceFromChennai: 195,
+    distanceFromKochi: 480,
+    avgDailyBudgetBudget: 1400,
+    avgDailyBudgetLuxury: 4500,
+    bestSeason: "October to March",
+    peakSeason: "November to January (Karthigai Deepam)",
+    offSeason: "May to July",
+    climate: "Serene & Warm (26°C - 34°C)",
+    categories: ["Temples", "Culture", "Solo", "Nature", "Heritage"],
+    scores: {
+      budgetScore: 98,
+      natureScore: 88,
+      cultureScore: 99,
+      adventureScore: 65,
+      familyScore: 90,
+      accessibilityScore: 85,
+      ecoScore: 90
+    },
+    currentWeather: {
+      temp: "31°C",
+      condition: "Serene & Sunny",
+      rainProbability: "5%",
+      humidity: "52%",
+      forecast: "Pleasant mountain breeze off Arunachala. Ideal for morning 14 km Girivalam walking loop.",
+      rainAlert: false,
+      indoorAlternative: "Meditate in Sri Ramanasramam Old Meditation Hall."
+    },
+    crowdLevel: {
+      status: "Low to Moderate",
+      badgeColor: "🟢",
+      peakHours: "Full Moon (Pournami) Night",
+      bestVisitingTime: "Early Morning (05:30 AM - 08:00 AM)",
+      quietAlternative: "Virupaksha Cave & Skandashramam Trail"
+    },
+    safetyInfo: {
+      overall: "Very peaceful and safe sanctuary town for solo pilgrims and international seekers.",
+      policeContact: "+91 4175 222 222 / 112",
+      hospitalContact: "+91 4175 257 000 (Rangammal Memorial Hospital)",
+      touristHelpdesk: "1800-4253-1111",
+      safeTips: ["Carry water bottle for Girivalam circuit."]
+    },
+    attractions: [
+      {
+        id: "tvm-1",
+        name: "Arulmigu Annamalaiyar Temple",
+        category: "Ancient Shiva Temple Complex",
+        rating: 4.96,
+        reviewsCount: 11800,
+        distance: "Base of Arunachala Hill",
+        estimatedCost: "Free Entry",
+        shortDesc: "Gigantic 25-acre temple complex with 4 soaring gopurams dedicated to Shiva as Agni (Fire).",
+        bestTime: "06:00 AM - 08:30 AM & 06:00 PM - 09:00 PM",
+        photo: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=800&q=80",
+        lat: 12.2251, lng: 79.0677,
+        tags: ["Arunachaleswarar", "Agni Lingam", "Gopuram", "Ancient Temple"]
+      },
+      {
+        id: "tvm-2",
+        name: "Sri Ramanasramam & Skandashram Trail",
+        category: "Spiritual Ashram & Mountain Cave",
+        rating: 4.92,
+        reviewsCount: 6200,
+        distance: "2 km south of main temple",
+        estimatedCost: "Free Entry",
+        shortDesc: "Serene ashram where sage Ramana Maharshi taught self-inquiry, with scenic forest trail to hill caves.",
+        bestTime: "06:30 AM - 11:00 AM & 04:00 PM - 07:00 PM",
+        photo: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80",
+        lat: 12.2133, lng: 79.0550,
+        tags: ["Ashram", "Meditation", "Peacocks", "Caves"]
+      }
+    ],
+    hotels: [
+      {
+        name: "Arunachala Ramana Guest House",
+        category: "Budget",
+        pricePerNight: 750,
+        rating: 4.5,
+        amenities: ["Quiet Gardens", "Wi-Fi", "Pure Veg Canteen"],
+        accessible: true,
+        address: "Chengham Road, Tiruvannamalai"
+      }
+    ],
+    foodSpecialties: [
+      { name: "Traditional Sattvic South Indian Meals", price: 90, veg: true, vegan: true, type: "Lunch" }
+    ],
+    restaurants: [
+      { name: "The Dreaming Tree Organic Cafe", category: "Organic Healthy Cafe", avgCost: 200, rating: 4.7 }
+    ],
+    hiddenGems: [
+      {
+        id: "hg-tv1",
+        name: "Virupaksha Cave",
+        category: "Sacred Meditation Cave",
+        description: "Historic tree-shaded cavern on eastern slope of Arunachala where Sri Ramana Maharshi meditated for 17 years.",
+        cost: 0,
+        crowdLevel: "Low",
+        bestTime: "07:00 AM - 10:00 AM",
+        safetyTip: "Peaceful quiet retreat path.",
+        lat: 12.2280, lng: 79.0610
+      }
+    ]
   }
 ];
 

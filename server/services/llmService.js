@@ -485,14 +485,25 @@ Rules:
 function parseNaturalLanguageTripPrompt(promptText = '') {
   const text = promptText.toLowerCase();
 
-  // 1. Destination Extraction
-  let destinationId = 'yercaud';
+  // 1. Destination Extraction (Checks all major Tamil Nadu & South India hubs)
+  let destinationId = null;
   if (text.includes('munnar') || text.includes('முன்னார்')) destinationId = 'munnar';
   else if (text.includes('chennai') || text.includes('சென்னை') || text.includes('madras')) destinationId = 'chennai';
-  else if (text.includes('ooty') || text.includes('ஊட்டி') || text.includes('udhagamandalam')) destinationId = 'ooty';
-  else if (text.includes('wayanad') || text.includes('வயநாடு')) destinationId = 'wayanad';
-  else if (text.includes('yercaud') || text.includes('ஏற்காடு') || text.includes('yerkaud')) destinationId = 'yercaud';
+  else if (text.includes('ooty') || text.includes('ஊட்டி') || text.includes('udhagamandalam') || text.includes('nilgiri')) destinationId = 'ooty';
   else if (text.includes('kodaikanal') || text.includes('கொடைக்கானல்') || text.includes('kodai')) destinationId = 'kodaikanal';
+  else if (text.includes('madurai') || text.includes('மதுரை')) destinationId = 'madurai';
+  else if (text.includes('thanjavur') || text.includes('தஞ்சாவூர்') || text.includes('tanjore')) destinationId = 'thanjavur';
+  else if (text.includes('trichy') || text.includes('tiruchirappalli') || text.includes('திருச்சி')) destinationId = 'tiruchirappalli';
+  else if (text.includes('kanyakumari') || text.includes('கன்யாகுமரி') || text.includes('cape comorin')) destinationId = 'kanyakumari';
+  else if (text.includes('mahabalipuram') || text.includes('mamallapuram') || text.includes('மகாபலிபுரம்')) destinationId = 'mahabalipuram';
+  else if (text.includes('rameswaram') || text.includes('rameshwaram') || text.includes('ராமேஸ்வரம்')) destinationId = 'rameswaram';
+  else if (text.includes('coimbatore') || text.includes('கோயம்புத்தூர்') || text.includes('kovai')) destinationId = 'coimbatore';
+  else if (text.includes('tiruvannamalai') || text.includes('திருவண்ணாமலை')) destinationId = 'tiruvannamalai';
+  else if (text.includes('courtallam') || text.includes('kourtallam') || text.includes('குற்றாலம்') || text.includes('tenkasi')) destinationId = 'courtallam';
+  else if (text.includes('chettinad') || text.includes('karaikudi') || text.includes('செட்டிநாடு')) destinationId = 'chettinad';
+  else if (text.includes('hogenakkal') || text.includes('ஒகேனக்கல்')) destinationId = 'hogenakkal';
+  else if (text.includes('yercaud') || text.includes('ஏற்காடு') || text.includes('yerkaud')) destinationId = 'yercaud';
+  else if (text.includes('wayanad') || text.includes('வயநாடு')) destinationId = 'wayanad';
 
   // 2. Budget Extraction (e.g. ₹5000, 5000, 10,000, 15k, 5k)
   let budget = 5000;

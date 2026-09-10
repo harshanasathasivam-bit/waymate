@@ -1,8 +1,8 @@
 // AI Crowd Detection & Smart Delay Recommendation Service for WayMate
 // Evaluates real-time / estimated crowd density, optimal visiting windows, and ranks 10 KM alternatives
 
-import { DESTINATIONS } from '../data/travelDatabase';
-import { calculateDistanceKm, estimateTravelTimeMin } from './travelPlannerService';
+import { DESTINATIONS } from '../data/travelDatabase.js';
+import { calculateDistanceKm, estimateTravelTimeMin } from './travelPlannerService.js';
 
 // Crowd Level Definitions with Transparent Heuristic Prediction Labeling
 export const CROWD_LEVELS = {
