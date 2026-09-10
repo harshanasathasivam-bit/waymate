@@ -3,13 +3,31 @@ import { useSearchParams } from 'react-router-dom';
 import MapView from '../components/MapView';
 import { useLanguage } from '../i18n/LanguageContext';
 import { getCrowdStatus } from '../services/crowdService';
+import { fetchPlaces } from '../services/placesService';
 import { CATEGORIES_CONFIG, CATEGORY_TABS } from '../data/categoriesData';
 import {
   Compass, MapPin, Star, Bookmark, Check,
   Search, Clock, DollarSign, ChevronRight,
-  Map, List, X, Shield, Sparkles, Users, ArrowUpRight, Eye
+  Map, List, X, Shield, Sparkles, Users, ArrowUpRight, Eye,
+  SlidersHorizontal, ShieldCheck, CheckCircle2, Globe, AlertTriangle
 } from 'lucide-react';
 import DestinationPickerModal from '../components/DestinationPickerModal';
+
+export const WAYMATE_12_CATEGORIES = [
+  'All Categories',
+  'Popular tourist attractions',
+  'Historical places',
+  'Religious places',
+  'Beaches',
+  'Parks and nature attractions',
+  'Museums',
+  'Cultural attractions',
+  'Food/local experiences',
+  'Family-friendly places',
+  'Photography spots',
+  'Lesser-known attractions',
+  'Hidden-gem candidates'
+];
 
 export default function Explore({
   destination,
@@ -32,6 +50,46 @@ export default function Explore({
   const [activeSubcategory, setActiveSubcategory] = useState(initialSubcategory);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [showMap, setShowMap] = useState(false);
+
+  // Real-time Dynamic AI Places Discovery State
+  const [dynamicPlaces, setDynamicPlaces] = useState([]);
+  const [loadingDynamic, setLoadingDynamic] = useState(false);
+
+  // Personalization & Preferences State
+  const [selectedBudget, setSelectedBudget] = useState('All');
+  const [selectedCompanion, setSelectedCompanion] = useState('All');
+  const [selectedDuration, setSelectedDuration] = useState('All');
+  const [selectedTheme, setSelectedTheme] = useState('All');
+  const [hiddenGemsOnly, setHiddenGemsOnly] = useState(false);
+  const [showPersonalization, setShowPersonalization] = useState(false);
+
+  // Fetch real external places from backend API
+  useEffect(() => {
+    let isCancelled = false;
+    const loadDynamic = async () => {
+      const destName = destination?.name || 'Chennai';
+      setLoadingDynamic(true);
+      try {
+        const queryParams = { destination: destName };
+        if (hiddenGemsOnly) queryParams.hiddenGemsOnly = true;
+        if (selectedBudget !== 'All') queryParams.budget = selectedBudget;
+        if (selectedCompanion !== 'All') queryParams.companion = selectedCompanion;
+        if (selectedDuration !== 'All') queryParams.duration = selectedDuration;
+        if (selectedTheme !== 'All') queryParams.interests = [selectedTheme];
+
+        const data = await fetchPlaces(queryParams);
+        if (!isCancelled && data.success && Array.isArray(data.places)) {
+          setDynamicPlaces(data.places);
+        }
+      } catch (err) {
+        console.warn('Notice: Using local destinations database for places:', err.message);
+      } finally {
+        if (!isCancelled) setLoadingDynamic(false);
+      }
+    };
+    loadDynamic();
+    return () => { isCancelled = true; };
+  }, [destination?.name, hiddenGemsOnly, selectedBudget, selectedCompanion, selectedDuration, selectedTheme]);
 
   // Check if search query matches another Tamil Nadu destination
   const matchingOtherDest = useMemo(() => {
@@ -181,14 +239,51 @@ export default function Explore({
       })));
     }
 
-    // Deduplicate by ID
+    // 7. Real Dynamically Discovered & Verified Places from MongoDB / OpenStreetMap
+    if (Array.isArray(dynamicPlaces) && dynamicPlaces.length > 0) {
+      list.unshift(...dynamicPlaces.map(dp => ({
+        id: dp._id || dp.id,
+        _id: dp._id,
+        name: dp.name,
+        category: dp.category,
+        itemType: dp.category === 'Hidden-gem candidates' ? 'gems' : 'attractions',
+        typeLabel: dp.category,
+        displayCost: dp.entryFee && dp.entryFee !== 'Not available' ? dp.entryFee : 'Free Entry',
+        shortDesc: dp.description && dp.description !== 'Not available' ? dp.description : dp.historicalInfo,
+        description: dp.description,
+        historicalInfo: dp.historicalInfo,
+        address: dp.address,
+        photo: dp.images?.[0]?.url || destination?.heroImage || 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80',
+        images: dp.images,
+        lat: dp.latitude || dp.lat,
+        lng: dp.longitude || dp.lng,
+        latitude: dp.latitude || dp.lat,
+        longitude: dp.longitude || dp.lng,
+        bestTime: dp.bestTimeToVisit,
+        timing: dp.openingHours,
+        openingHours: dp.openingHours,
+        entryFee: dp.entryFee,
+        sourceName: dp.sourceName,
+        sourceUrl: dp.sourceUrl,
+        verificationStatus: dp.verificationStatus,
+        lastVerifiedAt: dp.lastVerifiedAt,
+        dataConfidenceScore: dp.dataConfidenceScore,
+        hiddenGemCandidate: dp.hiddenGemCandidate,
+        hiddenGemVerified: dp.hiddenGemVerified,
+        matchScore: dp.matchScore,
+        crowd: { tag: 'Moderate', color: '#059669', border: '#a7f3d0', bg: 'rgba(5,150,105,0.08)', waitTime: 'Verified Timing' }
+      })));
+    }
+
+    // Deduplicate by normalized name or ID
     const seen = new Set();
     return list.filter(item => {
-      if (seen.has(item.id)) return false;
-      seen.add(item.id);
+      const key = (item.name || item.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (seen.has(key)) return false;
+      seen.add(key);
       return true;
     });
-  }, [destination, t]);
+  }, [destination, dynamicPlaces, t]);
 
   // Combined Search + Category + Subcategory Filtering
   const filteredPlaces = useMemo(() => {
@@ -452,6 +547,196 @@ export default function Explore({
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
                 Showing <strong style={{ color: 'var(--text-primary)' }}>{filteredPlaces.length}</strong> {activeCategory !== 'all' ? t(CATEGORY_TABS.find(c => c.id === activeCategory)?.labelKey, CATEGORY_TABS.find(c => c.id === activeCategory)?.defaultLabel) : 'places'} in {destination?.name}, Tamil Nadu
               </p>
+
+              {/* Real-time Discovery & Personalization Quick Strip */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  background: 'rgba(5, 150, 105, 0.1)',
+                  color: '#059669',
+                  border: '1px solid rgba(5, 150, 105, 0.25)',
+                  borderRadius: 'var(--radius-full)',
+                  padding: '4px 12px',
+                  fontSize: '0.74rem',
+                  fontWeight: 700
+                }}>
+                  <Globe size={12} /> {loadingDynamic ? 'Discovering Places...' : `Live Discovery Active (${dynamicPlaces.length} verified records)`}
+                </span>
+
+                {/* Hidden Gems Quick Filter Button */}
+                <button
+                  onClick={() => setHiddenGemsOnly(!hiddenGemsOnly)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    background: hiddenGemsOnly ? '#9333ea' : 'rgba(147, 51, 234, 0.08)',
+                    color: hiddenGemsOnly ? '#ffffff' : '#9333ea',
+                    border: '1px solid rgba(147, 51, 234, 0.3)',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '4px 14px',
+                    fontSize: '0.74rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: hiddenGemsOnly ? '0 2px 10px rgba(147, 51, 234, 0.3)' : 'none',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <Sparkles size={12} /> {hiddenGemsOnly ? 'Showing Potential Hidden Gems Only' : 'Filter Potential Hidden Gems'}
+                </button>
+
+                {/* Personalization Preferences Drawer Toggle */}
+                <button
+                  onClick={() => setShowPersonalization(!showPersonalization)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    background: showPersonalization ? 'var(--text-primary)' : 'var(--bg-surface)',
+                    color: showPersonalization ? '#ffffff' : 'var(--text-primary)',
+                    border: '1px solid var(--border-light)',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '4px 14px',
+                    fontSize: '0.74rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <SlidersHorizontal size={13} /> {showPersonalization ? 'Hide Personalization' : 'Personalize & Rank Places'}
+                </button>
+              </div>
+
+              {/* Personalization Ranking Drawer */}
+              {showPersonalization && (
+                <div style={{
+                  background: '#ffffff',
+                  border: '1.5px solid var(--border-light)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '18px 22px',
+                  margin: '18px 0 20px 0',
+                  boxShadow: 'var(--shadow-sm)',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '16px'
+                }}>
+                  {/* Budget Selector */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '6px' }}>
+                      Budget Preference
+                    </label>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      {['All', 'Free', 'Budget', 'Moderate', 'Luxury'].map(b => (
+                        <button
+                          key={b}
+                          onClick={() => setSelectedBudget(b)}
+                          style={{
+                            background: selectedBudget === b ? 'var(--brand-terracotta)' : 'var(--bg-surface)',
+                            color: selectedBudget === b ? '#ffffff' : 'var(--text-primary)',
+                            border: '1px solid var(--border-light)',
+                            borderRadius: 'var(--radius-sm)',
+                            padding: '4px 10px',
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {b}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Companion Selector */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '6px' }}>
+                      Companionship
+                    </label>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      {['All', 'Solo', 'Family', 'Friends'].map(c => (
+                        <button
+                          key={c}
+                          onClick={() => setSelectedCompanion(c)}
+                          style={{
+                            background: selectedCompanion === c ? 'var(--brand-terracotta)' : 'var(--bg-surface)',
+                            color: selectedCompanion === c ? '#ffffff' : 'var(--text-primary)',
+                            border: '1px solid var(--border-light)',
+                            borderRadius: 'var(--radius-sm)',
+                            padding: '4px 10px',
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Duration Selector */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '6px' }}>
+                      Travel Duration
+                    </label>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      {[
+                        { id: 'All', label: 'Any' },
+                        { id: 'short', label: 'Short (<1h)' },
+                        { id: 'half_day', label: 'Half-Day' },
+                        { id: 'full_day', label: 'Full-Day' }
+                      ].map(d => (
+                        <button
+                          key={d.id}
+                          onClick={() => setSelectedDuration(d.id)}
+                          style={{
+                            background: selectedDuration === d.id ? 'var(--brand-terracotta)' : 'var(--bg-surface)',
+                            color: selectedDuration === d.id ? '#ffffff' : 'var(--text-primary)',
+                            border: '1px solid var(--border-light)',
+                            borderRadius: 'var(--radius-sm)',
+                            padding: '4px 10px',
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {d.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Interest Themes */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '6px' }}>
+                      Primary Theme
+                    </label>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      {['All', 'nature', 'history', 'religion', 'food', 'photography'].map(th => (
+                        <button
+                          key={th}
+                          onClick={() => setSelectedTheme(th)}
+                          style={{
+                            background: selectedTheme === th ? 'var(--brand-terracotta)' : 'var(--bg-surface)',
+                            color: selectedTheme === th ? '#ffffff' : 'var(--text-primary)',
+                            border: '1px solid var(--border-light)',
+                            borderRadius: 'var(--radius-sm)',
+                            padding: '4px 10px',
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            textTransform: 'capitalize',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {th}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Search Input Box */}
@@ -664,34 +949,89 @@ export default function Explore({
                   <div className="editorial-card-photo-box">
                     <img src={item.photo} alt={item.name} className="editorial-card-photo" />
                     
-                    {/* Rating Badge */}
-                    <div className="editorial-card-rating">
-                      <Star size={13} fill="#f59e0b" color="#f59e0b" /> {item.rating || 4.8}
-                    </div>
-
-                    {/* AI Crowd Level Badge on Card */}
-                    {item.crowd && (
+                    {/* Verification / Hidden Gem Tag */}
+                    {(item.hiddenGemCandidate || item.verificationStatus) && (
                       <div style={{
                         position: 'absolute',
-                        bottom: '12px',
+                        top: '12px',
                         left: '12px',
-                        background: 'rgba(255, 255, 255, 0.95)',
-                        backdropFilter: 'blur(8px)',
-                        border: `1px solid ${item.crowd.border}`,
-                        borderRadius: 'var(--radius-full)',
-                        padding: '3px 10px',
-                        fontSize: '0.72rem',
+                        background: item.hiddenGemCandidate
+                          ? 'rgba(147, 51, 234, 0.95)'
+                          : item.verificationStatus === 'VERIFIED'
+                          ? 'rgba(16, 185, 129, 0.95)'
+                          : 'rgba(245, 158, 11, 0.95)',
+                        color: '#ffffff',
                         fontWeight: 800,
-                        color: item.crowd.color,
+                        fontSize: '0.68rem',
+                        padding: '3px 10px',
+                        borderRadius: 'var(--radius-full)',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '4px',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.12)'
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em'
                       }}>
-                        <Users size={12} color={item.crowd.color} />
-                        <span>Crowd: {item.crowd.tag}</span>
+                        {item.hiddenGemCandidate ? (
+                          <>✨ Potential Hidden Gem</>
+                        ) : item.verificationStatus === 'VERIFIED' ? (
+                          <><CheckCircle2 size={11} /> Verified Source</>
+                        ) : (
+                          <>Review Pending</>
+                        )}
                       </div>
                     )}
+
+                    {/* Rating & Match Score Badge */}
+                    <div style={{ position: 'absolute', top: '12px', right: '48px', display: 'flex', gap: '4px' }}>
+                      {item.matchScore && (
+                        <div style={{
+                          background: 'rgba(194, 65, 12, 0.95)',
+                          color: '#ffffff',
+                          fontWeight: 800,
+                          fontSize: '0.72rem',
+                          padding: '3px 8px',
+                          borderRadius: 'var(--radius-full)',
+                          boxShadow: 'var(--shadow-sm)'
+                        }}>
+                          {item.matchScore}% Match
+                        </div>
+                      )}
+                      <div className="editorial-card-rating">
+                        <Star size={13} fill="#f59e0b" color="#f59e0b" /> {item.rating || 4.8}
+                      </div>
+                    </div>
+
+                    {/* Confidence or Crowd Level Badge on Card */}
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '12px',
+                      left: '12px',
+                      background: 'rgba(255, 255, 255, 0.95)',
+                      backdropFilter: 'blur(8px)',
+                      border: '1px solid var(--border-light)',
+                      borderRadius: 'var(--radius-full)',
+                      padding: '3px 10px',
+                      fontSize: '0.72rem',
+                      fontWeight: 800,
+                      color: 'var(--text-primary)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.12)'
+                    }}>
+                      {item.dataConfidenceScore ? (
+                        <>
+                          <ShieldCheck size={12} color="#059669" />
+                          <span>{item.dataConfidenceScore}% Confidence</span>
+                        </>
+                      ) : (
+                        <>
+                          <Users size={12} color={item.crowd?.color || '#059669'} />
+                          <span>Crowd: {item.crowd?.tag || 'Moderate'}</span>
+                        </>
+                      )}
+                    </div>
 
                     {/* Bookmark Save Button */}
                     <button

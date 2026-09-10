@@ -9,6 +9,7 @@ import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { getCrowdStatus } from '../services/crowdService';
 import { Link, useNavigate } from 'react-router-dom';
+import ReportPlaceModal from './ReportPlaceModal';
 
 export default function PlaceDetailModal({
   place,
@@ -21,6 +22,9 @@ export default function PlaceDetailModal({
   const { t } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Reporting modal state
+  const [reportModalOpen, setReportModalOpen] = useState(false);
 
   // Gallery state
   const [activePhoto, setActivePhoto] = useState(place?.photo || '');
@@ -456,7 +460,108 @@ export default function PlaceDetailModal({
                   <Navigation size={15} /> Get Directions <ExternalLink size={12} />
                 </a>
               )}
+
+              {/* Report Outdated Information Button */}
+              <button
+                onClick={() => setReportModalOpen(true)}
+                style={{
+                  background: 'rgba(239, 68, 68, 0.08)',
+                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                  borderRadius: 'var(--radius-full)',
+                  padding: '10px 18px',
+                  fontSize: '0.84rem',
+                  fontWeight: 700,
+                  color: '#ef4444',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <AlertTriangle size={15} /> Report Outdated Info
+              </button>
             </div>
+
+            {/* Verified Source & Data Freshness Banner */}
+            {(place.sourceName || place.verificationStatus || place.dataConfidenceScore) && (
+              <div style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-light)',
+                borderRadius: 'var(--radius-md)',
+                padding: '14px 18px',
+                marginBottom: '28px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '12px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                  {/* Verification Status Badge */}
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    fontSize: '0.76rem',
+                    fontWeight: 800,
+                    padding: '4px 12px',
+                    borderRadius: 'var(--radius-full)',
+                    background: place.verificationStatus === 'VERIFIED'
+                      ? 'rgba(16, 185, 129, 0.15)'
+                      : place.hiddenGemCandidate
+                      ? 'rgba(168, 85, 247, 0.15)'
+                      : place.verificationStatus === 'USER_REPORTED'
+                      ? 'rgba(239, 68, 68, 0.15)'
+                      : 'rgba(245, 158, 11, 0.15)',
+                    color: place.verificationStatus === 'VERIFIED'
+                      ? '#10b981'
+                      : place.hiddenGemCandidate
+                      ? '#a855f7'
+                      : place.verificationStatus === 'USER_REPORTED'
+                      ? '#ef4444'
+                      : '#f59e0b',
+                    border: '1px solid currentColor'
+                  }}>
+                    {place.verificationStatus === 'VERIFIED' && <CheckCircle2 size={13} />}
+                    {place.hiddenGemCandidate && <Sparkles size={13} />}
+                    {place.verificationStatus === 'VERIFIED'
+                      ? 'Verified Official Source'
+                      : place.hiddenGemCandidate
+                      ? 'Potential Hidden Gem'
+                      : place.verificationStatus === 'USER_REPORTED'
+                      ? 'Report Under Review'
+                      : 'Pending Community Verification'}
+                  </span>
+
+                  {/* Data Confidence Score */}
+                  {place.dataConfidenceScore && (
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                      Data Confidence: <strong style={{ color: place.dataConfidenceScore >= 80 ? '#10b981' : '#f59e0b' }}>{place.dataConfidenceScore}%</strong>
+                    </span>
+                  )}
+
+                  {/* Source Citation */}
+                  {place.sourceName && (
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                      Source:{' '}
+                      {place.sourceUrl ? (
+                        <a href={place.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--brand-terracotta)', fontWeight: 700, textDecoration: 'none' }}>
+                          {place.sourceName} <ExternalLink size={11} style={{ verticalAlign: 'middle' }} />
+                        </a>
+                      ) : (
+                        <strong style={{ color: 'var(--text-primary)' }}>{place.sourceName}</strong>
+                      )}
+                    </span>
+                  )}
+                </div>
+
+                {place.lastVerifiedAt && (
+                  <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                    Last verified: {new Date(place.lastVerifiedAt).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}
+                  </span>
+                )}
+              </div>
+            )}
 
             {/* Description & Story */}
             <div style={{ marginBottom: '32px' }}>
@@ -682,6 +787,13 @@ export default function PlaceDetailModal({
         </div>
 
       </div>
+
+      {/* User Outdated Info Reporting Modal */}
+      <ReportPlaceModal
+        isOpen={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+        place={place}
+      />
     </div>
   );
 }

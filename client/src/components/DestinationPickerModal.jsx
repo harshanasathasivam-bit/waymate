@@ -152,9 +152,11 @@ export default function DestinationPickerModal({
         background: 'rgba(15, 23, 42, 0.65)',
         backdropFilter: 'blur(6px)',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
-        padding: '20px',
+        padding: '64px 20px 20px 20px',
+        overflowY: 'auto',
+        boxSizing: 'border-box',
         animation: 'fadeIn 0.2s ease-out'
       }}
       onClick={onClose}
@@ -165,12 +167,13 @@ export default function DestinationPickerModal({
           borderRadius: '24px',
           width: '100%',
           maxWidth: '820px',
-          maxHeight: '90vh',
+          maxHeight: 'calc(100vh - 84px)',
           display: 'flex',
           flexDirection: 'column',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
           overflow: 'hidden',
-          border: '1px solid var(--border-light)'
+          border: '1px solid var(--border-light)',
+          flexShrink: 0
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -329,9 +332,10 @@ export default function DestinationPickerModal({
 
         {/* Modal Body - Destinations Grid */}
         <div style={{
-          padding: '20px 28px',
+          padding: '20px 28px 24px 28px',
           overflowY: 'auto',
           flex: 1,
+          minHeight: 0,
           display: 'flex',
           flexDirection: 'column',
           gap: '14px'
@@ -394,8 +398,9 @@ export default function DestinationPickerModal({
           {/* Destinations Grid */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-            gap: '12px'
+            gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))',
+            gap: '12px',
+            paddingBottom: '8px'
           }}>
             {filteredDestinations.map(d => {
               const isSelected = d.id === currentDestination?.id || d.name.toLowerCase() === currentDestination?.name?.toLowerCase();

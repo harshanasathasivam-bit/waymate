@@ -8,6 +8,7 @@ import Footer from './components/Footer';
 import AIChatbot from './components/AIChatbot';
 import SOSModal from './components/SOSModal';
 import PlaceDetailModal from './components/PlaceDetailModal';
+import DestinationPickerModal from './components/DestinationPickerModal';
 
 import Home from './pages/Home';
 import Explore from './pages/Explore';
@@ -19,6 +20,7 @@ import Safety from './pages/Safety';
 import Profile from './pages/Profile';
 import Auth from './pages/Auth';
 import DestinationDetail from './pages/DestinationDetail';
+import Admin from './pages/Admin';
 
 import { DESTINATIONS } from './data/travelDatabase';
 
@@ -38,6 +40,7 @@ export default function App() {
   const [savedPlaces, setSavedPlaces] = useState([]);
   const [sosOpen, setSosOpen] = useState(false);
   const [activePlaceDetail, setActivePlaceDetail] = useState(null);
+  const [destModalOpen, setDestModalOpen] = useState(false);
 
   const handleSelectDestination = (dest) => {
     setCurrentDestination(dest);
@@ -122,6 +125,7 @@ export default function App() {
             currentDestination={currentDestination}
             onSelectDestination={handleSelectDestination}
             onOpenSOS={() => setSosOpen(true)}
+            onOpenDestPicker={() => setDestModalOpen(true)}
             savedCount={savedPlaces.length}
           />
 
@@ -235,6 +239,13 @@ export default function App() {
               />
 
               <Route
+                path="/admin"
+                element={
+                  <Admin />
+                }
+              />
+
+              <Route
                 path="/destination/:id"
                 element={
                   <DestinationDetail
@@ -274,6 +285,15 @@ export default function App() {
             isSaved={isSaved}
             onAddToTrip={handleAddToTrip}
             currentDestination={currentDestination}
+          />
+
+          {/* Global Destination Picker Modal — rendered at root to escape backdrop-filter stacking context */}
+          <DestinationPickerModal
+            isOpen={destModalOpen}
+            onClose={() => setDestModalOpen(false)}
+            destinations={destinations}
+            currentDestination={currentDestination}
+            onSelectDestination={handleSelectDestination}
           />
 
         </div>

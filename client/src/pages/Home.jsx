@@ -186,7 +186,7 @@ export default function Home({
       
       {/* 1. Hero Atmospheric Header */}
       <section className="hero-editorial" style={{ backgroundImage: `linear-gradient(180deg, rgba(24, 24, 27, 0.45) 0%, rgba(24, 24, 27, 0.88) 100%), url("${destination?.heroImage}")` }}>
-        <div style={{ maxWidth: '1360px', margin: '0 auto', width: '100%', position: 'relative', zIndex: 2 }}>
+        <div style={{ maxWidth: '1360px', margin: '0 auto', width: '100%' }}>
           
           {/* Greeting Pill & Destination Selector */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '16px' }}>

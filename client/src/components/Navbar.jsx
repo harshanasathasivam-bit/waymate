@@ -7,19 +7,18 @@ import {
 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
-import DestinationPickerModal from './DestinationPickerModal';
 
 export default function Navbar({
   destinations = [],
   currentDestination,
   onSelectDestination,
   onOpenSOS,
+  onOpenDestPicker,
   savedCount = 0
 }) {
   const location = useLocation();
   const { currentLang, setLanguage, t, currentLangMeta, supportedLangs } = useLanguage();
   const { user, isAuthenticated } = useAuth();
-  const [destModalOpen, setDestModalOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;
@@ -40,7 +39,7 @@ export default function Navbar({
           {/* Quick Destination Switcher for Tamil Nadu */}
           <div>
             <button
-              onClick={() => setDestModalOpen(true)}
+              onClick={() => onOpenDestPicker?.()}
               style={{
                 background: 'var(--bg-surface)',
                 border: '1.5px solid var(--border-light)',
@@ -80,15 +79,6 @@ export default function Navbar({
               </span>
               <ChevronDown size={13} color="var(--text-muted)" />
             </button>
-
-            {/* Comprehensive Tamil Nadu Destination & District Picker Modal */}
-            <DestinationPickerModal
-              isOpen={destModalOpen}
-              onClose={() => setDestModalOpen(false)}
-              destinations={destinations}
-              currentDestination={currentDestination}
-              onSelectDestination={onSelectDestination}
-            />
           </div>
         </div>
 
@@ -262,6 +252,28 @@ export default function Navbar({
               <span>{t('auth.signIn', 'Sign In')}</span>
             </Link>
           )}
+
+          {/* Admin Control Center Link */}
+          <Link
+            to="/admin"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              background: 'rgba(245, 158, 11, 0.08)',
+              border: '1px solid rgba(245, 158, 11, 0.25)',
+              borderRadius: 'var(--radius-full)',
+              padding: '5px 12px',
+              textDecoration: 'none',
+              color: '#d97706',
+              fontSize: '0.76rem',
+              fontWeight: 700,
+              whiteSpace: 'nowrap'
+            }}
+            title="System Admin & Places Moderation Portal"
+          >
+            <span>Admin</span>
+          </Link>
 
           {/* SOS Trigger */}
           <button
