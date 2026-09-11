@@ -7,11 +7,11 @@ const seedDestinations = [
     region: "South India",
     tagline: "Coastal heritage, ancient Dravidian temples & vibrant culinary streets",
     description: "Chennai is a major cultural and economic hub situated along the Coromandel Coast of Tamil Nadu. Renowned for Marina Beach, centuries-old Kapaleeshwarar temple, vibrant Carnatic music season, and rich South Indian culinary heritage.",
-    heroImage: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/4/41/Marina_Beach_in_Chennai.jpg",
     images: [
-      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=1200&q=80"
+      "https://upload.wikimedia.org/wikipedia/commons/4/41/Marina_Beach_in_Chennai.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/9/99/Kapaleeswarar1.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/4/4f/Fort_St._George%2C_Chennai.jpg"
     ],
     coordinates: { lat: 13.0499, lng: 80.2824 },
     distanceFromSalem: 340,
@@ -68,7 +68,7 @@ const seedDestinations = [
         estimatedCost: "Free Entry (₹50 for Lighthouse)",
         shortDesc: "World's second-longest urban beach. Perfect for cool evening sea breeze, fresh roasted corn, and panoramic coastal views from the vintage lighthouse.",
         bestTime: "Best for sunset (05:00 PM - 07:30 PM)",
-        photo: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/4/41/Marina_Beach_in_Chennai.jpg",
         lat: 13.0499,
         lng: 80.2824,
         tags: ["Sunset", "Beach Walk", "Street Snacks"]
@@ -83,7 +83,7 @@ const seedDestinations = [
         estimatedCost: "Free Entry",
         shortDesc: "7th-century architectural marvel dedicated to Lord Shiva, featuring an intricately carved 37-meter rainbow Gopuram and traditional sacred temple tank.",
         bestTime: "06:00 AM - 08:30 AM & 05:30 PM - 08:00 PM",
-        photo: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/9/99/Kapaleeswarar1.jpg",
         lat: 13.0336,
         lng: 80.2698,
         tags: ["Temple", "Dravidian Architecture", "Sacred Tank"]
@@ -97,11 +97,11 @@ const seedDestinations = [
     region: "South India",
     tagline: "Rolling Tea Gardens, Mist-covered Hills & Cool Breezes",
     description: "Munnar is a majestic hill station situated in the Western Ghats of Kerala. Famous for sprawling tea plantations, picturesque valleys, rare flora like Neelakurinji, and pristine waterfalls.",
-    heroImage: "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=80",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/0/05/Munnar_tea_plantations.jpg",
     images: [
-      "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80"
+      "https://upload.wikimedia.org/wikipedia/commons/0/05/Munnar_tea_plantations.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/8/87/Eravikulam_National_Park_Munnar_Kerala.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/3/30/Mattupetty_Dam_Munnar.jpg"
     ],
     coordinates: { lat: 10.0889, lng: 77.0595 },
     distanceFromSalem: 295, // km
@@ -292,10 +292,10 @@ const seedDestinations = [
     region: "South India",
     tagline: "Wild Sanctuaries, Ancient Caves & Mystic Waterfalls",
     description: "Wayanad is a green paradise perched among the mountains of the Western Ghats. Known for prehistoric Edakkal rock caves, spice plantations, wildlife reserves, and serene lakes.",
-    heroImage: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/8/80/Banasura_Sagar_Dam.jpg",
     images: [
-      "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80"
+      "https://upload.wikimedia.org/wikipedia/commons/8/80/Banasura_Sagar_Dam.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/4/42/Edakkal_Caves_Carvings.jpg"
     ],
     coordinates: { lat: 11.6854, lng: 76.1320 },
     distanceFromSalem: 260,
@@ -442,10 +442,10 @@ const seedDestinations = [
     region: "South India",
     tagline: "Queen of Hill Stations, Heritage Toy Train & Eucalyptus Pine Forests",
     description: "Nestled in the Nilgiri Hills of Tamil Nadu, Ooty is famous for its colonial architecture, UNESCO Nilgiri Mountain Toy Train, fragrant tea estates, and shimmering Ooty Lake.",
-    heroImage: "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=1200&q=80",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/7/72/Nilgiri_Mountain_Railway.jpg",
     images: [
-      "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80"
+      "https://upload.wikimedia.org/wikipedia/commons/7/72/Nilgiri_Mountain_Railway.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/2/22/Government_Botanical_Gardens%2C_Ooty.jpg"
     ],
     coordinates: { lat: 11.4102, lng: 76.6950 },
     distanceFromSalem: 160,
@@ -502,6 +502,7 @@ const seedDestinations = [
         accessibility: "Paved ramps throughout major flower bed terraces",
         photoSpot: true,
         description: "55-acre garden featuring fossil trees 20 million years old, Italian gardens, and vibrant flower displays.",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/2/22/Government_Botanical_Gardens%2C_Ooty.jpg",
         lat: 11.4168, lng: 76.7122
       },
       {
@@ -514,6 +515,7 @@ const seedDestinations = [
         accessibility: "Level boarding platforms; wheelchair assistance on request",
         photoSpot: true,
         description: "Chugging vintage steam engine train winding through tunnels, bridges, and mountain cliffs.",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/7/72/Nilgiri_Mountain_Railway.jpg",
         lat: 11.4060, lng: 76.7020
       },
       {
@@ -526,6 +528,7 @@ const seedDestinations = [
         accessibility: "Telescope house accessible via ramp; paved concourse",
         photoSpot: true,
         description: "Highest peak in the Nilgiris (8,650 ft). Features a telescope house providing 360-degree valley views.",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/c/c2/Doddabetta_peak.jpg",
         lat: 11.4014, lng: 76.7356
       }
     ],
@@ -592,9 +595,10 @@ const seedDestinations = [
     region: "South India",
     tagline: "Princess of Hill Stations, Star Lakes & Mist Trails",
     description: "Located on the Palani Hills, Kodaikanal is renowned for its star-shaped Kodai Lake, wooded cliffs, waterfalls, and peaceful pine forest walks.",
-    heroImage: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/0/0c/Kodaikanal_Lake.jpg",
     images: [
-      "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80"
+      "https://upload.wikimedia.org/wikipedia/commons/0/0c/Kodaikanal_Lake.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/b/b3/Pillar_Rocks_Kodaikanal.jpg"
     ],
     coordinates: { lat: 10.2381, lng: 77.4892 },
     distanceFromSalem: 215,
@@ -651,6 +655,7 @@ const seedDestinations = [
         accessibility: "Flat 5km paved walkway ideal for wheelchairs & prams",
         photoSpot: true,
         description: "Iconic man-made star lake created in 1863. Rent rowing boats, pedal boats, or tandem bicycles.",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/0/0c/Kodaikanal_Lake.jpg",
         lat: 10.2330, lng: 77.4850
       },
       {
@@ -663,6 +668,7 @@ const seedDestinations = [
         accessibility: "Paved flat paved path with handrails throughout",
         photoSpot: true,
         description: "1-kilometer pedestrian paved path built along mountain slopes offering cloud-bed valley views.",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/4/40/Coakers_Walk_Kodaikanal.jpg",
         lat: 10.2320, lng: 77.4950
       }
     ],
@@ -717,9 +723,9 @@ const seedDestinations = [
     region: "South India",
     tagline: "Jewel of the Shevaroys, Coffee Aromas & Budget Bliss",
     description: "Located right near Salem, Yercaud is an affordable, tranquil hill station nestled in the Shevaroy Hills. Known for orange groves, coffee plantations, spice gardens, and Emerald Lake.",
-    heroImage: "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=80",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/6/6f/Yercaud_Lake.jpg",
     images: [
-      "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=80"
+      "https://upload.wikimedia.org/wikipedia/commons/6/6f/Yercaud_Lake.jpg"
     ],
     coordinates: { lat: 11.7753, lng: 78.2093 },
     distanceFromSalem: 30,
@@ -776,6 +782,7 @@ const seedDestinations = [
         accessibility: "Flat paved park, senior & child friendly",
         photoSpot: true,
         description: "Natural lake surrounded by gardens and towering trees. Features motorboat and pedal boat rides.",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/6/6f/Yercaud_Lake.jpg",
         lat: 11.7740, lng: 78.2080
       },
       {
@@ -788,6 +795,7 @@ const seedDestinations = [
         accessibility: "Paved viewing platform",
         photoSpot: true,
         description: "Named after stone structures built by local tribes. Offers expansive views of Salem city below.",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/a/a2/Pagoda_Point_Yercaud.jpg",
         lat: 11.7820, lng: 78.2250
       }
     ],
@@ -842,11 +850,11 @@ const seedDestinations = [
     region: "South India",
     tagline: "The Ancient City of Temples, Jasmine & Street Food Gastronomy",
     description: "Madurai is one of the world's oldest continuously inhabited cities. Famous for the legendary Meenakshi Amman Temple, Thirumalai Nayakkar Palace, and world-class street food.",
-    heroImage: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/6/62/Meenakshi_Temple.jpg",
     images: [
-      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=80"
+      "https://upload.wikimedia.org/wikipedia/commons/6/62/Meenakshi_Temple.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/0/05/Thirumalai_Nayakkar_Mahal.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/7/7d/Gandhi_Memorial_Museum_Madurai.jpg"
     ],
     coordinates: { lat: 9.9252, lng: 78.1198 },
     distanceFromSalem: 235,
@@ -903,7 +911,7 @@ const seedDestinations = [
         estimatedCost: "Free Entry (₹50 for Hall of 1000 Pillars)",
         shortDesc: "Timeless architectural masterpiece featuring 14 towering sculpted Gopurams and the 1000-pillar hall.",
         bestTime: "06:00 AM - 08:30 AM & 06:00 PM - 09:30 PM",
-        photo: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/6/62/Meenakshi_Temple.jpg",
         lat: 9.9195, lng: 78.1193,
         tags: ["Temple", "Sculptures", "Sacred Tank", "Heritage"]
       },
@@ -917,7 +925,7 @@ const seedDestinations = [
         estimatedCost: "₹10 Entry",
         shortDesc: "17th-century palace built by King Thirumalai Nayak with massive circular pillars and light shows.",
         bestTime: "09:30 AM - 01:00 PM & 06:45 PM for Light Show",
-        photo: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/0/05/Thirumalai_Nayakkar_Mahal.jpg",
         lat: 9.9152, lng: 78.1235,
         tags: ["Palace", "Light Show", "Royal Architecture"]
       },
@@ -931,7 +939,7 @@ const seedDestinations = [
         estimatedCost: "Free Entry",
         shortDesc: "Historic museum located inside the 17th-century palace of Rani Mangammal with freedom struggle relics.",
         bestTime: "10:00 AM - 01:00 PM & 02:00 PM - 05:30 PM",
-        photo: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/7/7d/Gandhi_Memorial_Museum_Madurai.jpg",
         lat: 9.9324, lng: 78.1408,
         tags: ["Museum", "History", "Freedom Struggle"]
       }
@@ -985,10 +993,10 @@ const seedDestinations = [
     region: "South India",
     tagline: "UNESCO Brihadisvara Big Temple, Chola Bronze & Classical Arts",
     description: "Thanjavur is the cultural heartland of Tamil Nadu and the ancient capital of the Great Chola Dynasty. Home to the towering UNESCO World Heritage Brihadisvara Temple, classical Tanjore paintings, and brass handicrafts.",
-    heroImage: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=1200&q=80",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Brihadisvara_Temple_1.jpg",
     images: [
-      "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80"
+      "https://upload.wikimedia.org/wikipedia/commons/f/f9/Brihadisvara_Temple_1.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/0/0c/Thanjavur_Maratha_Palace.jpg"
     ],
     coordinates: { lat: 10.7870, lng: 79.1378 },
     distanceFromSalem: 195,
@@ -1045,7 +1053,7 @@ const seedDestinations = [
         estimatedCost: "Free Entry",
         shortDesc: "1,000-year-old architectural marvel built entirely of granite by Emperor Raja Raja Chola I.",
         bestTime: "06:00 AM - 08:30 AM & 05:00 PM - 08:30 PM",
-        photo: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Brihadisvara_Temple_1.jpg",
         lat: 10.7828, lng: 79.1318,
         tags: ["UNESCO", "Chola Architecture", "Granite Vimana", "Sculptures"]
       },
@@ -1059,7 +1067,7 @@ const seedDestinations = [
         estimatedCost: "₹50 Entry",
         shortDesc: "16th-century Nayak-Maratha palace containing royal courtyards, bronze museum, and Saraswathi Mahal library.",
         bestTime: "10:00 AM - 01:00 PM & 02:00 PM - 05:30 PM",
-        photo: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/0/0c/Thanjavur_Maratha_Palace.jpg",
         lat: 10.7925, lng: 79.1350,
         tags: ["Palace", "Bronze Museum", "Royal Library"]
       }
@@ -1102,9 +1110,10 @@ const seedDestinations = [
     region: "South India",
     tagline: "Historic Rockfort Temple, Srirangam & Kallanai Grand Anicut",
     description: "Trichy blends ancient rock fortress landmarks with sacred river islands. Home to Sri Ranganathaswamy Temple, the world's largest functioning Hindu temple complex.",
-    heroImage: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Srirangam-Ranganathaswamy_Temple-.jpg",
     images: [
-      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80"
+      "https://upload.wikimedia.org/wikipedia/commons/2/2a/Srirangam-Ranganathaswamy_Temple-.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/3/30/Rockfort_Trichy.jpg"
     ],
     coordinates: { lat: 10.7905, lng: 78.7047 },
     distanceFromSalem: 140,
@@ -1161,7 +1170,7 @@ const seedDestinations = [
         estimatedCost: "Free Entry (₹100 Quick Darshan)",
         shortDesc: "156-acre temple city with 21 majestic gopurams and the 73-meter Rajagopuram.",
         bestTime: "06:00 AM - 08:30 AM & 05:00 PM - 09:00 PM",
-        photo: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/2/2a/Srirangam-Ranganathaswamy_Temple-.jpg",
         lat: 10.8624, lng: 78.6901,
         tags: ["Temple", "Rajagopuram", "Kaveri River", "Heritage"]
       },
@@ -1175,7 +1184,7 @@ const seedDestinations = [
         estimatedCost: "Free Entry (₹50 Camera)",
         shortDesc: "83-meter high monolithic rock fortress featuring 437 stone steps and 360-degree cityscape vistas.",
         bestTime: "06:00 AM - 08:00 AM & 05:00 PM - 07:30 PM",
-        photo: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/3/30/Rockfort_Trichy.jpg",
         lat: 10.8277, lng: 78.6974,
         tags: ["Rockfort", "Viewpoint", "Sunset", "Ganesha Temple"]
       }
@@ -1218,10 +1227,10 @@ const seedDestinations = [
     region: "South India",
     tagline: "Triconfluence Point, Vivekananda Rock & Sunrise Vistas",
     description: "The southernmost tip of the Indian subcontinent where the Bay of Bengal, Arabian Sea, and Indian Ocean meet. World-famous for watching the sunrise and sunset over the ocean from the same spot.",
-    heroImage: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/3/36/Vivekananda_Rock_Memorial_and_Thiruvalluvar_Statue.jpg",
     images: [
-      "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
+      "https://upload.wikimedia.org/wikipedia/commons/3/36/Vivekananda_Rock_Memorial_and_Thiruvalluvar_Statue.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/8/87/Kanyakumari_Sunrise.jpg"
     ],
     coordinates: { lat: 8.0883, lng: 77.5385 },
     distanceFromSalem: 480,
@@ -1278,7 +1287,7 @@ const seedDestinations = [
         estimatedCost: "₹50 Ferry + ₹20 Entry",
         shortDesc: "Monumental rock where Swami Vivekananda attained enlightenment, and the 133-ft stone Thiruvalluvar statue.",
         bestTime: "08:00 AM - 11:30 AM & 02:00 PM - 04:00 PM",
-        photo: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/3/36/Vivekananda_Rock_Memorial_and_Thiruvalluvar_Statue.jpg",
         lat: 8.0781, lng: 77.5552,
         tags: ["Memorial", "Ferry", "Thiruvalluvar", "Ocean Views"]
       },
@@ -1292,7 +1301,7 @@ const seedDestinations = [
         estimatedCost: "Free Entry",
         shortDesc: "Scenic coastal promenade where three oceans merge with unforgettable multicolour sands.",
         bestTime: "05:30 AM for Sunrise & 05:45 PM for Sunset",
-        photo: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/8/87/Kanyakumari_Sunrise.jpg",
         lat: 8.0810, lng: 77.5510,
         tags: ["Triveni Sangam", "Sunrise", "Sunset", "Ocean"]
       }
@@ -1335,9 +1344,10 @@ const seedDestinations = [
     region: "South India",
     tagline: "UNESCO Shore Temple, Monolithic Rathas & Coastal Surfing",
     description: "Famous for 7th-century Pallava rock-cut architecture, the iconic Shore Temple on the Coromandel beach, Arjuna's Penance, and vibrant seafood cafes.",
-    heroImage: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/3/32/Shore_Temple_Mahabalipuram.jpg",
     images: [
-      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80"
+      "https://upload.wikimedia.org/wikipedia/commons/3/32/Shore_Temple_Mahabalipuram.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/1/1f/Pancha_Rathas_Mahabalipuram.jpg"
     ],
     coordinates: { lat: 12.6208, lng: 80.1944 },
     distanceFromSalem: 310,
@@ -1394,7 +1404,7 @@ const seedDestinations = [
         estimatedCost: "₹40 Entry (ASI Ticket covers all monuments)",
         shortDesc: "8th-century structural stone temple facing the open Bay of Bengal, built by Narasimhavarman II.",
         bestTime: "06:00 AM - 08:30 AM & 05:00 PM - 06:30 PM",
-        photo: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/3/32/Shore_Temple_Mahabalipuram.jpg",
         lat: 12.6163, lng: 80.1983,
         tags: ["UNESCO", "Shore Temple", "Pallava", "Ocean View"]
       },
@@ -1408,7 +1418,7 @@ const seedDestinations = [
         estimatedCost: "Covered by ASI Ticket",
         shortDesc: "5 monolithic chariot temples carved from single granite rocks named after the Pandavas.",
         bestTime: "09:00 AM - 11:30 AM & 03:30 PM - 05:30 PM",
-        photo: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/1/1f/Pancha_Rathas_Mahabalipuram.jpg",
         lat: 12.6089, lng: 80.1942,
         tags: ["Pancha Rathas", "Monolith", "Elephant Carving"]
       }
@@ -1451,9 +1461,10 @@ const seedDestinations = [
     region: "South India",
     tagline: "Holy Arunachala Hill, Annamalaiyar Temple & Sacred Girivalam",
     description: "One of the most sacred spiritual centers in India. Celebrated for Mount Arunachala representing the fire element (Agni), the grand 10-hectare Annamalaiyar Temple, and the peaceful Ramana Maharshi Ashram.",
-    heroImage: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/2/26/Annamalaiyar_Temple_Gopuram_Tiruvannamalai.jpg",
     images: [
-      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80"
+      "https://upload.wikimedia.org/wikipedia/commons/2/26/Annamalaiyar_Temple_Gopuram_Tiruvannamalai.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/7/7b/Arunachala_Hill_Tiruvannamalai.jpg"
     ],
     coordinates: { lat: 12.2253, lng: 79.0747 },
     distanceFromSalem: 135,
@@ -1510,7 +1521,7 @@ const seedDestinations = [
         estimatedCost: "Free Entry",
         shortDesc: "Gigantic 25-acre temple complex with 4 soaring gopurams dedicated to Shiva as Agni (Fire).",
         bestTime: "06:00 AM - 08:30 AM & 06:00 PM - 09:00 PM",
-        photo: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/2/26/Annamalaiyar_Temple_Gopuram_Tiruvannamalai.jpg",
         lat: 12.2251, lng: 79.0677,
         tags: ["Arunachaleswarar", "Agni Lingam", "Gopuram", "Ancient Temple"]
       },
@@ -1524,7 +1535,7 @@ const seedDestinations = [
         estimatedCost: "Free Entry",
         shortDesc: "Serene ashram where sage Ramana Maharshi taught self-inquiry, with scenic forest trail to hill caves.",
         bestTime: "06:30 AM - 11:00 AM & 04:00 PM - 07:00 PM",
-        photo: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/6/66/Ramanasramam_Tiruvannamalai.jpg",
         lat: 12.2133, lng: 79.0550,
         tags: ["Ashram", "Meditation", "Peacocks", "Caves"]
       }
@@ -1571,7 +1582,7 @@ const seedPackages = [
     nights: 3,
     startingPrice: 13500,
     type: "Family & Nature",
-    image: "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=800&q=80",
+    image: "https://upload.wikimedia.org/wikipedia/commons/0/05/Munnar_tea_plantations.jpg",
     summary: "Complete personalized tour covering Munnar tea estates, Mattupetty boating, Eravikulam sanctuary, and spice village lunch.",
     includes: ["3-Star / Budget Hotel", "Daily Breakfast", "Sightseeing Cab", "Entry Tickets", "Tea Museum Tour"],
     customizableOptions: ["Change hotel tier", "Add Kathakali show", "Upgrade transportation", "Adjust day count"]
@@ -1584,7 +1595,7 @@ const seedPackages = [
     nights: 2,
     startingPrice: 8900,
     type: "Budget & Senior-Friendly",
-    image: "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=800&q=80",
+    image: "https://upload.wikimedia.org/wikipedia/commons/7/72/Nilgiri_Mountain_Railway.jpg",
     summary: "Experience Toy train ride, Botanical Gardens, Doddabetta Peak, and homemade chocolate factory visit.",
     includes: ["Hotel Stay", "Toy Train Ticket Booking", "Local Transport", "24/7 Support"],
     customizableOptions: ["Add Avalanche Lake safari", "Choose pure veg meal plan"]

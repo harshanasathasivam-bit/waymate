@@ -237,7 +237,7 @@ function formatPlannerDestination(d) {
       description: a.shortDesc || a.description || a.whyVisit || "Renowned destination landmark.",
       lat: a.lat || d.coordinates?.lat || 11.0,
       lng: a.lng || d.coordinates?.lng || 78.0,
-      photo: a.photo || d.heroImage || "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80"
+      photo: a.photo || d.heroImage || "https://upload.wikimedia.org/wikipedia/commons/4/41/Marina_Beach_in_Chennai.jpg"
     };
   });
 
@@ -267,7 +267,7 @@ function formatPlannerDestination(d) {
     idealDurationDays: profile.idealDurationDays || [2, 3],
     idealDays: profile.idealDays || '2-3 Days',
     scores: finalScores,
-    heroImage: d.heroImage || (attractionsList[0]?.photo) || "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80",
+    heroImage: d.heroImage || (attractionsList[0]?.photo) || "https://upload.wikimedia.org/wikipedia/commons/4/41/Marina_Beach_in_Chennai.jpg",
     attractions: attractionsList,
     dining: diningList,
     stays: staysObj
@@ -674,7 +674,7 @@ export function generateSmartItinerary({
         desc: `Golden hour sunset vantage point with freshly roasted snacks and hot tea.`,
         lat: afternoonPlace.lat,
         lng: afternoonPlace.lng,
-        photo: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/4/41/Marina_Beach_in_Chennai.jpg",
         transition: {
           distance: "1.2 km",
           travelTime: "8 mins",

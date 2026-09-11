@@ -58,12 +58,21 @@ function loadStore() {
       const loaded = JSON.parse(raw);
       db = { ...db, ...loaded };
       
-      // Ensure any newly added seed destinations are present
+      // Ensure seed destinations are synchronized with authentic imagery
       seedDestinations.forEach(sd => {
-        if (!db.destinations.some(d => d.id === sd.id)) {
+        const existingIdx = db.destinations.findIndex(d => d.id === sd.id);
+        if (existingIdx === -1) {
           db.destinations.unshift(sd);
+        } else {
+          db.destinations[existingIdx] = {
+            ...db.destinations[existingIdx],
+            heroImage: sd.heroImage,
+            images: sd.images,
+            attractions: sd.attractions
+          };
         }
       });
+      saveStore();
       
       console.log('⚡ Loaded persistent data store from store.json');
     } else {

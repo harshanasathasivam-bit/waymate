@@ -15,7 +15,7 @@ const RAW_BASE_DESTINATIONS = [
       time: "6:30 PM",
       icon: "☀"
     },
-    heroImage: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1600&q=85",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/4/41/Marina_Beach_in_Chennai.jpg",
     
     // Core Attractions
     attractions: [
@@ -37,11 +37,10 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "Best for sunset (05:00 PM - 07:30 PM)",
         timings: "05:00 AM - 10:00 PM daily",
         openingHours: "05:00 AM - 10:00 PM daily",
-        photo: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/c/c1/Marina_Beach%2C_Chennai.jpg",
         gallery: [
-          "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=85",
-          "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85",
-          "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/4/41/Marina_Beach_in_Chennai.jpg",
+          "https://upload.wikimedia.org/wikipedia/commons/c/c1/Marina_Beach%2C_Chennai.jpg"
         ],
         lat: 13.0499,
         lng: 80.2824,
@@ -65,10 +64,10 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "06:00 AM - 08:30 AM & 05:30 PM - 08:00 PM",
         timings: "05:30 AM - 12:00 PM, 04:00 PM - 09:00 PM",
         openingHours: "05:30 AM - 12:00 PM, 04:00 PM - 09:00 PM",
-        photo: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/9/99/Kapaleeswarar1.jpg",
         gallery: [
-          "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?auto=format&fit=crop&w=1200&q=85",
-          "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/9/99/Kapaleeswarar1.jpg",
+          "https://upload.wikimedia.org/wikipedia/commons/f/fe/KAPALEESHWARAR_TEMPLE_MYLAPORE_CHENNAI_INDIA_%2B91.jpg"
         ],
         lat: 13.0336,
         lng: 80.2698,
@@ -92,9 +91,9 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "09:30 AM - 04:30 PM (Closed on Fridays)",
         timings: "09:00 AM - 05:00 PM (Closed Fridays)",
         openingHours: "09:00 AM - 05:00 PM (Closed Fridays)",
-        photo: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/4/4f/Fort_St._George%2C_Chennai.jpg",
         gallery: [
-          "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/4/4f/Fort_St._George%2C_Chennai.jpg"
         ],
         lat: 13.0797,
         lng: 80.2874,
@@ -118,9 +117,10 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "08:00 AM - 06:00 PM",
         timings: "06:00 AM - 08:00 PM daily",
         openingHours: "06:00 AM - 08:00 PM daily",
-        photo: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/a/aa/Santhome_Basilica.jpg",
         gallery: [
-          "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/a/aa/Santhome_Basilica.jpg",
+          "https://upload.wikimedia.org/wikipedia/commons/7/77/St._Thomas_Cathedral_Basilica%2C_Chennai.jpg"
         ],
         lat: 13.0334,
         lng: 80.2783,
@@ -144,9 +144,10 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "10:00 AM - 05:00 PM (Closed Tuesdays)",
         timings: "10:00 AM - 06:00 PM (Closed Tuesdays)",
         openingHours: "10:00 AM - 06:00 PM (Closed Tuesdays)",
-        photo: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/d/db/Dakshina-Chitra-Tamil-Nadu-House.JPG",
         gallery: [
-          "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/d/db/Dakshina-Chitra-Tamil-Nadu-House.JPG",
+          "https://upload.wikimedia.org/wikipedia/commons/a/ae/Amphitheatre_at_DakshinaChitra.jpg"
         ],
         lat: 12.8183,
         lng: 80.2427,
@@ -170,9 +171,9 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "05:00 PM - 07:00 PM",
         timings: "06:00 AM - 08:00 PM daily",
         openingHours: "06:00 AM - 08:00 PM daily",
-        photo: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/7/77/St._Thomas_Cathedral_Basilica%2C_Chennai.jpg",
         gallery: [
-          "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/7/77/St._Thomas_Cathedral_Basilica%2C_Chennai.jpg"
         ],
         lat: 13.0033,
         lng: 80.1930,
@@ -196,9 +197,9 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "09:00 AM - 12:00 PM & 03:00 PM - 05:30 PM",
         timings: "09:00 AM - 05:30 PM (Closed Tuesdays)",
         openingHours: "09:00 AM - 05:30 PM (Closed Tuesdays)",
-        photo: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/2/23/Guindy_National_Park_Entrance.jpg",
         gallery: [
-          "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/2/23/Guindy_National_Park_Entrance.jpg"
         ],
         lat: 13.0067,
         lng: 80.2206,
@@ -340,11 +341,13 @@ const RAW_BASE_DESTINATIONS = [
       {
         id: "stay-chn-1",
         name: "Taj Connemara Heritage Hotel",
+        destination: "Chennai",
         category: "Colonial Luxury Landmark",
         subcategory: "hotels",
         pricePerNight: 8500,
         rating: 4.9,
         reviewsCount: 1980,
+        address: "Binny Road, Anna Salai, Chennai, Tamil Nadu 600002",
         distance: "1.1 km from center (Binny Road)",
         transitTime: "5 mins",
         estimatedCost: "₹8,500 / night",
@@ -354,11 +357,15 @@ const RAW_BASE_DESTINATIONS = [
           "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=85",
           "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=85"
         ],
-        facilities: ["Colonial Courtyard", "Outdoor Pool", "Heritage High Tea", "Jiva Spa", "Fine Dining"],
+        facilities: ["Colonial Courtyard", "Outdoor Pool", "Heritage High Tea", "Jiva Spa", "Fine Dining", "High-Speed WiFi"],
+        amenities: ["Colonial Courtyard", "Outdoor Pool", "Heritage High Tea", "Jiva Spa", "Fine Dining", "High-Speed WiFi"],
         area: "Anna Salai Heritage District",
         shortDesc: "Chennai's oldest heritage hotel dating back to 1854, combining Victorian colonial grandeur with world-class Taj hospitality.",
         description: "A legend of the Raj era, the Connemara boasts century-old brass fittings, landscaped verandas, lush palm lawns, and refined Anglo-Indian luxury.",
         whyVisit: "Immerse yourself in authentic 19th-century royal heritage with modern 5-star comforts.",
+        bookingUrl: "https://www.tajhotels.com/en-in/taj/taj-connemara-chennai/",
+        bookingProvider: "Taj Hotels Official Portal",
+        verified: true,
         lat: 13.0605,
         lng: 80.2612,
         tags: ["Luxury", "Heritage", "Taj", "Pool", "Spa"]
@@ -366,11 +373,13 @@ const RAW_BASE_DESTINATIONS = [
       {
         id: "stay-chn-2",
         name: "Mylapore Heritage Homestay & Courtyard",
+        destination: "Chennai",
         category: "Traditional Boutique Stay",
         subcategory: "homestays",
         pricePerNight: 3200,
         rating: 4.8,
         reviewsCount: 650,
+        address: "North Mada Street, Mylapore, Chennai, Tamil Nadu 600004",
         distance: "3.4 km from center",
         transitTime: "14 mins",
         estimatedCost: "₹3,200 / night",
@@ -380,10 +389,14 @@ const RAW_BASE_DESTINATIONS = [
           "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=85"
         ],
         facilities: ["Traditional Thinnai Verandah", "Home-cooked South Indian Breakfast", "WiFi", "Temple View"],
+        amenities: ["Traditional Thinnai Verandah", "Home-cooked South Indian Breakfast", "WiFi", "Temple View"],
         area: "Mylapore Temple Quarter",
         shortDesc: "A restored traditional Tamil Brahmin home with terracotta tiled roofs, courtyard thinnai, and genuine local warmth.",
         description: "Steps from Kapaleeshwarar temple, this family-run homestay offers guests authentic homemade dosas, morning suprabhatam chants, and courtyard relaxation.",
         whyVisit: "Authentic cultural immersion in historic Mylapore, peaceful verandah, and traditional home cooked recipes.",
+        bookingUrl: null,
+        bookingProvider: null,
+        verified: false,
         lat: 13.0330,
         lng: 80.2675,
         tags: ["Homestay", "Heritage", "Mylapore", "Breakfast", "Courtyard"]
@@ -391,11 +404,13 @@ const RAW_BASE_DESTINATIONS = [
       {
         id: "stay-chn-3",
         name: "Boutique Coastal Retreat ECR",
+        destination: "Chennai",
         category: "Beachfront Villa & Resort",
         subcategory: "resorts",
         pricePerNight: 4800,
         rating: 4.75,
         reviewsCount: 890,
+        address: "East Coast Road, Injambakkam, Chennai, Tamil Nadu 600115",
         distance: "11 km south on ECR",
         transitTime: "25 mins",
         estimatedCost: "₹4,800 / night",
@@ -405,10 +420,14 @@ const RAW_BASE_DESTINATIONS = [
           "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=85"
         ],
         facilities: ["Direct Beach Access", "Private Lawn", "Sea Breeze Deck", "Infinity Pool", "Kitchenette"],
+        amenities: ["Direct Beach Access", "Private Lawn", "Sea Breeze Deck", "Infinity Pool", "Kitchenette"],
         area: "East Coast Road Promenade",
         shortDesc: "Quiet coastal resort with private path to the beach, sea-facing balconies, and fresh ocean breezes.",
         description: "Situated along Chennai's scenic East Coast Road, this resort is ideal for weekend retreats, family gatherings, and romantic coastal holidays.",
         whyVisit: "Fall asleep to the sound of crashing waves and enjoy morning sunrise jogs along golden sands.",
+        bookingUrl: null,
+        bookingProvider: null,
+        verified: false,
         lat: 12.9200,
         lng: 80.2550,
         tags: ["Resort", "Beachfront", "ECR", "Sea View", "Pool"]
@@ -416,11 +435,13 @@ const RAW_BASE_DESTINATIONS = [
       {
         id: "stay-chn-4",
         name: "The Urban Backpacker Nest & Lodge",
+        destination: "Chennai",
         category: "Budget Pods & Hostel",
         subcategory: "lodges",
         pricePerNight: 1100,
         rating: 4.6,
         reviewsCount: 1120,
+        address: "Gandhi Irwin Road, Egmore, Chennai, Tamil Nadu 600008",
         distance: "800m from Central Station",
         transitTime: "3 mins",
         estimatedCost: "₹1,100 / night",
@@ -430,10 +451,14 @@ const RAW_BASE_DESTINATIONS = [
           "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=85"
         ],
         facilities: ["High-speed WiFi", "Shared Workspace", "Air Conditioning", "Community Kitchen", "Lockers"],
+        amenities: ["High-speed WiFi", "Shared Workspace", "Air Conditioning", "Community Kitchen", "Lockers"],
         area: "Egmore Hub",
         shortDesc: "Vibrant, clean budget lodge for solo travelers, digital nomads, and backpackers exploring Chennai.",
         description: "Modern AC bunk pods and private budget rooms located near major transit points, featuring common lounge games, city walking tours, and free chai.",
         whyVisit: "Unbeatable budget value, ultra-fast WiFi, friendly travel community, and walking distance to transit.",
+        bookingUrl: null,
+        bookingProvider: null,
+        verified: false,
         lat: 13.0780,
         lng: 80.2600,
         tags: ["Budget", "Hostel", "Lodge", "Backpacker", "Solo"]
@@ -898,7 +923,7 @@ const RAW_BASE_DESTINATIONS = [
       time: "6:30 PM",
       icon: "🌤️"
     },
-    heroImage: "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1600&q=85",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/0/05/Munnar_tea_plantations.jpg",
     
     // Attractions
     attractions: [
@@ -920,10 +945,10 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "07:30 AM - 10:30 AM",
         timings: "07:30 AM - 04:00 PM daily",
         openingHours: "07:30 AM - 04:00 PM daily",
-        photo: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/8/87/Eravikulam_National_Park_Munnar_Kerala.jpg",
         gallery: [
-          "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=85",
-          "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/8/87/Eravikulam_National_Park_Munnar_Kerala.jpg",
+          "https://upload.wikimedia.org/wikipedia/commons/0/05/Munnar_tea_plantations.jpg"
         ],
         lat: 10.1500,
         lng: 77.0667,
@@ -947,9 +972,9 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "10:00 AM - 04:00 PM (Closed Mondays)",
         timings: "09:00 AM - 05:00 PM (Closed Mondays)",
         openingHours: "09:00 AM - 05:00 PM (Closed Mondays)",
-        photo: "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/0/05/Munnar_tea_plantations.jpg",
         gallery: [
-          "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/0/05/Munnar_tea_plantations.jpg"
         ],
         lat: 10.0880,
         lng: 77.0610,
@@ -973,9 +998,9 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "09:30 AM - 01:00 PM & 03:00 PM - 05:00 PM",
         timings: "09:00 AM - 05:30 PM daily",
         openingHours: "09:00 AM - 05:30 PM daily",
-        photo: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/3/30/Mattupetty_Dam_Munnar.jpg",
         gallery: [
-          "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/3/30/Mattupetty_Dam_Munnar.jpg"
         ],
         lat: 10.1060,
         lng: 77.1240,
@@ -999,9 +1024,9 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "05:00 PM - 06:45 PM",
         timings: "Open 24/7",
         openingHours: "Open 24/7",
-        photo: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/5/5a/Top_Station_Munnar.jpg",
         gallery: [
-          "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/5/5a/Top_Station_Munnar.jpg"
         ],
         lat: 10.0750,
         lng: 77.0540,
@@ -1144,11 +1169,13 @@ const RAW_BASE_DESTINATIONS = [
       {
         id: "stay-mun-1",
         name: "Lockhart Tea Bungalow & Estate",
+        destination: "Munnar",
         category: "Heritage Tea Estate",
         subcategory: "resorts",
         pricePerNight: 4800,
         rating: 4.9,
         reviewsCount: 1350,
+        address: "Lockhart Estate, Devikulam Road, Munnar, Kerala 685613",
         distance: "6.2 km from Munnar town",
         transitTime: "15 mins",
         estimatedCost: "₹4,800 / night",
@@ -1158,10 +1185,14 @@ const RAW_BASE_DESTINATIONS = [
           "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=85"
         ],
         facilities: ["Tea Garden Balcony", "Fireplace Lounge", "Farm-to-table Breakfast", "Plantation Trek"],
+        amenities: ["Tea Garden Balcony", "Fireplace Lounge", "Farm-to-table Breakfast", "Plantation Trek"],
         area: "Lockhart Valley",
         shortDesc: "Authentic British planter bungalow surrounded by rolling organic tea slopes, crackling fireplaces, and morning bird songs.",
         description: "Dating back to 1880, Lockhart offers colonial wooden floors, four-poster beds, evening campfire barbecues, and private plantation walking trails.",
         whyVisit: "Wake up inside endless rolling tea carpets with fresh morning mist and colonial luxury.",
+        bookingUrl: null,
+        bookingProvider: null,
+        verified: false,
         lat: 10.0650,
         lng: 77.0850,
         tags: ["Tea Estate", "Heritage", "Resort", "Fireplace", "Views"]
@@ -1169,11 +1200,13 @@ const RAW_BASE_DESTINATIONS = [
       {
         id: "stay-mun-2",
         name: "Fragrant Nature Mountain Resort & Spa",
+        destination: "Munnar",
         category: "Luxury Hillside Resort",
         subcategory: "hotels",
         pricePerNight: 6500,
         rating: 4.85,
         reviewsCount: 980,
+        address: "Pothamedu, Bisonvalley Road, Munnar, Kerala 685612",
         distance: "8.0 km from town",
         transitTime: "20 mins",
         estimatedCost: "₹6,500 / night",
@@ -1183,10 +1216,14 @@ const RAW_BASE_DESTINATIONS = [
           "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=85"
         ],
         facilities: ["Panoramic View Glass Balcony", "Ayurvedic Spa", "Infinity Pool", "Multi-cuisine Dining"],
+        amenities: ["Panoramic View Glass Balcony", "Ayurvedic Spa", "Infinity Pool", "Multi-cuisine Dining"],
         area: "Pothamedu Ridge",
         shortDesc: "5-star luxury resort perched on high cliffside with private fireplaces in every room and valley-facing balconies.",
         description: "Designed in traditional Tudor architecture, this resort provides panoramic views of deep valleys, signature Ayurvedic treatments, and fine dining.",
         whyVisit: "Cliffside glass balconies overlooking floating clouds and authentic Ayurvedic rejuvenation.",
+        bookingUrl: "https://www.fragrantnature.com/MunnarResort",
+        bookingProvider: "Fragrant Nature Official Portal",
+        verified: true,
         lat: 10.0720,
         lng: 77.0490,
         tags: ["Luxury", "Hotel", "Spa", "Ayurveda", "Valley View"]
@@ -1194,11 +1231,13 @@ const RAW_BASE_DESTINATIONS = [
       {
         id: "stay-mun-3",
         name: "Cloud Valley Homestay & Cardamom Grove",
+        destination: "Munnar",
         category: "Eco Plantation Homestay",
         subcategory: "homestays",
         pricePerNight: 2400,
         rating: 4.8,
         reviewsCount: 720,
+        address: "Chithirapuram Post, Munnar, Kerala 685565",
         distance: "4.5 km from center",
         transitTime: "12 mins",
         estimatedCost: "₹2,400 / night",
@@ -1208,10 +1247,14 @@ const RAW_BASE_DESTINATIONS = [
           "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=85"
         ],
         facilities: ["Cardamom Farm Walk", "Homemade Kerala Breakfast", "WiFi", "Balcony"],
+        amenities: ["Cardamom Farm Walk", "Homemade Kerala Breakfast", "WiFi", "Balcony"],
         area: "Chithirapuram Slope",
         shortDesc: "Warm, family-run plantation cottage tucked within cardamom and pepper vines, featuring home-cooked Malabar meals.",
         description: "Hosted by a friendly local planter family, guests enjoy guided spice trails, evening campfire storytelling, and fresh organic garden food.",
         whyVisit: "Genuine local Kerala family warmth, fragrant spice garden, and tranquil mountain budget stay.",
+        bookingUrl: null,
+        bookingProvider: null,
+        verified: false,
         lat: 10.0520,
         lng: 77.0350,
         tags: ["Homestay", "Cardamom", "Family", "Organic", "Budget"]
@@ -1683,7 +1726,7 @@ const RAW_BASE_DESTINATIONS = [
       time: "6:30 PM",
       icon: "🌲"
     },
-    heroImage: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=85",
+    heroImage: "https://upload.wikimedia.org/wikipedia/commons/7/72/Nilgiri_Mountain_Railway.jpg",
     
     // Attractions
     attractions: [
@@ -1705,9 +1748,10 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "09:00 AM (Early steam train departure)",
         timings: "Departs 09:15 AM & 02:00 PM",
         openingHours: "Daily timetable",
-        photo: "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/7/72/Nilgiri_Mountain_Railway.jpg",
         gallery: [
-          "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/7/72/Nilgiri_Mountain_Railway.jpg",
+          "https://upload.wikimedia.org/wikipedia/commons/8/8a/The_Nilgiri_Mountain_Railway.jpg"
         ],
         lat: 11.4050,
         lng: 76.6970,
@@ -1731,9 +1775,9 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "09:00 AM - 12:00 PM & 03:00 PM - 05:30 PM",
         timings: "07:00 AM - 06:30 PM daily",
         openingHours: "07:00 AM - 06:30 PM daily",
-        photo: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/2/22/Government_Botanical_Gardens%2C_Ooty.jpg",
         gallery: [
-          "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/2/22/Government_Botanical_Gardens%2C_Ooty.jpg"
         ],
         lat: 11.4190,
         lng: 76.7110,
@@ -1757,9 +1801,9 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "08:30 AM - 11:00 AM (Before fog rolls in)",
         timings: "07:00 AM - 06:00 PM daily",
         openingHours: "07:00 AM - 06:00 PM daily",
-        photo: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/c/c2/Doddabetta_peak.jpg",
         gallery: [
-          "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/c/c2/Doddabetta_peak.jpg"
         ],
         lat: 11.4010,
         lng: 76.7360,
@@ -1783,9 +1827,9 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "10:00 AM - 04:00 PM",
         timings: "09:30 AM - 05:30 PM daily",
         openingHours: "09:30 AM - 05:30 PM daily",
-        photo: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/3/36/Pykara_Lake%2C_Ooty.jpg",
         gallery: [
-          "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/3/36/Pykara_Lake%2C_Ooty.jpg"
         ],
         lat: 11.4580,
         lng: 76.6020,
@@ -1809,9 +1853,9 @@ const RAW_BASE_DESTINATIONS = [
         bestTime: "09:00 AM - 05:00 PM",
         timings: "07:30 AM - 06:30 PM daily",
         openingHours: "07:30 AM - 06:30 PM daily",
-        photo: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80",
+        photo: "https://upload.wikimedia.org/wikipedia/commons/8/81/Rose_Garden%2C_Ooty.jpg",
         gallery: [
-          "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=85"
+          "https://upload.wikimedia.org/wikipedia/commons/8/81/Rose_Garden%2C_Ooty.jpg"
         ],
         lat: 11.4080,
         lng: 76.7120,
@@ -1953,11 +1997,13 @@ const RAW_BASE_DESTINATIONS = [
       {
         id: "stay-oot-1",
         name: "Savoy Nilgiri Heritage Mansion",
+        destination: "Ooty",
         category: "Colonial Luxury Hotel",
         subcategory: "hotels",
         pricePerNight: 5500,
         rating: 4.85,
         reviewsCount: 1650,
+        address: "Sylks Road, Ooty, Tamil Nadu 643001",
         distance: "1.2 km from Botanical Garden",
         transitTime: "5 mins",
         estimatedCost: "₹5,500 / night",
@@ -1966,11 +2012,15 @@ const RAW_BASE_DESTINATIONS = [
         gallery: [
           "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=85"
         ],
-        facilities: ["English Fireplace", "Rose Garden Afternoon Tea", "Vintage Library", "Billiards Room"],
+        facilities: ["English Fireplace", "Rose Garden Afternoon Tea", "Vintage Library", "Billiards Room", "High-Speed WiFi"],
+        amenities: ["English Fireplace", "Rose Garden Afternoon Tea", "Vintage Library", "Billiards Room", "High-Speed WiFi"],
         area: "Sylks Road",
         shortDesc: "Established in 1841 as the premier British hill station retreat, offering wood-burning fireplaces, afternoon high teas, and Victorian suites.",
         description: "Steeped in 180 years of history, Savoy's manicured gardens, crackling fires, antique four-poster beds, and silver-service dining transport guests back to the golden era of the Raj.",
         whyVisit: "Living colonial history, real wood fireplaces in rooms, and refined British afternoon high tea.",
+        bookingUrl: "https://www.seleqtionshotels.com/en-in/savoy-ooty/",
+        bookingProvider: "IHCL SeleQtions Official Portal",
+        verified: true,
         lat: 11.4130,
         lng: 76.6930,
         tags: ["Heritage", "Hotel", "Fireplace", "Colonial", "Luxury"]
@@ -1978,11 +2028,13 @@ const RAW_BASE_DESTINATIONS = [
       {
         id: "stay-oot-2",
         name: "Sterling Ooty Elk Hill Resort",
+        destination: "Ooty",
         category: "Panoramic Mountain Resort",
         subcategory: "resorts",
         pricePerNight: 4200,
         rating: 4.75,
         reviewsCount: 1420,
+        address: "Elk Hill, Ramakrishna Mutt Road, Ooty, Tamil Nadu 643001",
         distance: "2.8 km from center",
         transitTime: "10 mins",
         estimatedCost: "₹4,200 / night",
@@ -1992,10 +2044,14 @@ const RAW_BASE_DESTINATIONS = [
           "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=85"
         ],
         facilities: ["Valley View Terrace", "Campfire Arena", "Spa & Wellness", "Indoor Games", "Buffet Dining"],
+        amenities: ["Valley View Terrace", "Campfire Arena", "Spa & Wellness", "Indoor Games", "Buffet Dining"],
         area: "Elk Hill Slopes",
         shortDesc: "Perched atop Elk Hill overlooking the entire Ooty town basin and race course, surrounded by organic vegetable farms.",
         description: "Offering spacious family suites, morning yoga sessions, evening bonfire music, and panoramic hill views from private room balconies.",
         whyVisit: "Spectacular bird's eye view of Ooty valley and family-friendly mountain activities.",
+        bookingUrl: "https://www.sterlingholidays.com/resorts-hotels/ooty-elk-hill",
+        bookingProvider: "Sterling Holidays Official Portal",
+        verified: true,
         lat: 11.4020,
         lng: 76.7080,
         tags: ["Resort", "Elk Hill", "Valley View", "Campfire", "Family"]
@@ -2003,11 +2059,13 @@ const RAW_BASE_DESTINATIONS = [
       {
         id: "stay-oot-3",
         name: "Nilgiri Colonial Tea Cottage Homestay",
+        destination: "Ooty",
         category: "Heritage Planter Homestay",
         subcategory: "homestays",
         pricePerNight: 2800,
         rating: 4.8,
         reviewsCount: 680,
+        address: "Fernhill Post, Ooty, Tamil Nadu 643004",
         distance: "3.5 km from town",
         transitTime: "12 mins",
         estimatedCost: "₹2,800 / night",
@@ -2017,10 +2075,14 @@ const RAW_BASE_DESTINATIONS = [
           "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=85"
         ],
         facilities: ["Tea Garden Lawn", "Home-cooked Roast & Pies", "WiFi", "Fireplace"],
+        amenities: ["Tea Garden Lawn", "Home-cooked Roast & Pies", "WiFi", "Fireplace"],
         area: "Fernhill Tea Slope",
         shortDesc: "Charming 1920s planter cottage surrounded by eucalyptus groves and tea bushes, hosted by a local Anglo-Indian family.",
         description: "Warm up beside the brick fireplace while savoring homemade chicken roast, apple pie, and freshly brewed Nilgiri tea.",
         whyVisit: "Cozy home fireplace, authentic home-baked pies, and peaceful hillside setting.",
+        bookingUrl: null,
+        bookingProvider: null,
+        verified: false,
         lat: 11.3950,
         lng: 76.6850,
         tags: ["Homestay", "Cottage", "Fireplace", "Tea", "Budget"]
@@ -2028,11 +2090,13 @@ const RAW_BASE_DESTINATIONS = [
       {
         id: "stay-oot-4",
         name: "Fern Hill Foresters Lodge",
+        destination: "Ooty",
         category: "Budget Mountain Lodge",
         subcategory: "lodges",
         pricePerNight: 1300,
         rating: 4.6,
         reviewsCount: 910,
+        address: "Fern Hill Road, Ooty, Tamil Nadu 643004",
         distance: "1.5 km from Ooty Station",
         transitTime: "5 mins",
         estimatedCost: "₹1,300 / night",
@@ -2041,14 +2105,18 @@ const RAW_BASE_DESTINATIONS = [
         gallery: [
           "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=85"
         ],
-        facilities: ["24/7 Hot Water", "WiFi", "Travel Desk", "Luggage Storage"],
-        area: "Fern Hill",
-        shortDesc: "Affordable, clean pine-wood paneled rooms with mountain views, reliable heating, and tour bookings.",
-        description: "Popular with budget backpackers, solo travelers, and students visiting the Nilgiri hills.",
-        whyVisit: "Great budget value, steaming hot water, and close proximity to Ooty railway station.",
+        facilities: ["24/7 Hot Water", "Clean Linens", "Mountain View Terrace", "Travel Desk"],
+        amenities: ["24/7 Hot Water", "Clean Linens", "Mountain View Terrace", "Travel Desk"],
+        area: "Fern Hill Perimeter",
+        shortDesc: "Clean, reliable budget mountain lodge nestled among tall pine trees with hot water and mountain terrace views.",
+        description: "A cozy base for budget trekkers and families exploring the Nilgiris, with friendly staff and proximity to tourist spots.",
+        whyVisit: "Reliable budget lodge, 24/7 hot water, and quiet pine forest surroundings.",
+        bookingUrl: null,
+        bookingProvider: null,
+        verified: false,
         lat: 11.3980,
         lng: 76.6900,
-        tags: ["Lodge", "Budget", "Hot Water", "Backpacker", "Station"]
+        tags: ["Lodge", "Budget", "Foresters", "Hot Water", "Pine"]
       }
     ],
 
@@ -2735,11 +2803,13 @@ const RAW_BASE_DESTINATIONS = [
       {
         id: "stay-way-1",
         name: "Kabini Rainforest Treehouse & Eco Resort",
+        destination: "Wayanad",
         category: "Rainforest Eco Treehouse",
         subcategory: "resorts",
         pricePerNight: 4200,
         rating: 4.85,
         reviewsCount: 1120,
+        address: "Kabini Riverside, Mananthavady Road, Wayanad, Kerala 670645",
         distance: "14 km from Kalpetta",
         transitTime: "30 mins",
         estimatedCost: "₹4,200 / night",
@@ -2749,10 +2819,14 @@ const RAW_BASE_DESTINATIONS = [
           "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=85"
         ],
         facilities: ["Treehouse Balcony", "Stream Walk", "Campfire", "Organic Meals", "Birdwatching"],
+        amenities: ["Treehouse Balcony", "Stream Walk", "Campfire", "Organic Meals", "Birdwatching"],
         area: "Kabini Riverside",
         shortDesc: "Authentic wooden treehouse built 60 feet above ground in live banyan and teak trees, overlooking mountain streams and jungle canopies.",
         description: "Wake up level with hornbills and giant squirrels. Constructed using eco-friendly bamboo and thatched roofs without harming living trees.",
         whyVisit: "Magical 60ft treehouse experience, morning stream walks, and fresh organic plantation meals.",
+        bookingUrl: null,
+        bookingProvider: null,
+        verified: false,
         lat: 11.7200,
         lng: 76.1500,
         tags: ["Treehouse", "Resort", "Eco", "Canopy", "Stream"]
@@ -2760,11 +2834,13 @@ const RAW_BASE_DESTINATIONS = [
       {
         id: "stay-way-2",
         name: "Wayanad Coffee Grove Homestay",
+        destination: "Wayanad",
         category: "Budget Coffee Estate Stay",
         subcategory: "homestays",
         pricePerNight: 2100,
         rating: 4.7,
         reviewsCount: 840,
+        address: "Kalpetta Bypass Road, Wayanad, Kerala 673121",
         distance: "3.2 km from Kalpetta",
         transitTime: "8 mins",
         estimatedCost: "₹2,100 / night",
@@ -2774,10 +2850,14 @@ const RAW_BASE_DESTINATIONS = [
           "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=85"
         ],
         facilities: ["Plantation Walk", "Traditional Kerala Breakfast", "WiFi", "Verandah"],
+        amenities: ["Plantation Walk", "Traditional Kerala Breakfast", "WiFi", "Verandah"],
         area: "Kalpetta Town Perimeter",
         shortDesc: "A peaceful planter homestay surrounded by flowering coffee bushes, pepper vines, and friendly family hosts.",
         description: "Enjoy hot steamed puttu with kadala curry for breakfast, evening bonfire chats, and guided tours through the coffee estate.",
         whyVisit: "Authentic local family warmth, aromatic coffee estate, and affordable comfortable rooms.",
+        bookingUrl: null,
+        bookingProvider: null,
+        verified: false,
         lat: 11.6180,
         lng: 76.0950,
         tags: ["Homestay", "Coffee", "Budget", "Puttu", "Family"]
@@ -2785,11 +2865,13 @@ const RAW_BASE_DESTINATIONS = [
       {
         id: "stay-way-3",
         name: "Vythiri Heritage Rainforest Resort & Spa",
+        destination: "Wayanad",
         category: "Luxury Rainforest Resort",
         subcategory: "hotels",
         pricePerNight: 6800,
         rating: 4.9,
         reviewsCount: 1540,
+        address: "Lakkidi Post, Vythiri, Wayanad, Kerala 673576",
         distance: "16 km south in Vythiri",
         transitTime: "25 mins",
         estimatedCost: "₹6,800 / night",
@@ -2799,13 +2881,17 @@ const RAW_BASE_DESTINATIONS = [
           "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=85"
         ],
         facilities: ["Natural Stream Pool", "Ayurvedic Spa", "Hanging Bridge", "Multi-cuisine Restaurant"],
+        amenities: ["Natural Stream Pool", "Ayurvedic Spa", "Hanging Bridge", "Multi-cuisine Restaurant"],
         area: "Vythiri Valley",
         shortDesc: "5-star eco luxury resort tucked into tropical rainforests with wooden rope bridges crossing natural mountain streams.",
         description: "Surrounded by misty canopies, Vythiri combines world-class Ayurvedic wellness with private plunge pool villas and nature trails.",
-        whyVisit: "Rope suspension bridge over jungle streams, private plunge pools, and authentic Ayurvedic wellness.",
-        lat: 11.5350,
+        whyVisit: "Breathtaking rainforest serenity, stream-side spa, and signature canopy tree villas.",
+        bookingUrl: "https://www.vythiriresort.com/",
+        bookingProvider: "Vythiri Resort Official Portal",
+        verified: true,
+        lat: 11.5500,
         lng: 76.0400,
-        tags: ["Luxury", "Hotel", "Vythiri", "Spa", "Stream"]
+        tags: ["Luxury", "Resort", "Rainforest", "Spa", "Hanging Bridge"]
       },
       {
         id: "stay-way-4",

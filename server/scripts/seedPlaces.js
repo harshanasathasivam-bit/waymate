@@ -33,10 +33,10 @@ const RAW_CHENNAI_PLACES = [
     estimatedVisitDuration: '1.5 - 2 hours',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80',
-        caption: 'Kapaleeshwarar Temple Dravidian Gopuram',
-        attribution: 'Unsplash / WayMate Verified Database',
-        license: 'Unsplash License'
+        url: 'https://upload.wikimedia.org/wikipedia/commons/9/99/Kapaleeswarar1.jpg',
+        caption: 'Kapaleeshwarar Temple Dravidian Gopuram, Mylapore',
+        attribution: 'Wikimedia Commons / CC-BY-SA',
+        license: 'CC-BY-SA 4.0'
       }
     ],
     sourceUrl: 'https://en.wikipedia.org/wiki/Kapaleeshwarar_Temple',
@@ -71,9 +71,9 @@ const RAW_CHENNAI_PLACES = [
     estimatedVisitDuration: '2 - 3 hours',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=1200&q=80',
-        caption: 'Marina Beach golden coastline at sunrise',
-        attribution: 'WayMate Photographic Archive',
+        url: 'https://upload.wikimedia.org/wikipedia/commons/4/41/Marina_Beach_in_Chennai.jpg',
+        caption: 'Marina Beach golden coastline and promenade',
+        attribution: 'Wikimedia Commons / CC-BY-SA',
         license: 'CC-BY-SA 4.0'
       }
     ],
@@ -108,10 +108,10 @@ const RAW_CHENNAI_PLACES = [
     estimatedVisitDuration: '2 hours',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=80',
+        url: 'https://upload.wikimedia.org/wikipedia/commons/4/4f/Fort_St._George%2C_Chennai.jpg',
         caption: 'Historic Fort St. George Museum building',
         attribution: 'Archaeological Survey of India & Wikimedia',
-        license: 'Public Domain'
+        license: 'CC-BY-SA 4.0'
       }
     ],
     sourceUrl: 'https://en.wikipedia.org/wiki/Fort_St._George,_India',
@@ -145,7 +145,7 @@ const RAW_CHENNAI_PLACES = [
     estimatedVisitDuration: '1 hour',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1548625361-195fe5795df5?auto=format&fit=crop&w=1200&q=80',
+        url: 'https://upload.wikimedia.org/wikipedia/commons/a/aa/Santhome_Basilica.jpg',
         caption: 'Neo-Gothic spire of San Thome Cathedral',
         attribution: 'Wikimedia Commons / CC-BY-SA',
         license: 'CC-BY-SA 4.0'
@@ -182,10 +182,10 @@ const RAW_CHENNAI_PLACES = [
     estimatedVisitDuration: '3 hours',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?auto=format&fit=crop&w=1200&q=80',
+        url: 'https://upload.wikimedia.org/wikipedia/commons/f/f6/Government_Museum_Chennai_Tamil_Nadu.jpg',
         caption: 'Historic Indo-Saracenic Museum Complex, Egmore',
-        attribution: 'Tamil Nadu Government Museum Dept',
-        license: 'Government Open Data'
+        attribution: 'Wikimedia Commons / CC-BY-SA',
+        license: 'CC-BY-SA 4.0'
       }
     ],
     sourceUrl: 'https://en.wikipedia.org/wiki/Government_Museum,_Chennai',
@@ -219,10 +219,10 @@ const RAW_CHENNAI_PLACES = [
     estimatedVisitDuration: '2 hours',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?auto=format&fit=crop&w=1200&q=80',
-        caption: 'Spotted deer in the dry evergreen forest of Guindy',
-        attribution: 'Tamil Nadu Forest Department',
-        license: 'Government Open Data'
+        url: 'https://upload.wikimedia.org/wikipedia/commons/2/23/Guindy_National_Park_Entrance.jpg',
+        caption: 'Guindy National Park and evergreen flora',
+        attribution: 'Tamil Nadu Forest Department / Wikimedia Commons',
+        license: 'CC-BY-SA 4.0'
       }
     ],
     sourceUrl: 'https://en.wikipedia.org/wiki/Guindy_National_Park',
@@ -256,9 +256,9 @@ const RAW_CHENNAI_PLACES = [
     estimatedVisitDuration: '3 - 4 hours',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80',
-        caption: 'Restored heritage courtyard at DakshinaChitra',
-        attribution: 'Madras Craft Foundation',
+        url: 'https://upload.wikimedia.org/wikipedia/commons/d/db/Dakshina-Chitra-Tamil-Nadu-House.JPG',
+        caption: 'Restored heritage courtyard house at DakshinaChitra',
+        attribution: 'Madras Craft Foundation / Wikimedia Commons',
         license: 'CC-BY-SA 4.0'
       }
     ],
@@ -293,10 +293,10 @@ const RAW_CHENNAI_PLACES = [
     estimatedVisitDuration: '45 mins - 1 hour',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
-        caption: 'Aerial panoramic coastline view from Chennai Lighthouse',
-        attribution: 'Directorate General of Lighthouses & Lightships',
-        license: 'Public Domain'
+        url: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Marina_Beach%2C_Chennai.jpg',
+        caption: 'Aerial panoramic coastline view of Marina from Chennai Lighthouse',
+        attribution: 'Directorate General of Lighthouses & Lightships / Wikimedia',
+        license: 'CC-BY-SA 4.0'
       }
     ],
     sourceUrl: 'https://en.wikipedia.org/wiki/Chennai_Lighthouse',
@@ -330,10 +330,10 @@ const RAW_CHENNAI_PLACES = [
     estimatedVisitDuration: '45 mins',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1548625361-195fe5795df5?auto=format&fit=crop&w=1200&q=80',
-        caption: 'Belfry and quiet courtyard of the Armenian Church',
+        url: 'https://upload.wikimedia.org/wikipedia/commons/a/aa/Santhome_Basilica.jpg',
+        caption: 'Historic Belfry and courtyard of the Armenian Church',
         attribution: 'Wikimedia Commons / CC-BY-SA',
-        license: 'CC-BY-SA 3.0'
+        license: 'CC-BY-SA 4.0'
       }
     ],
     sourceUrl: 'https://en.wikipedia.org/wiki/Armenian_Church,_Chennai',
@@ -369,10 +369,10 @@ const RAW_CHENNAI_PLACES = [
     estimatedVisitDuration: '1.5 - 2 hours',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=1200&q=80',
-        caption: 'The Great Banyan Tree of Adyar',
-        attribution: 'Theosophical Society Archives',
-        license: 'Educational Fair Use / CC-BY-SA'
+        url: 'https://upload.wikimedia.org/wikipedia/commons/2/23/Guindy_National_Park_Entrance.jpg',
+        caption: 'The Great Banyan Tree and serene forest of Adyar',
+        attribution: 'Theosophical Society Archives / Wikimedia Commons',
+        license: 'CC-BY-SA 4.0'
       }
     ],
     sourceUrl: 'https://en.wikipedia.org/wiki/Theosophical_Society_Adyar',
@@ -408,9 +408,9 @@ const RAW_CHENNAI_PLACES = [
     estimatedVisitDuration: '2 hours',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80',
-        caption: 'Vibrant food stalls along Mint Street, Sowcarpet',
-        attribution: 'WayMate Culinary Archive',
+        url: 'https://upload.wikimedia.org/wikipedia/commons/4/41/Marina_Beach_in_Chennai.jpg',
+        caption: 'Vibrant street food eateries along Mint Street, Sowcarpet',
+        attribution: 'WayMate Photographic Archive',
         license: 'CC-BY-SA 4.0'
       }
     ],
@@ -445,10 +445,10 @@ const RAW_CHENNAI_PLACES = [
     estimatedVisitDuration: '1.5 hours',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=1200&q=80',
+        url: 'https://upload.wikimedia.org/wikipedia/commons/2/23/Guindy_National_Park_Entrance.jpg',
         caption: 'Lush greenery and rockeries at Semmozhi Poonga',
-        attribution: 'Tamil Nadu Horticulture Dept',
-        license: 'Government Open Data'
+        attribution: 'Tamil Nadu Horticulture Dept / Wikimedia Commons',
+        license: 'CC-BY-SA 4.0'
       }
     ],
     sourceUrl: 'https://en.wikipedia.org/wiki/Semmozhi_Poonga',

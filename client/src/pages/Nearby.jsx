@@ -150,7 +150,7 @@ export default function Nearby({ destination, onSavePlace, isSaved, onOpenPlaceD
           reviewsCount: a.reviewsCount || 1200,
           displayCost: a.estimatedCost || 'Free Entry',
           shortDesc: a.shortDesc || a.description || '',
-          photo: a.photo || 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=600&q=80',
+          photo: a.photo || currentDest?.heroImage || 'https://upload.wikimedia.org/wikipedia/commons/4/41/Marina_Beach_in_Chennai.jpg',
           lat: coords.lat,
           lng: coords.lng,
           distanceKm: distKm,

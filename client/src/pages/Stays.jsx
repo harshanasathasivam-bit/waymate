@@ -101,6 +101,7 @@ export default function Stays({
                     setSelectedStay(stay);
                     onOpenPlaceDetail && onOpenPlaceDetail({
                       ...stay,
+                      destination: destination?.name || stay.destination || 'Destination',
                       itemType: 'stays',
                       displayCost: `₹${stay.pricePerNight?.toLocaleString('en-IN')} / night`
                     });
@@ -156,6 +157,7 @@ export default function Stays({
                 setSelectedStay(s);
                 onOpenPlaceDetail && onOpenPlaceDetail({
                   ...s,
+                  destination: destination?.name || s.destination || 'Destination',
                   itemType: 'stays',
                   displayCost: `₹${s.pricePerNight?.toLocaleString('en-IN')} / night`
                 });
@@ -214,6 +216,7 @@ export default function Stays({
                 key={stay.id}
                 onClick={() => onOpenPlaceDetail && onOpenPlaceDetail({
                   ...stay,
+                  destination: destination?.name || stay.destination || 'Destination',
                   itemType: 'stays',
                   displayCost: `₹${stay.pricePerNight?.toLocaleString('en-IN')} / night`
                 })}
@@ -294,10 +297,12 @@ export default function Stays({
                   </div>
 
                   <button
+                    id="stay-card-book-btn"
                     onClick={(e) => {
                       e.stopPropagation();
                       onOpenPlaceDetail && onOpenPlaceDetail({
                         ...stay,
+                        destination: destination?.name || stay.destination || 'Destination',
                         itemType: 'stays',
                         displayCost: `₹${stay.pricePerNight?.toLocaleString('en-IN')} / night`
                       });
@@ -310,10 +315,12 @@ export default function Stays({
                       padding: '10px 20px',
                       fontSize: '0.84rem',
                       fontWeight: 700,
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 8px rgba(194, 65, 12, 0.25)',
+                      transition: 'all 0.2s ease'
                     }}
                   >
-                    {t('stays.bookStay', 'View Details')}
+                    {t('stays.bookStay', 'Book Stay')}
                   </button>
                 </div>
               </div>

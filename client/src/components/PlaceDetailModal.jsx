@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   X, Star, MapPin, Clock, DollarSign, Users, Bookmark, Check,
   Share2, Navigation, Compass, Heart, AlertTriangle, MessageSquare,
-  Sparkles, Shield, Send, ExternalLink, ChevronRight, CheckCircle2
+  Sparkles, Shield, Send, ExternalLink, ChevronRight, CheckCircle2,
+  Calendar, BedDouble
 } from 'lucide-react';
 import MapView from './MapView';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -10,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { getCrowdStatus } from '../services/crowdService';
 import { Link, useNavigate } from 'react-router-dom';
 import ReportPlaceModal from './ReportPlaceModal';
+import HotelBookingWidget from './HotelBookingWidget';
 
 export default function PlaceDetailModal({
   place,
@@ -175,6 +177,7 @@ export default function PlaceDetailModal({
     ? (reviews.reduce((acc, r) => acc + (r.rating || 5), 0) / reviews.length).toFixed(1)
     : (place.rating || 4.8);
 
+  const isStay = place.itemType === 'stays' || Boolean(place.pricePerNight) || ['hotels', 'resorts', 'homestays', 'lodges'].includes(place.subcategory?.toLowerCase());
   const placeCoords = (place.lat && place.lng) ? [place.lat, place.lng] : [13.0499, 80.2824];
 
   return (
@@ -350,20 +353,20 @@ export default function PlaceDetailModal({
               {/* Cost Box */}
               <div style={{ background: 'var(--bg-surface)', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>
-                  {t('place.estimatedCost', 'Estimated Cost')}
+                  {isStay ? t('stays.pricePerNight', 'Price Per Night (Est.)') : t('place.estimatedCost', 'Estimated Cost')}
                 </div>
                 <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--brand-terracotta)' }}>
-                  {place.displayCost || place.estimatedCost || place.cost || (place.pricePerNight ? `₹${place.pricePerNight}/night` : 'Free Entry')}
+                  {isStay ? `₹${(place.pricePerNight || 3000).toLocaleString('en-IN')} / night` : (place.displayCost || place.estimatedCost || place.cost || 'Free Entry')}
                 </div>
               </div>
 
               {/* Best Time Box */}
               <div style={{ background: 'var(--bg-surface)', padding: '14px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-light)' }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>
-                  {t('place.bestTime', 'Best Time to Visit')}
+                  {isStay ? t('stays.checkInOutTimes', 'Timings') : t('place.bestTime', 'Best Time to Visit')}
                 </div>
                 <div style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                  {place.bestTime || place.timing || '08:00 AM - 06:00 PM'}
+                  {isStay ? 'Check-in: 12 PM • Check-out: 11 AM' : (place.bestTime || place.timing || '08:00 AM - 06:00 PM')}
                 </div>
               </div>
 
@@ -371,7 +374,7 @@ export default function PlaceDetailModal({
               {crowd && (
                 <div style={{ background: crowd.bg || 'var(--bg-surface)', padding: '14px', borderRadius: 'var(--radius-md)', border: `1px solid ${crowd.border || 'var(--border-light)'}` }}>
                   <div style={{ fontSize: '0.72rem', fontWeight: 800, color: crowd.color, textTransform: 'uppercase', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Users size={12} /> {t('place.crowdLevel', 'Crowd Density')}
+                    <Users size={12} /> {isStay ? t('stays.occupancyStatus', 'Stay Occupancy') : t('place.crowdLevel', 'Crowd Density')}
                   </div>
                   <div style={{ fontSize: '0.92rem', fontWeight: 800, color: crowd.color }}>
                     {crowd.tag} • <span style={{ fontSize: '0.78rem', fontWeight: 600 }}>{crowd.waitTime}</span>
@@ -380,9 +383,40 @@ export default function PlaceDetailModal({
               )}
             </div>
 
-            {/* Action Bar (Save, Add to Trip, Share, Maps) */}
+            {/* Action Bar (Book Stay, Save, Add to Trip, Share, Maps, Report) */}
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '32px', borderBottom: '1px solid var(--border-light)', paddingBottom: '24px' }}>
               
+              {/* Primary Check Availability / Book Stay CTA (For Hotels & Stays) */}
+              {isStay && (
+                <button
+                  id="modal-book-stay-cta"
+                  onClick={() => {
+                    const el = document.getElementById('hotel-availability-section');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth' });
+                      const checkinInput = document.getElementById('stay-checkin-date');
+                      if (checkinInput) checkinInput.focus();
+                    }
+                  }}
+                  style={{
+                    background: 'var(--brand-terracotta)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '10px 22px',
+                    fontSize: '0.86rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 14px rgba(194, 65, 12, 0.3)'
+                  }}
+                >
+                  <Calendar size={16} /> {t('stays.checkAvailability', 'Check Availability / Book Stay')}
+                </button>
+              )}
+
               {/* Save Bookmark */}
               <button
                 onClick={() => onSavePlace && onSavePlace(place)}
@@ -412,9 +446,9 @@ export default function PlaceDetailModal({
                   navigate('/trips');
                 }}
                 style={{
-                  background: 'var(--brand-terracotta)',
-                  color: '#ffffff',
-                  border: 'none',
+                  background: isStay ? 'var(--bg-surface)' : 'var(--brand-terracotta)',
+                  color: isStay ? 'var(--text-primary)' : '#ffffff',
+                  border: isStay ? '1px solid var(--border-light)' : 'none',
                   borderRadius: 'var(--radius-full)',
                   padding: '10px 22px',
                   fontSize: '0.86rem',
@@ -423,10 +457,10 @@ export default function PlaceDetailModal({
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  boxShadow: '0 4px 12px rgba(194, 65, 12, 0.25)'
+                  boxShadow: isStay ? 'none' : '0 4px 12px rgba(194, 65, 12, 0.25)'
                 }}
               >
-                <Sparkles size={16} /> Add to Itinerary
+                <Sparkles size={16} color={isStay ? 'var(--brand-terracotta)' : '#ffffff'} /> Add to Itinerary
               </button>
 
               {/* Share */}
@@ -493,6 +527,16 @@ export default function PlaceDetailModal({
                 <AlertTriangle size={15} /> Report Outdated Info
               </button>
             </div>
+
+            {/* INTEGRATED HOTEL AVAILABILITY & BOOKING WIDGET (For Stays) */}
+            {isStay && (
+              <HotelBookingWidget
+                hotel={place}
+                destination={effectiveDest}
+                onSavePlace={onSavePlace}
+                isSaved={isSaved}
+              />
+            )}
 
             {/* Verified Source & Data Freshness Banner */}
             {(place.sourceName || place.verificationStatus || place.dataConfidenceScore) && (

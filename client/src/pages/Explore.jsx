@@ -253,7 +253,7 @@ export default function Explore({
         description: dp.description,
         historicalInfo: dp.historicalInfo,
         address: dp.address,
-        photo: dp.images?.[0]?.url || destination?.heroImage || 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80',
+        photo: dp.images?.[0]?.url || destination?.heroImage || 'https://upload.wikimedia.org/wikipedia/commons/4/41/Marina_Beach_in_Chennai.jpg',
         images: dp.images,
         lat: dp.latitude || dp.lat,
         lng: dp.longitude || dp.lng,

@@ -12,7 +12,7 @@ export default function Packages() {
       nights: 3,
       startingPrice: 13500,
       type: "Family & Nature",
-      image: "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=800&q=80",
+      image: "https://upload.wikimedia.org/wikipedia/commons/0/05/Munnar_tea_plantations.jpg",
       summary: "Complete personalized tour covering Munnar tea estates, Mattupetty boating, Eravikulam sanctuary, and spice village lunch.",
       includes: ["3-Star / Budget Hotel", "Daily Breakfast", "Sightseeing Cab", "Entry Tickets", "Tea Museum Tour"],
       customizableOptions: ["Change hotel tier", "Add Kathakali show", "Upgrade transportation", "Adjust day count"]
@@ -25,7 +25,7 @@ export default function Packages() {
       nights: 2,
       startingPrice: 8900,
       type: "Budget & Senior-Friendly",
-      image: "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=800&q=80",
+      image: "https://upload.wikimedia.org/wikipedia/commons/7/72/Nilgiri_Mountain_Railway.jpg",
       summary: "Experience Toy train ride, Botanical Gardens, Doddabetta Peak, and homemade chocolate factory visit.",
       includes: ["Hotel Stay", "Toy Train Ticket Booking", "Local Transport", "24/7 Support"],
       customizableOptions: ["Add Avalanche Lake safari", "Choose pure veg meal plan"]
